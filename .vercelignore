@@ -1,0 +1,6 @@
+engine/.venv
+engine/data
+engine/**/__pycache__
+**/.venv
+**/__pycache__
+.next

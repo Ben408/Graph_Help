@@ -1,0 +1,214 @@
+from datetime import UTC, datetime
+from typing import Any, Literal
+
+from pydantic import BaseModel, Field
+
+
+class IssueInput(BaseModel):
+    text: str = Field(min_length=3, max_length=20_000)
+    module: str | None = Field(default=None, max_length=100)
+    screen: str | None = Field(default=None, max_length=200)
+    error_code: str | None = Field(default=None, max_length=100)
+    auto_generate: bool = False
+    # Help locale tags: en_US | fr_FR | de_DE | es_ES
+    source_language: str | None = Field(default=None, max_length=10)
+    answer_language: str | None = Field(default=None, max_length=10)
+    # Video/script target locale (defaults to answer_language or en_US)
+    target_language: str | None = Field(default=None, max_length=10)
+    # Mode 1 (Create from Ask): pin Ask-cited chunk ids to the front of retrieval.
+    preferred_source_ids: list[str] = Field(default_factory=list, max_length=12)
+
+
+class NormalizedIssue(BaseModel):
+    issue_id: str
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    raw_text: str = Field(exclude=True)
+    context: dict[str, str | None]
+
+
+class Classification(BaseModel):
+    feature: str
+    intent: str
+    task_type: str
+    error_type: str | None = None
+    help_topics: list[str] = Field(default_factory=list)
+    search_query: str
+    confidence: float = Field(ge=0, le=1)
+    model: str
+
+
+class Scene(BaseModel):
+    action: str
+    visual: str
+    voiceover: str
+    help_asset: str | None = None
+    source_ids: list[str] = Field(min_length=1)
+
+
+class SourceReference(BaseModel):
+    source_id: str
+    source_url: str
+    title: str
+    heading_path: str
+    score: float
+    pack_concept_ids: list[str] = Field(default_factory=list)
+
+
+class OkfConceptRef(BaseModel):
+    """Derived OKF concept visible to operators (not always a discrete Help page)."""
+
+    concept_id: str
+    type: str
+    title: str
+    page_url: str = ""
+    heading_path: str = ""
+    path: str | None = None
+    source_id: str | None = None
+    help_title: str | None = None
+
+
+class RetrievedChunk(SourceReference):
+    text: str
+    asset_urls: list[str] = Field(default_factory=list)
+
+
+class Script(BaseModel):
+    title: str
+    narration: str
+    scenes: list[Scene]
+    sources: list[SourceReference]
+    generation_model: str
+
+
+class ScriptEdit(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+    narration: str = Field(min_length=1, max_length=5_000)
+    scenes: list[Scene] = Field(min_length=1, max_length=20)
+
+
+class ReviewAction(BaseModel):
+    generate_video: bool = False
+    # Local compositor options (ignored by Higgsfield backend).
+    tts_voice: str | None = None
+    tts_rate: str | None = None
+    captions: bool | None = None
+
+
+class HiggsfieldPayload(BaseModel):
+    """Provisional V0 contract pending validation against the live API."""
+
+    script: str
+    scenes: list[Scene]
+    voice: str = "professional_support"
+    style: str = "clean_product_tutorial"
+    brand: dict[str, Any] = Field(
+        default_factory=lambda: {
+            "colors": ["#005EB8", "#FFFFFF"],
+            "logo_url": None,
+        }
+    )
+    captions: bool = True
+    tts_voice: str | None = None
+    tts_rate: str | None = None
+    thumbnail: str = "auto"
+    medias: list[str] = Field(default_factory=list)
+    preserve_source_visuals: bool = True
+    visual_coverage: Literal["green", "yellow", "red"] = "red"
+    explainer_package_path: str | None = None
+
+
+class HiggsfieldExplainerPackage(BaseModel):
+    """Input package shaped for Higgsfield video_explainer CLI / MCP."""
+
+    job_set_type: Literal["video_explainer"] = "video_explainer"
+    prompt: str
+    medias: list[str] = Field(default_factory=list, max_length=14)
+    duration: int = Field(ge=20, le=600)
+    aspect_ratio: Literal["16:9", "9:16"] = "16:9"
+    preserve_source_visuals: bool = True
+    instruction: str = (
+        "Use the attached Sage Intacct Help screenshots as authoritative product UI. "
+        "Do not restyle, redraw, or invent alternate Intacct screens."
+    )
+    assets: list[dict[str, Any]] = Field(default_factory=list)
+    medias_file: str | None = None
+    cli_example: str | None = None
+
+
+class ProgressEvent(BaseModel):
+    run_id: str
+    stage: str
+    status: Literal["started", "completed", "failed"]
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    duration_ms: int | None = None
+    error_code: str | None = None
+
+
+class RunResult(BaseModel):
+    run_id: str
+    status: Literal["queued", "processing", "completed", "failed"]
+    payload_path: str | None = None
+    explainer_package_path: str | None = None
+    script_path: str | None = None
+    script_version: int = 0
+    review_status: Literal["not_ready", "draft", "approved"] = "not_ready"
+    auto_generate: bool = False
+    generation_status: Literal[
+        "not_requested",
+        "pending",
+        "submitted",
+        "ready",
+        "failed",
+        "unavailable",
+    ] = "not_requested"
+    generation_id: str | None = None
+    generation_job_ids: list[str] | None = None
+    video_path: str | None = None
+    video_url: str | None = None
+    classification: Classification | None = None
+    sources: list[SourceReference] = Field(default_factory=list)
+    okf_concepts: list[OkfConceptRef] = Field(default_factory=list)
+    visual_coverage: Literal["green", "yellow", "red"] = "red"
+    media_count: int = 0
+    error_code: str | None = None
+    error_detail: str | None = None
+
+
+class KnowledgeStep(BaseModel):
+    instruction: str
+    detail: str = ""
+    source_ids: list[str] = Field(min_length=1)
+
+
+class KnowledgeAnswer(BaseModel):
+    summary: str
+    steps: list[KnowledgeStep]
+    notes: list[str] = Field(default_factory=list)
+    generation_model: str
+    sources: list[SourceReference] = Field(default_factory=list)
+
+
+class AskResult(BaseModel):
+    ask_id: str
+    status: Literal["queued", "processing", "completed", "refused", "failed"]
+    classification: Classification | None = None
+    answer: KnowledgeAnswer | None = None
+    sources: list[SourceReference] = Field(default_factory=list)
+    okf_concepts: list[OkfConceptRef] = Field(default_factory=list)
+    followup_queries: list[str] = Field(default_factory=list)
+    coverage_gap: str | None = None
+    error_code: str | None = None
+    error_detail: str | None = None
+    source_language: str | None = None
+    answer_language: str | None = None
+    touched_concept_ids: list[str] = Field(default_factory=list)
+    skill_path_ids: list[str] = Field(default_factory=list)
+
+
+class RefreshResult(BaseModel):
+    refresh_id: str
+    status: Literal["queued", "processing", "completed", "failed"]
+    message: str | None = None
+    details: dict[str, Any] = Field(default_factory=dict)
+    error_code: str | None = None
+    error_detail: str | None = None

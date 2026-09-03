@@ -1,0 +1,19 @@
+# v0 runtime files (should only exist in preview, not in git)
+__v0_runtime_loader.js
+__v0_devtools.tsx
+__v0_jsx-dev-runtime.ts
+
+# Common ignores
+node_modules/
+.next/
+.env*.local
+.DS_Store
+
+# Knowledge engine corpus (rebuilt on Friday ingest)
+engine/data/
+engine/.venv/
+engine/**/__pycache__/
+**/__pycache__/
+.vercel
+.env*
+.vscode/

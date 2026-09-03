@@ -1,0 +1,92 @@
+export const GRAPH_LENSES = [
+  {
+    id: "all",
+    label: "All roles",
+    kind: "role" as const,
+    conceptIds: [] as string[],
+  },
+  {
+    id: "controller",
+    label: "Controller · period close",
+    kind: "goal" as const,
+    pathId: "period-close",
+    conceptIds: [
+      "bank-reconciliation",
+      "accounts-payable",
+      "accounts-receivable",
+      "allocations",
+      "close-workspace",
+      "close-books",
+      "financial-reporting",
+      "reporting-periods",
+      "general-ledger",
+    ],
+  },
+  {
+    id: "ap",
+    label: "AP · procure-to-pay",
+    kind: "goal" as const,
+    pathId: "procure-to-pay",
+    conceptIds: [
+      "vendors",
+      "purchasing",
+      "accounts-payable",
+      "ap-automation",
+      "vendor-payments",
+    ],
+  },
+  {
+    id: "ar",
+    label: "AR · order-to-cash",
+    kind: "goal" as const,
+    pathId: "order-to-cash",
+    conceptIds: [
+      "accounts-receivable",
+      "order-entry",
+      "cash-management",
+      "financial-reporting",
+    ],
+  },
+  {
+    id: "treasury",
+    label: "Treasury · cash",
+    kind: "role" as const,
+    pathId: "cash-and-banking",
+    conceptIds: [
+      "cash-management",
+      "bank-reconciliation",
+      "vendor-payments",
+      "dashboards",
+    ],
+  },
+  {
+    id: "multi-entity",
+    label: "Multi-entity accountant",
+    kind: "role" as const,
+    pathId: "multi-entity",
+    conceptIds: [
+      "multi-entity",
+      "multi-currency",
+      "dimensions",
+      "consolidation",
+      "financial-reporting",
+    ],
+  },
+  {
+    id: "foundations",
+    label: "New accountant · ledger",
+    kind: "role" as const,
+    pathId: "ledger-foundations",
+    conceptIds: [
+      "chart-of-accounts",
+      "dimensions",
+      "journal-entries",
+      "reporting-periods",
+      "general-ledger",
+      "close-books",
+      "financial-reporting",
+    ],
+  },
+] as const;
+
+export type GraphLensId = (typeof GRAPH_LENSES)[number]["id"];

@@ -1,0 +1,801 @@
+{
+  "generatedAt": "2026-09-03T19:13:43.257433Z",
+  "model": "gemma3:12b",
+  "concepts": [
+    {
+      "id": "general-ledger",
+      "summary": "The General Ledger is the foundation of Sage Intacct's financial reporting, providing a centralized record of all financial transactions.",
+      "whyItMatters": "Accountants and controllers rely on the General Ledger to maintain accurate financial records, ensure compliance with regulations, and generate reliable reports for decision-making. Features like approval delegation and restriction release streamline processes and improve efficiency.",
+      "keyDetails": [
+        "Sage Intacct Planning integrates with the General Ledger to support budgeting and forecasting workflows.",
+        "Journal entry approvals can be delegated to ensure continuity even when approvers are unavailable.",
+        "Purpose-based restriction releases are available for organizations created with the Nonprofit QuickStart, enabling the release of restricted revenues after qualified expenses are met.",
+        "Regularization accounts help comply with regional reporting requirements by classifying accounts as assets or liabilities based on balance sheet needs.",
+        "The Account Balances report provides a snapshot of account balances for financial analysis.",
+        "General Ledger permissions control user access and functionality within the system.",
+        "Regional availability impacts certain General Ledger features."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Budgets_and_spending/Planning/about-SIBP.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Approvals/Approval_delegation/about_gl_approval_delegation.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Nonprofit_restriction_release/about-restriction-release.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Regularization_accounts/about-regularization-accounts.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/General_Ledger_reports/Account_balance/about-account-balances-report.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "chart-of-accounts",
+      "summary": "The Chart of Accounts provides a view of your general ledger accounts, allowing for filtered lists and aesthetically pleasing printed reports.",
+      "whyItMatters": "Accountants and controllers can use the Chart of Accounts to review their general ledger account structure and ensure it meets reporting needs, all while benefiting from Intacct's tools for simplified data capture.",
+      "keyDetails": [
+        "The report displays the same information as the General Ledger Account list (General Ledger > All > Setup > General Ledger Accounts).",
+        "Information displayed in this report cannot be edited.",
+        "It supports various user types including Business, Employee and Approval users.",
+        "Access the report via: General Ledger > All > Reports > Chart of accounts.",
+        "The Chart of Accounts can be used to view a filtered list of accounts.",
+        "Intacct provides tools for capturing data needed for reporting while maintaining a simplified chart of accounts."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/General_Ledger_reports/Chart_of_accounts/about-chart-of-accounts-report.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Setup/Accounts/about-the-chart-of-accounts.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Setup/Accounts/aa-TOC-accounts.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "journal-entries",
+      "summary": "Journal Entries are used to record financial transactions within Sage Intacct. They can be standard entries or adjustments made to closed periods.",
+      "whyItMatters": "Accountants and controllers use journal entries to accurately reflect financial activity, including making corrections in previously closed accounting periods via adjusting journal entries. Maintaining a clear audit trail is essential for compliance and reporting accuracy.",
+      "keyDetails": [
+        "Adjusting journal entries can be added to closed books, but require the book to be unlocked first.",
+        "Journal entries can be saved as drafts, allowing for review and modification before posting.",
+        "When posted, all journal entries must be balanced and include all required information.",
+        "Entries can be substantiated with supporting attachments.",
+        "Transaction allocations can distribute amounts across departments and locations.",
+        "Deleting a journal entry permanently removes it from Intacct; deletion is restricted in closed periods and requires reopening the book.",
+        "Journal entries can be duplicated to other books for review before recording them."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Adjusting_entries/Adjustments_to_closed_books/make-adjustments-to-closed-books-adjusting-journal-entries.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Journal_Entries/journal-entries.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Journal_Entries/Create_or_edit_journal_entries/aa-TOC-create-journal-entries.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Journal_Entries/Manage_journal_entries/delete-a-journal-entry.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Journal_Entries/Create_or_edit_journal_entries/duplicate-journal-entries.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "dimensions",
+      "summary": "Dimension groups are named sets of members within a dimension, allowing for flexible organization and reporting.",
+      "whyItMatters": "Accountants and controllers can use dimension groups to segment data based on specific criteria (like location or balance) which improves the quality of reports and simplifies analysis.",
+      "keyDetails": [
+        "Dimension groups can be created for standard dimensions like Affiliate entity.",
+        "They provide a way to organize members that meet certain criteria, such as customers in a particular state.",
+        "Dimension groups are used within reports and dashboards.",
+        "A dimension structure provides a flexible way to organize dimension data on financial reports.",
+        "You can create multiple report structures."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Company/Checklists/about-checklists.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Company/Accounting_periods/accounting-periods.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Dimensions/Manage_groups/dimension-groups.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Dimensions/Manage_structures/dimension-structure-lists.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Company/Multi-Entity_upgrade/overview-about-the-upgrade.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "accounts-payable",
+      "summary": "Accounts Payable (AP) manages vendor invoices and payments. The AP Adjustments list provides a centralized location to manage debit and credit memo adjustments.",
+      "whyItMatters": "Accountants and controllers use Accounts Payable to track obligations to vendors, ensuring accurate financial reporting and efficient cash flow management. Managing adjustments through the AP Adjustments list helps maintain data integrity and facilitates reconciliation.",
+      "keyDetails": [
+        "The AP Adjustments list allows users to create, edit, reverse, and print adjustments.",
+        "It supports managing debit memo and credit memo adjustments.",
+        "Users can export a view of the AP Adjustments list.",
+        "Custom views can be added to display specific list items.",
+        "CSV import is available for Accounts Payable adjustments.",
+        "To apply vendor credits, use the Pay bills page.",
+        "Related reports include the AP Ledger report and the AP Open Items Revaluation report."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Adjustments/ap-adjustments-list.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Automation/ap-bill-automation-faq.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/AP_reports/ap-ledger-report.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/AP_reports/ap-open-items-revaluation-report.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/AP_reports/ap-reclassification-report.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "accounts-receivable",
+      "summary": "Accounts Receivable (AR) encompasses several reports within Sage Intacct that provide insights into customer transactions and outstanding balances. These reports help track revenue, manage collections, and ensure accurate financial reporting.",
+      "whyItMatters": "Accountants and controllers use AR reports to monitor cash flow, assess the collectability of receivables, and comply with accounting standards. Reports like the AR Reclassification report can aid in troubleshooting discrepancies, while others provide detailed views of recurring invoices or revaluations.",
+      "keyDetails": [
+        "The **AR Ledger Report** provides a detailed view of account activity.",
+        "The **AR Open Items Revaluation Report** facilitates currency revaluation and allows for automatic draft journal entry creation.",
+        "The **AR Reclassification Report** displays transactions that have been reclassified, aiding in troubleshooting.",
+        "The **AR Recurring Report** tracks recurring invoices and payment details like frequency and term.",
+        "Reports can be customized with filters for time period, location/department, and transaction currency.",
+        "Formatting options are available to adjust report presentation including titles and footers.",
+        "PDF versions of reports can be generated."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Receivable/AR_reports/ar-ledger-report.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Receivable/AR_reports/ar-open-items-revaluation-report.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Receivable/AR_reports/ar-reclassification-report.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Receivable/AR_reports/ar-recurring-report.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Receivable/Setup/Account_labels/aa-TOC-ar-account-labels.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "cash-management",
+      "summary": "Cash Management in Sage Intacct encompasses several features for managing financial transactions, including importing bank data, processing vendor payments electronically, and automating customer payment assignments.",
+      "whyItMatters": "Accountants and controllers can leverage Cash Management tools to streamline reconciliation processes, automate payments to vendors, and improve the efficiency of handling incoming funds. This reduces manual effort and minimizes errors in financial reporting.",
+      "keyDetails": [
+        "**Bank Transaction Assistant File Import:** Imports bank and credit card transactions for reconciliation, automatically matching them against Intacct transactions using rule sets.",
+        "**Vendor Payments powered by CSI:** An electronic payment service enabling payments to vendors via ACH, check delivery, or virtual cards; requires setup with a partner or Professional Services.",
+        "**Assignment Rules for Bank Transactions:** Automatically assigns customers to unmatched bank deposit transactions, facilitating bulk receipt of customer payments.",
+        "**Bank File Payments:** Allows users to generate and upload standard bank files to their banks for electronic payments, requiring enabling checking accounts and vendors/employees.",
+        "**Classic Import is being phased out:** The classic file import experience will be retired after May 2026; use the Bank Transaction Assistant instead.",
+        "**Cash Management Permissions Required:** Using assignment rules requires specific Cash Management permissions for 'Bank transaction assignment rules'.",
+        "**CSI Payment Methods:** CSI supports ACH, check delivery and virtual card payment methods."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Cash_Management/Bank_transaction_assistant/Bank_transaction_assistant_import/about-bta-import.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Cash_Management/Payment_Methods/CSI/csi-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Cash_Management/Bank_transaction_assistant/Assignment_rules/about-assignment-rules-bank-txns.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Cash_Management/Banking_and_Payment_Cloud/Bank_files/bank-file-payment.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Cash_Management/Payment_Methods/Credit_card/Payoff/charge-payoff-overview.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "bank-reconciliation",
+      "summary": "Bank Reconciliation in Sage Intacct is the process of matching recorded transactions with bank statements.",
+      "whyItMatters": "Accountants and controllers use Bank Reconciliation to ensure accuracy between internal records and external bank data, often leveraging imported files or bank feeds. A rule set is required to reconcile accounts using these methods.",
+      "keyDetails": [
+        "Reconciliation generates a sequence of letters (lowercase during reconciliation, uppercase after finalization) to identify matched transactions.",
+        "Document sequencing is used to create the match sequence.",
+        "Rules and rule sets define how transactions are matched or created during reconciliation based on bank data.",
+        "Accounts cannot be reconciled with an import or bank feed without a defined rule set.",
+        "Filters and sorting can be applied to view transactions during reconciliation.",
+        "Reconciling can involve matching, partially matching, or drafting matches."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Cash_Management/Reconcile/Match_sequence/about-match-sequences.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Cash_Management/Reconcile/Get_started/about-reconciling.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Cash_Management/Reconcile/Reconciliation_rules/about-rules-rulesets.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Cash_Management/Reconcile/Filter__sort__view_transactions/bank-rec-filtering-sorting.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "budgets",
+      "summary": "Sage Intacct Planning provides a cloud-based solution for streamlining the budgeting process, from creation to review and forecasting.",
+      "whyItMatters": "Budgeting can be challenging for midsize companies, often involving multiple spreadsheets and manual processes. Sage Intacct Planning addresses these challenges by centralizing the entire cycle, enabling better control and insight into spending.",
+      "keyDetails": [
+        "Sage Intacct Planning offers a solution to common budgeting challenges like managing multiple spreadsheet versions.",
+        "Budgets are located in Budgets > All > Budget s > Budgets repository.",
+        "User types who can interact with budgets include Business users, Employees (view only), and Approvers (view only).",
+        "Regional availability is global.",
+        "A company setup checklist is required for importing budgets.",
+        "Spend Management validates expenditures against the budget to help prevent overspending.",
+        "Spend Management can validate transactions from General Ledger, Accounts Payable, or other sources."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Budgets_and_spending/Planning/about-SIBP.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Budgets_and_spending/Budgets/Create_budgets/create-budgets.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Budgets_and_spending/Spend_Management/spend-management-overview.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "financial-reporting",
+      "summary": "Financial Reporting in Sage Intacct encompasses various tools and permissions that allow users to monitor business performance and access relevant data. It includes dashboards, interactive reporting (ICRW), visual exploration (IVE), and pre-built financial reports.",
+      "whyItMatters": "Accountants and controllers rely on financial reporting capabilities to gain insights into company performance, track key metrics, and make informed decisions. Sage Intacct provides flexible tools like dashboards and custom reports to meet diverse reporting needs and control access to sensitive data.",
+      "keyDetails": [
+        "**Dashboards:** Provide at-a-glance views of business information through components such as graphs, performance cards, records, and reports; they can be customized for specific roles.",
+        "**ICRW Permissions:** User access and functionality within Interactive Custom Report Writer (ICRW) are governed by a combination of company and ICRW permissions.",
+        "**IVE Filters:**  Filters in Interactive Visual Explorer (IVE) allow users to focus on specific data areas by reducing the amount of information displayed in visualizations.",
+        "**QuickStart Library Reports:** Companies set up with QuickStart templates receive a library of pre-built financial reports, including balance sheets, cash flow statements, and profit & loss reports. The available reports depend on the chosen template.",
+        "**Report Types:** Sage Intacct offers various report types, including application reports, to cater to different reporting requirements.",
+        "**Permissions Control:** Access to dashboards, ICRW, and other reporting features is controlled through permissions settings."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Dashboards/dashboards-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Interactive_custom_reports/ICRW_permissions/ICRW-permissions.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Interactive_Visual_Explorer/Filters/IVE-about-filters.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Financial_reports/Financial_library_reports/what-are_financial_library-reports.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Get_started/report-types.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "multi-entity",
+      "summary": "Multi-Entity Management allows organizations to manage multiple legal entities within a single Sage Intacct environment.",
+      "whyItMatters": "Accountants and controllers using Multi-Entity Management can consolidate financial data across different business units, simplifying reporting and analysis while maintaining entity-level detail. This is especially useful for companies with offices or subsidiaries operating under separate legal structures.",
+      "keyDetails": [
+        "Supports scenarios where one entity provides goods or services to another (inter-entity bill back).",
+        "Allows printing of 1099 forms, configurable to issue a separate form per entity or from the top level/entity level.",
+        "Inter-entity bill back requires AR and AP invoicing and billing but does not use Avalara or Advanced Tax.",
+        "Enables inter-entity transactions, including journal entries and account mapping.",
+        "Provides access to data at both a top-level consolidated view and individual entity levels.",
+        "Entity-private data can be accessible from the top level.",
+        "Requires configuration changes and additional setup for features like inter-entity bill back."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Multi-entity/aa-TOC-learn-about-me.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Multi-entity/Tax/1099-in-MEs.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Multi-entity/Inter-entity_bill_back/bill-back-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Multi-entity/multi-entity-company-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Multi-entity/Inter-entity_transactions/interentity-txn-overview.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "multi-currency",
+      "summary": "Multi-currency enables your company to transact in and report on financial data using different currencies.",
+      "whyItMatters": "Accountants and controllers need multi-currency functionality when a business operates internationally, has foreign vendors or customers, or holds balances in foreign bank accounts. It allows for accurate tracking of transactions and recognition of unrealized gains or losses due to currency fluctuations, ensuring financial statements reflect the true economic picture.",
+      "keyDetails": [
+        "Intacct receives daily exchange rates from Oanda.com, calculated based on the average ask rate.",
+        "The Intacct daily rate is fetched from Oanda approximately between 01:00-02:00 UTC each day.",
+        "You can add currencies to a list of available transaction currencies after enabling multi-currency management.",
+        "Transactions like invoices, bills, and expense reports can be recorded in selected currencies.",
+        "Foreign currency revaluation recognizes unrealized gains or losses due to fluctuations in exchange rates impacting open AP and AR transactions.",
+        "Reporting periods can impact the base-currency value of foreign transactions; for example, a $100 USD transaction might become $96 USD due to currency fluctuation.",
+        "You can select a reporting or operating currency for entities within a multi-entity company."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Company/Currencies_and_exchange_rates/Exchange_rates/about-daily-rate.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Company/Currencies_and_exchange_rates/Currencies/foreign-currency-revaluation-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Company/Currencies_and_exchange_rates/Currencies/supported-currencies.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "consolidation",
+      "summary": "Consolidation refers to the management of multiple legal entities within Sage Intacct. It enables organizations to view and report on financial data across their entire group.",
+      "whyItMatters": "Accountants and controllers using multi-entity companies need consolidation to gain a unified view of organizational performance, manage 1099 forms appropriately, and ensure compliance with reporting requirements. Guidelines exist for Accounts Payable, Accounts Receivable, and other areas within this structure.",
+      "keyDetails": [
+        "Sage Intacct supports managing multiple entities.",
+        "Printing 1099 forms can occur from either the top level or an individual entity.",
+        "Accounts Payable processes have specific guidelines when operating in a multi-entity environment.",
+        "Accounts Receivable has exceptions to be aware of when used across multiple entities.",
+        "Document sequencing and invoice addresses may be managed on an entity-specific basis.",
+        "Reclassification is a process that applies within both Accounts Payable and Accounts Receivable contexts for multi-entity companies."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Multi-entity/aa-TOC-learn-about-me.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Multi-entity/Tax/1099-in-MEs.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Multi-entity/Apps_and_reports_ME_guidelines/AP-ME-guidelines.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Multi-entity/Set_up_applications/AR-in-ME-shared-company.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Multi-entity/Apps_and_reports_ME_guidelines/AR-ME-guidelines.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "vendors",
+      "summary": "Vendors represent entities to whom your company owes money. They are used in Accounts Payable processes for managing payments and tracking liabilities.",
+      "whyItMatters": "Accountants and controllers use vendors to manage accounts payable, ensuring accurate record-keeping of invoices and payments. Deactivating or deleting unused vendors simplifies vendor lists and improves data accuracy; however, past transactions remain linked to inactive vendors, requiring careful reporting.",
+      "keyDetails": [
+        "Vendors can be duplicated from existing records for faster setup.",
+        "Inactive vendors are removed from standard dropdown menus but retain transaction history.",
+        "Deleting a vendor requires that it is not tied to any transactions or payments; otherwise, deactivate the vendor.",
+        "Deactivating a vendor does not impact 1099 reporting.",
+        "Permissions required for deleting vendors include Vendors: List, View, Delete.",
+        "One-time use vendors simplify the list of frequently used vendors.",
+        "Vendors exist at the same level when duplicated."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Setup/Vendors/Set_up/vendors.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Setup/Vendors/Remove_vendors/inactivate-vendor.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Setup/Vendors/Remove_vendors/delete-vendor.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Setup/Vendors/Remove_vendors/ab-TOC-delete-inactivate-a-vendor.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Setup/Vendors/duplicate-a-vendor.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "purchasing",
+      "summary": "The Purchasing application automates the acquisition of goods and services by streamlining processes like creating purchase orders and vendor invoices.",
+      "whyItMatters": "Accountants and controllers can benefit from Purchasing's automation capabilities, which improve accuracy and speed data entry by converting documents and tailoring workflows to business needs. System administrators configure the application and assign user permissions.",
+      "keyDetails": [
+        "Purchasing automates transactions including requests for quote, purchase requisitions, purchase orders, vendor invoices, debit memos, and returns.",
+        "Documents can be converted from one type to another (e.g., quote to purchase order) to maintain accuracy and speed data entry.",
+        "Workflows can be tailored to match a business's specific model; standard transaction definitions are included.",
+        "Transaction definitions act as templates, containing accounting settings, workflow rules, and configuration settings for transactions.",
+        "System administrators subscribe to and configure the application, selecting desired features and assigning user permissions.",
+        "A 'transaction definition' contains settings such as whether users can enter a price different from what is expected."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Purchasing/Using_Purchasing/Automation/faq-automated-transactions-for-po.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Purchasing/Using_Purchasing/Automation/about-automated-transactions-for-PO.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Purchasing/Using_Purchasing/Learn_about/about-purchasing.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Purchasing/Setting_up_Purchasing/Transaction_definitions/about-purchasing-transaction-definitions.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Purchasing/Using_Purchasing/Transactions/purchasing-transactions.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "revenue-recognition",
+      "summary": "Intacct offers revenue recognition capabilities, allowing businesses to defer income and amortize revenue over time as goods or services are delivered. This functionality is available through subscriptions for Accounts Receivable or Order Entry.",
+      "whyItMatters": "Accountants and controllers can use Intacct's revenue recognition features to accurately reflect financial performance by aligning revenue recognition with the delivery of goods or services, complying with accounting standards and providing a clearer picture of business health.",
+      "keyDetails": [
+        "Requires an Advanced Revenue Management subscription (though not available for new subscribers; consider Contracts instead).",
+        "Supports deferring income and amortizing revenue over time.",
+        "Four standard revenue recognition categories exist: Collectability, Delivery Commitment, Dispute, and Legal. These can be customized.",
+        "Event-based recognition allows delaying revenue schedules until a specific event occurs (e.g., software go-live).",
+        "The 'Delivery' status of a line item controls the revenue schedule; 'Undelivered' puts it 'On hold'.",
+        "Revenue recognition templates dictate adjustments to schedules when delivery dates are later than the template start date.",
+        "Fair value price lists can be used with Advanced Revenue Management for Order Entry."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Revenue_Management/Setting_up_Revenue_Management/Fair_value_price_lists-ns/about-fair-value-price-lists.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Revenue_Management/Learn_about/how-Intacct-processes-revenue-recognition.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Revenue_Management/Setting_up_Revenue_Management/revenue-recognition-categories.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Revenue_Management/Revenue-Management.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Revenue_Management/Setting_up_Revenue_Management/set-up-event-based-rev-rec-OE.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "contracts",
+      "summary": "Sage Intacct's Contract Management solution streamlines revenue recognition, billing, and reporting for subscription businesses. It provides a central source of truth with real-time reporting to support data-driven decision making.",
+      "whyItMatters": "Accountants and controllers can benefit from improved efficiency and internal controls related to contract management, including revenue recognition, billing, and reporting. This solution aims to accelerate go-live processes and reduce manual effort by allowing for the import of historical contract data.",
+      "keyDetails": [
+        "Supports SaaS companies across various stages, from early stage to public.",
+        "Provides real-time reporting for data-driven decisions.",
+        "Allows for importing historical contract lines with balances directly into the General Ledger.",
+        "Handles contract renewals by creating new 'child' contracts based on selected renewal templates and contract lines.",
+        "Supports various revenue recognition methods, including percent complete (with options for time-based or user-determined calculations).",
+        "Includes functionality for MEA allocations related to contracts.",
+        "Renewal templates define default renewal length and period which can be adjusted."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Contracts/Using_Contracts/Learn_about/about-contracts.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Contracts/Using_Contracts/Revenue/MEAs/about-mea-allocations.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Contracts/Using_Contracts/Contracts/Renewals/about-contract-renewals.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Contracts/Setting_up_Contracts/Historical/about-historical-contracts.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Contracts/Using_Contracts/Contracts_and_Projects/Project_revenue/Percentage_of_completion_recognition/about_percent-complete-rev-rec.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "inventory-control",
+      "summary": "Inventory Control manages sales orders and inventory transactions, streamlining warehouse operations and ensuring accurate tracking of on-hand quantities and values.",
+      "whyItMatters": "Accountants and controllers benefit from Inventory Control's ability to efficiently manage sales order fulfillment, reserve quantities, and track inventory adjustments. This helps maintain accurate records, optimize stock levels, and improve overall financial reporting accuracy.",
+      "keyDetails": [
+        "Fulfillment streamlines warehouse processes like picking, packing, shipping, and invoicing from a single page.",
+        "Sales orders are reserved and allocated to prevent quantities from being used elsewhere during fulfillment.",
+        "Transaction definitions act as templates for Inventory Control transactions, configuring accounting settings and workflow rules.",
+        "Various transaction types (Adjustment decrease, Adjustment increase, Inventory receipt, etc.) affect on-hand quantity and value in different ways.",
+        "Inventory transactions have states: Draft (no GL impact), In Progress, and Pending.",
+        "Unit of Measure Groups are used within Inventory Control."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Inventory_Control/Using_Inventory_Control/Fulfillment/about-fulfillment.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Inventory_Control/Setting_up_Inventory_Control/Transaction_definitions/about-inventory-transaction-definitions.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Inventory_Control/Using_Inventory_Control/Transactions/inventory-txns.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Inventory_Control/Using_Inventory_Control/Transactions/about-inventory-transaction-states.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Inventory_Control/Setting_up_Inventory_Control/Units_of_measure/about-UOM-groups-inv-ns.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "projects",
+      "summary": "Project groups, task groups, and employee groups are types of dimension groups within Sage Intacct. These groupings allow for flexible selection of members, either manually or through filters.",
+      "whyItMatters": "Accountants and controllers can use project, task, and employee groups to segment data for reporting and analysis. This enables a more granular view of project performance, resource allocation, and other key metrics by grouping related items together.",
+      "keyDetails": [
+        "Dimension groups are sets of members within a dimension.",
+        "Group members can be selected manually or automatically via filters.",
+        "Project groups relate to projects; task groups relate to tasks; employee groups relate to employees.",
+        "Task groups allow tracking project work by assigned resources and billable status.",
+        "Dimension groups can be used in reports and dashboards for analysis.",
+        "Tasks are units of work within a project, allowing capture of data and tracking of progress.",
+        "Task dependencies can be created so one task doesn't start until another finishes."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Projects/Employees/Employee_group_dimensions/proj-about-employee-dimension-groups.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Projects/Project_groups/project-dimension-groups-about.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Projects/Tasks/about-project-tasks.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Projects/Tasks/Task_groups/about-task-groups.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Projects/Employees/Employees/proj-employees-overview.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "user-roles",
+      "summary": "User roles in Sage Intacct define sets of permissions that can be assigned to users, controlling their access to specific functions and tasks within the application.",
+      "whyItMatters": "Accountants and controllers should leverage user roles for efficient permission management. Role-based permissions offer a more flexible approach than assigning permissions directly to individual users, simplifying administration and ensuring appropriate access control across the organization.",
+      "keyDetails": [
+        "Permissions enable users to perform functions or tasks within specific areas of Sage Intacct.",
+        "Users require admin assignment of permissions to access features.",
+        "Roles offer a flexible alternative to assigning permissions directly to individual users.",
+        "A user's actual permissions can be influenced by factors like their user type, role, and admin privileges.",
+        "Permissions simplify a user’s environment by controlling which menu items they see."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Administration/Permissions/user-permissions-to-intacct.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Administration/Permissions/permissions-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Administration/Users/web-services-only-users.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "sage-ai",
+      "summary": "Sage AI is an AI-powered platform within Sage Intacct designed to enhance financial processes and provide intelligent insights.",
+      "whyItMatters": "Accountants and controllers can leverage Sage AI to potentially streamline workflows, automate tasks, and gain deeper understanding of their financial data. This may lead to increased efficiency and improved decision-making capabilities.",
+      "keyDetails": [
+        "Sage AI includes features like AP Automation, Close Automation, and the Finance Intelligence Agent (Early Adopter).",
+        "It also integrates with Sage Expense Management and Sage Intelligent Time.",
+        "GL Outlier Detection is a component of Sage AI.",
+        "Users can utilize Copilot to search for help within the platform.",
+        "Sage AI has security measures in place."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Copilot/get-to-know-sage-ai.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "platform-services",
+      "summary": "Platform Services provides a toolkit for developers to customize and extend Sage Intacct's functionality, enabling the creation of solutions for unique business processes.",
+      "whyItMatters": "Controllers and accountants can leverage Platform Services to automate manual processes like fixed asset depreciation or investor relations, leading to increased efficiency and reduced errors. It also allows organizations to share or install custom solutions created by others.",
+      "keyDetails": [
+        "Developers use Platform Services to create trusted solutions within Intacct.",
+        "Solutions can be shared with other users or installed from the Sage Intacct Marketplace.",
+        "Workflows, triggered through Platform Services, move records through progressive steps and can include automated actions like sending emails or creating related records.",
+        "Document templates use merge fields to create customized transaction documents in PDF format.",
+        "Email templates facilitate consistent communication with users and contacts, often incorporating merged data from objects within Intacct.",
+        "Templates executed via the platform utilize the logged-in user's credentials for access permissions.",
+        "Certain types of automation, such as email triggers and workflow actions, require at least one email template to be created first."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/More/Customization_and_Platform_Services/Platform_Services_only/about-platform-services.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/More/Customization_and_Platform_Services/Platform_Services_only/Workflows/workflows-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/More/Customization_and_Platform_Services/Document_templates/printed-document-templates-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/More/Customization_and_Platform_Services/Platform_Services_only/Templates/xml-document-templates.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/More/Customization_and_Platform_Services/Platform_Services_only/Templates/email-templates-platform-services.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "order-entry",
+      "summary": "Sage Intacct's Order Entry application automates the quote to cash process, enabling efficient order management and improving profitability.",
+      "whyItMatters": "Accountants and controllers can benefit from Order Entry by streamlining workflows, reducing manual data entry errors, and ultimately increasing efficiency in managing sales transactions. It allows for handling high volumes and complex pricing structures while maintaining accuracy.",
+      "keyDetails": [
+        "Supports various transaction types including quotes, sales orders, shippers, invoices, credit memos, and returns.",
+        "Allows conversion between transaction types (e.g., Sales Order to Sales Invoice).",
+        "Offers customizable transaction definitions; users can tailor existing templates or create new ones without coding.",
+        "Includes standard transaction definition templates suitable for most businesses.",
+        "Transaction definitions contain accounting settings, workflow rules and configuration settings.",
+        "Recurring transactions have three status fields: Header, Line Item, and Schedule.",
+        "If Fulfillment is enabled in Inventory Control, additional transaction types like fulfillment orders are available."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Order_Entry/Using_Order_Entry/about-order-entry.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Order_Entry/Setting_up_Order_Entry/Transaction_definitions/about-order-entry-transaction-definitions.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Order_Entry/Using_Order_Entry/Transactions/OE-transactions.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Order_Entry/Using_Order_Entry/Recurring_transactions/about-recurring-template-status.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Order_Entry/Using_Order_Entry/Recurring_transactions/about-recurring-transactions-oe.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "fixed-assets",
+      "summary": "SIG Fixed Assets is a module that manages and tracks assets centrally, combining asset management with core accounting functions.",
+      "whyItMatters": "Accountants and controllers can streamline the entire asset lifecycle, improve accuracy, and gain better control over fixed assets by using SIG Fixed Assets to merge asset management and accounting processes.",
+      "keyDetails": [
+        "Merges asset management with core accounting functions.",
+        "Allows for centralized management and tracking of assets.",
+        "Integrates with Accounts Payable, Purchasing, and Cash Management.",
+        "Bills, purchasing transactions, and credit card transactions are primary sources for entering fixed asset data.",
+        "Manual entries can be entered from other sources."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/More/Fixed_Assets/about-fixed-assets.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "time-expenses",
+      "summary": "Time & Expenses leverages Sage Intelligent Time (SIT), an AI-powered tool, to automate time entry by gathering activity data from connected sources like email and calendars.",
+      "whyItMatters": "Accountants and controllers can benefit from SIT's automated approach to timesheet creation. It reduces the manual effort of compiling timesheet data, improves accuracy, and helps ensure more complete records for billing or reimbursement purposes.",
+      "keyDetails": [
+        "SIT uses automated time entry based on activity, reducing daily effort.",
+        "Connected time sources are organized into activity cards to expedite timesheet submission.",
+        "The Time Assistant intelligently gathers activities from email, calendars, and computer applications.",
+        "A subscription to at least one of the following Sage Intacct applications is required: Time and Expenses, Project Costing, Grant Costing and Billing, or Construction.",
+        "Data retention periods are configurable but may impact prediction accuracy.",
+        "Permissions can be assigned to roles or individual users; some permissions align with standard Sage Intacct time while others are specific to SIT."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Sage_Intelligent_Time/Time_sources/IT-about-data-sources.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Sage_Intelligent_Time/IT-about.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Sage_Intelligent_Time/Set_up/IT-assign-user-permissions.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Sage_Intelligent_Time/Time_sources/IT-change-data-retention-period.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "employee-expenses",
+      "summary": "Employee Expense reports document business expenses and facilitate reimbursement requests for employees.",
+      "whyItMatters": "Accountants and controllers use Employee Expense reports to track employee spending, ensure compliance with company policies, and streamline the reimbursement process. The system supports integration of credit card transactions and electronic receipts to simplify data entry.",
+      "keyDetails": [
+        "Expense reports can include credit card transactions and electronic receipts.",
+        "This functionality is unavailable for VAT/GST enabled companies.",
+        "Cash and Accrual companies have restrictions if posting credit card charges to the General Ledger after creation.",
+        "Cash-based companies cannot use this feature.",
+        "Reports are processed for payment after approval.",
+        "Expense reports can be edited and resubmitted under certain conditions.",
+        "Managers and approvers can view employee expenses and add comments during approval."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Expenses/Employee_expense_reports/Credit_card_transactions/add-credit-card-transactions-and-electronic-receipts.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Expenses/Employee_expense_reports/add-credit-card-transactions-employee-expense.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Expenses/Employee_expense_reports/check_expense-report-status.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Expenses/Employee_expense_reports/create-staff-expense-reports.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Expenses/Employee_expense_reports/edit-staff-expense-reports.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "tax-management",
+      "summary": "Tax Management in Sage Intacct encompasses various functionalities, including generating and filing 1099 forms through integration with TaxBandits, handling inter-entity transactions related to 1099s, and managing sales tax using Advanced Tax or AvaTax.",
+      "whyItMatters": "Accurate and efficient tax management is crucial for compliance and financial reporting. Sage Intacct's features help accountants and controllers streamline processes like 1099 filing (avoiding manual data manipulation), track inter-entity transactions impacting 1099 generation, and automate sales tax calculations through Advanced Tax or AvaTax.",
+      "keyDetails": [
+        "**1099 E-filing Integration:** Sage Intacct integrates with TaxBandits to facilitate electronic filing of 1099 forms directly from the system.",
+        "**Inter-Entity Transaction Handling:** When transactions occur between entities, the owning entity is responsible for issuing the corresponding 1099 form.",
+        "**Multi-Entity Support:**  Issuing 1099s can be configured to generate separate forms per entity or printed from either a top-level or individual entity view.",
+        "**Advanced Tax Capabilities:** Advanced Tax automates sales tax calculation for Accounts Receivable, Order Entry, and Purchasing applications (depending on subscription).",
+        "**AvaTax Integration:** AvaTax provides automated sales tax determination and collection.",
+        "**1099 Form Printing:** Sage Intacct allows printing of individual 1099 forms for entities or entity groups."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Taxes/1099/File_electronically/efile-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Taxes/1099/Transactions/1099s-IETs.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Taxes/1099/Print_forms/1099-forms-for-multi-entity-companies.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Taxes/Indirect_Tax/Sales_tax/Intacct_Advanced_Tax/advanced-tax-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Taxes/Indirect_Tax/Sales_tax/AvaTax/Intro_and_overview/avatax-overview.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "allocations",
+      "summary": "Allocations provide methods for distributing amounts within Sage Intacct. There are two primary types: transaction allocations and dynamic account allocations.",
+      "whyItMatters": "Accountants and controllers use allocations to automate the distribution of financial data, ensuring accurate reporting and efficient processes, particularly when dealing with complex organizational structures or multi-currency environments.",
+      "keyDetails": [
+        "Sage Intacct offers two methods for allocating funds: transaction allocations and dynamic account allocations.",
+        "Transaction allocations can be applied to bills, invoices, or journal entries, distributing amounts across entire transactions or individual line items.",
+        "Account (dynamic) allocation groups allow you to efficiently process multiple allocations running at the same interval.",
+        "An Account Allocation Log lets you monitor the status of allocations in progress or completed.",
+        "Restrictions may apply when applying transaction allocations.",
+        "Multi-entity organizations with different base currencies can utilize transaction allocations.",
+        "Dynamic Allocations General Ledger is a required subscription."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Allocations/Transaction_allocations/transaction-allocations-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Allocations/Account_allocations/Account_allocation_groups/aa-TOC-allocation-groups.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Allocations/Account_allocations/Manage_account_allocations/account-allocations-log.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Allocations/allocations-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Allocations/Transaction_allocations/transaction-allocations-run.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "landed-costs",
+      "summary": "Landed costs represent the total price of a product, encompassing the original purchase price plus additional expenses like freight, insurance, and duties. Sage Intacct supports both actual and estimated landed cost tracking.",
+      "whyItMatters": "Accurately capturing landed costs ensures your inventory valuation and Cost of Goods Sold (COGS) reflect the true total expense of acquiring goods, leading to more accurate margin calculations and comprehensive financial reporting. This requires a subscription to Inventory Control and Purchasing.",
+      "keyDetails": [
+        "Landed cost includes expenses such as freight, insurance, customs, duties, and handling fees.",
+        "Sage Intacct supports both actual landed costs (known amounts invoiced later) and estimated landed costs (anticipated expenses entered upfront).",
+        "Actual landed costs are linked to original purchase transactions or inventory control transactions.",
+        "When an actual cost is entered and matched with an estimate, the difference between the two adjusts the inventory valuation.",
+        "Entering actual landed costs requires specific setup within the Configure Inventory Control page.",
+        "The fields displayed when entering actual landed costs depend on whether your organization uses 'Actual costs only' or 'Estimates and actuals'.",
+        "To use landed costs, you need to be subscribed to both Inventory Control and Purchasing."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Purchasing/Using_Purchasing/Landed_costs/landed-costs-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Purchasing/Using_Purchasing/Landed_costs/actual-landed-costs.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "smart-events",
+      "summary": "Smart Events automate processes within Sage Intacct by triggering actions based on specific events and conditions. They allow for customized communications and workflows.",
+      "whyItMatters": "Accountants and controllers can use Smart Events to streamline repetitive tasks, improve efficiency, and ensure consistent execution of business processes. This reduces manual effort and minimizes the risk of errors in financial management.",
+      "keyDetails": [
+        "Smart Events are triggered when a given event occurs and certain conditions are met.",
+        "They can automate communications like sending an email to a sales manager when a quote exceeds $10,000.",
+        "Smart Events utilize Platform Services or Customization Services.",
+        "The Smart Events Job page displays queued jobs and allows viewing of job history and details.",
+        "Permissions are required to view and list Smart Event Jobs (Smart event jobs: List and View).",
+        "You can find the Smart Events Job page at Company > Admin > Offline jobs > Smart event jobs.",
+        "Synchronous API Smart events are a type of Smart Event."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/More/Customization_and_Platform_Services/Smart_Events/create-smart-event.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/More/Customization_and_Platform_Services/Smart_Events/use-smart-events.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/More/Customization_and_Platform_Services/Smart_Events/FBF-smart-event-jobs.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/More/Customization_and_Platform_Services/Smart_Events/smart-event-jobs-cs-ns.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/More/Customization_and_Platform_Services/Smart_Events/aa-TOC-smart-events.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "ap-automation",
+      "summary": "AP Automation streamlines bill entry by automating draft bill creation from emailed or uploaded documents. It uses AI-powered anomaly detection to identify potentially risky transactions.",
+      "whyItMatters": "Accountants and controllers can benefit from AP Automation's ability to automatically populate bill details, attach source documents, and flag unusual transactions for review, helping to improve efficiency and reduce risk.",
+      "keyDetails": [
+        "AP Automation creates draft bills from emailed or uploaded bill documents.",
+        "It automatically identifies the vendor and fills in bill details.",
+        "AI-powered anomaly detection flags transactions that deviate from expected behavior.",
+        "Anomaly indicators help reviewers prioritize potentially risky transactions.",
+        "The system analyzes transaction and vendor submission patterns.",
+        "Source bill documents are attached for reference.",
+        "Contact your Sage Intacct account manager or Channel Executive to enable AP Automation."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Automation/about-anomaly-detection-ap-automation.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Automation/ap-bill-automation-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Automation/Setup/about-ap-automation-configuration.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "dashboards",
+      "summary": "Dashboards provide at-a-glance insights into key business aspects and can be customized for specific roles.",
+      "whyItMatters": "Dashboards help accountants and controllers monitor important company information and see relevant data quickly, improving visibility and decision-making.",
+      "keyDetails": [
+        "Dashboards consist of components like graphs (charts), performance cards, records, reports, and smart lists.",
+        "Checklists can be added as dashboard components, allowing users to access and filter them.",
+        "Custom reports can be added to dashboards after they have been memorized.",
+        "Large reports should not be added to dashboards used as start pages due to potential performance impacts.",
+        "Dashboards can be created from scratch, cloned from existing ones, or added from a library (if available).",
+        "Access to dashboards and their components is controlled by permissions.",
+        "Users can share dashboards with others."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Dashboards/dashboards-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Dashboards/Define_content/Other_components/add-checklist-to-dashboard.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Dashboards/Define_content/Reports_and_graphs/add-custom-reports-to-dashboard-2-ns.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Dashboards/Add_dashboards/add-a-dashboard.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "vendor-payments",
+      "summary": "Vendor Payments allows you to create payment requests for bills, either immediately or as draft requests in the outbox. These payments can be processed and ultimately posted.",
+      "whyItMatters": "Accountants and controllers use Vendor Payments to manage bill settlements efficiently. The outbox provides flexibility for handling diverse payment types (different banks, currencies) and integrating with aging reports, streamlining the accounts payable process.",
+      "keyDetails": [
+        "Payment requests can be created immediately or saved as drafts in the outbox.",
+        "The outbox serves as a holding area for draft payment requests before processing.",
+        "A company typically has one outbox per user who pays bills; administrators have access to all outboxes.",
+        "Vendor payment notifications can be automatically sent via email when payments post.",
+        "Completed or in-progress payments can be voided, reversing the transaction and adding a balancing entry.",
+        "Joint checks allow for payments to multiple payees on a single check.",
+        "Advanced filter sets can be created and saved within the Pay bills page to expedite payment request generation."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Payments/Pay_Bills/learn-about-pay-bills.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Payments/Pay_Bills/Outbox/about-the-outbox.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Payments/Payment_notifications_and_copies/about-payment-notifications.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Payments/Void_payments/about-voiding-payments.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Payments/Pay_Bills/Joint_payees/making-joint-payments-in-ap.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "construction",
+      "summary": "Construction is a Sage Intacct subscription that provides specialized functionality for managing construction projects, including workflows for payment applications and change management.",
+      "whyItMatters": "For accounting and controller roles in the construction industry, Construction enables tracking of project changes (costs and pricing) throughout the project lifecycle. It also facilitates subcontractor payment application workflows and allows alignment of Sage Intacct terminology with common construction industry terms.",
+      "keyDetails": [
+        "Requires a separate Construction subscription; contact your Sage Intacct account manager to enable it.",
+        "Regional support is limited to Australia, Canada, the United Kingdom, and the United States.",
+        "Includes functionality for change management documents, capturing project changes and revisions.",
+        "Allows tracking of how changes impact original costs and pricing through change requests.",
+        "Supports attributing posted change requests to specific project contract lines when work is grouped by phase.",
+        "Uses construction-specific terminology that may differ from standard Sage Intacct terms; users can customize terminology (e.g., changing 'Project' to 'Job').",
+        "A payment application workflow is available for recording and managing subcontractor payments."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Construction/Purchasing/Payment_applications/constr-payment-application-workflow-overview-ns.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Construction/change_mgmt/4-change-mgt-documents/change-management-docs-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Construction/change_mgmt/change-management-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Construction/change_mgmt/1-change-requests/change-request-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Construction/construction-overview.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "sage-copilot",
+      "summary": "Sage Copilot offers several features to streamline financial close processes, including Close Workspace for task management and Marketplace Agents powered by AI.",
+      "whyItMatters": "Accountants and controllers can leverage Sage Copilot's capabilities like Close Workspace notifications and the Finance Intelligence Agent to gain real-time visibility into close progress, automate tasks, and improve overall efficiency. This allows for proactive issue identification and faster month-end closes.",
+      "keyDetails": [
+        "**Close Workspace:** Enables customizable task-related notifications via email or within the Copilot panel, including alerts for approaching deadlines, overdue tasks, and completion summaries.",
+        "**Roles in Close Workspace:** Defines three roles – Checklist Owner, Task Owner, and Task Assignee – each with specific responsibilities related to checklists.",
+        "**Close Progress Monitor:** Provides a comprehensive view of close progress by transforming Close Workspace data into actionable insights, tracking task statuses, assignees, and due dates.",
+        "**Marketplace Agents:** AI-powered assistants that help users complete specialized tasks and access information within Sage Copilot.",
+        "**Finance Intelligence Agent (Early Adopter):** An AI agent designed to assist with financial analysis and potentially other close-related activities.",
+        "**Customization:** Close Workspace email notification messages can be customized to reflect organizational processes.",
+        "**Regional Availability:** Functionality may have regional availability limitations."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Copilot/Close_Automation/Close_workspace/about-close-workspace-email-templates.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Copilot/Close_Automation/Close_workspace/about-close-workspace-roles.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Copilot/Close_Automation/Close_workspace/Analysis/close-progress-monitor.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Copilot/MarketplaceAgents/marketplace-agents-about.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Copilot/Finance_Intelligence_Agent-noindex/finance-intelligence-agent.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "close-books",
+      "summary": "Closing books finalizes accounting periods and prevents posting transactions to prior periods. It's a key step in the period-end process.",
+      "whyItMatters": "Closing books ensures accurate financial reporting by preventing unauthorized transaction postings into past periods, which can compromise data integrity and auditability.",
+      "keyDetails": [
+        "Books are closed via the General Ledger > All > Books > Close page.",
+        "Once a book is closed, you cannot post transactions for dates older than the selected end period.",
+        "Closing a subsequent period automatically closes any preceding open periods (e.g., closing Q3 closes Q2).",
+        "Adjusting journal entries can be added to closed books.",
+        "Locked closed periods cannot be reopened or modified, even with adjustments.",
+        "Requires the 'General Ledger: Close books' permission.",
+        "Closing books is a regular part of your period-end process."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Adjusting_entries/Adjustments_to_closed_books/make-adjustments-to-closed-books-adjusting-journal-entries.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Open_and_close_books/close-books.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Open_and_close_books/lock-closed-periods.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Open_and_close_books/open-and-close-process-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Open_and_close_books/open-books.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "reporting-periods",
+      "summary": "Reporting periods define calendar intervals used for financial reporting and other processes within Sage Intacct, such as budgeting or closing periods.",
+      "whyItMatters": "Accountants and controllers should understand reporting periods because they are essential for creating consistent and repeatable reports. They allow for date-driven reporting that mirrors common calendar periods or can be customized to specific business needs.",
+      "keyDetails": [
+        "Reporting periods are used in multiple Sage Intacct applications, including reporting, budgeting, and opening/closing periods.",
+        "Standard system reporting periods include options like monthly, quarterly, yearly, weekly, inception, and fiscal periods.",
+        "You can add standard reporting periods to both new and existing reports via Interactive Custom Reports (ICRW).",
+        "Reporting periods can be added or removed from reports using prompts.",
+        "Default reporting periods can be created through CSV import.",
+        "The date-driven nature of reporting periods allows for flexible identification of calendar intervals.",
+        "You can manually create a reporting period."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Setup/Reporting_periods/System_reporting_periods/system_reporting_periods.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Interactive_custom_reports/Manage-reports/remove-standard-reporting-periods.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Interactive_custom_reports/Manage-reports/add-standard-periods-to-existing-report.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/More/Uploading_Data/GL/create-default-reporting-periods.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/More/Uploading_Data/GL/import-reporting-periods.htm"
+      ],
+      "model": "gemma3:12b"
+    },
+    {
+      "id": "close-workspace",
+      "summary": "Close Workspace provides tools to manage and monitor the period-end close process, including task assignment, notifications, and progress tracking.",
+      "whyItMatters": "Accountants and controllers can use Close Workspace to gain real-time visibility into the close process, track task statuses and assignees, and ensure deadlines are met. This helps streamline the closing cycle and improve accuracy.",
+      "keyDetails": [
+        "Notifications can be delivered via insights in the Copilot panel or through email.",
+        "Available notification types include approaching deadline alerts, overdue/at-risk task notifications, daily summaries, and completion updates.",
+        "Three roles exist within Close Workspace: Checklist Owner, Task Owner, and Task Assignee, each with specific responsibilities.",
+        "Checklist templates contain tasks needed to close a period, including system-generated and custom templates.",
+        "The Close progress monitor provides actionable insights by transforming Close Workspace data into a clear view of task statuses, assignees, and due dates.",
+        "Task templates include information for calculating target start and due dates relative to the period-close date."
+      ],
+      "sourceUrls": [
+        "https://www.intacct.com/ia/docs/en_US/help_action/Copilot/Close_Automation/Close_workspace/about-close-workspace-email-templates.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Copilot/Close_Automation/Close_workspace/about-close-workspace-roles.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Copilot/Close_Automation/Close_workspace/Analysis/close-progress-monitor.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Copilot/Close_Automation/Close_workspace/Setup/Checklist_templates/add-task-to-close-checklist-template.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/More/Uploading_Data/Close_Workspace/import-checklist-templates.htm"
+      ],
+      "model": "gemma3:12b"
+    }
+  ]
+}

@@ -1,0 +1,310 @@
+{
+  "version": "2026 R3",
+  "date": "August 7, 2026",
+  "sourceUrl": "https://www.intacct.com/ia/docs/en_US/releasenotes/2026/2026_Release_3/2026-R3-home.htm",
+  "discoveredAt": "2026-09-03T18:00:00Z",
+  "highlights": [
+    {
+      "title": "Smart Excel reporting—Early Adopter",
+      "description": "Build reports in Microsoft Excel that stay linked to Sage Intacct financial data and refresh when you need the latest numbers.",
+      "area": "Reporting",
+      "isEarlyAdopter": true,
+      "regions": ["Canada", "United Kingdom", "United States"],
+      "relatedConceptId": "financial-reporting"
+    },
+    {
+      "title": "AI-driven anomaly detection for AP Automation",
+      "description": "Identify potentially fraudulent or high-risk invoices early to reduce payment errors and financial risk.",
+      "area": "AI and Automation",
+      "isGeneralAvailability": true,
+      "regions": ["All regions"],
+      "relatedConceptId": "ap-automation"
+    },
+    {
+      "title": "Preview invoices for billing groups",
+      "description": "Preview billing-group invoices before posting, with draft invoice support for Revenue Management.",
+      "area": "Order Entry",
+      "regions": ["All regions"],
+      "relatedConceptId": "order-entry"
+    },
+    {
+      "title": "Avalara use tax in Purchasing—Early Adopter",
+      "description": "Apply Avalara AvaTax use tax on Purchasing transactions, standalone or to offset sales tax on out-of-state purchases.",
+      "area": "Tax & Compliance",
+      "isEarlyAdopter": true,
+      "regions": ["Canada", "United States"],
+      "relatedConceptId": "tax-management"
+    },
+    {
+      "title": "Customer Payment Services enhancements—Early Adopter",
+      "description": "Accept payments with secure links on imported invoices, plus partial payments and customer refunds.",
+      "area": "Accounts Receivable",
+      "isEarlyAdopter": true,
+      "regions": ["United States"],
+      "relatedConceptId": "accounts-receivable"
+    },
+    {
+      "title": "Lending Management",
+      "description": "Manage loans from origination to payoff for revolving and non-revolving instruments.",
+      "area": "Industry Solutions",
+      "regions": ["United States"]
+    },
+    {
+      "title": "Construction billing and retainage enhancements",
+      "description": "Automated retainage on primary documents and an enhanced project contract billing workflow (early adopter).",
+      "area": "Construction",
+      "regions": ["Australia", "Canada", "United Kingdom", "United States"],
+      "relatedConceptId": "construction"
+    },
+    {
+      "title": "Daily sales report powered by Craftable",
+      "description": "Hospitality daily sales visibility by connecting Craftable operational data with Sage Intacct.",
+      "area": "Industry Solutions",
+      "regions": ["United States"]
+    }
+  ],
+  "allChanges": [
+    {
+      "area": "Sage Ai & Automation",
+      "features": [
+        {
+          "title": "Identify high-risk transactions using AI-driven anomaly detection for AP Automation",
+          "description": "Flag potentially fraudulent or high-risk invoices early.",
+          "regions": ["All regions"],
+          "relatedConceptId": "ap-automation"
+        },
+        {
+          "title": "Discover and use AI agents in Sage Intacct",
+          "description": "Find and use AI agents from within Sage Intacct.",
+          "regions": ["Canada", "United Kingdom", "United States"],
+          "relatedConceptId": "sage-ai"
+        },
+        {
+          "title": "Finance Intelligence Agent—Phased Early Adopter",
+          "description": "Phased early adopter for the Finance Intelligence Agent.",
+          "isEarlyAdopter": true,
+          "regions": ["Australia", "Canada", "Singapore", "South Africa", "United Kingdom", "United States"],
+          "relatedConceptId": "sage-ai"
+        },
+        {
+          "title": "Block email addresses from automated document processing",
+          "description": "Block specific email addresses from automated document capture.",
+          "regions": ["All regions"],
+          "relatedConceptId": "ap-automation"
+        }
+      ]
+    },
+    {
+      "area": "Accounts Payable",
+      "features": [
+        {
+          "title": "AI-driven anomaly detection for AP Automation",
+          "description": "Identify high-risk invoices before payment.",
+          "regions": ["All regions"],
+          "relatedConceptId": "ap-automation"
+        },
+        {
+          "title": "Streamline customer refund processing in Accounts Payable",
+          "description": "Faster customer refund workflows in AP.",
+          "regions": ["All regions, excluding France"],
+          "relatedConceptId": "accounts-payable"
+        },
+        {
+          "title": "Automate prepaid expense amortization—Early Adopter",
+          "description": "Automate amortization of prepaid expenses.",
+          "isEarlyAdopter": true,
+          "regions": ["All regions"],
+          "relatedConceptId": "accounts-payable"
+        },
+        {
+          "title": "Vendor payments powered by CSI has been retired",
+          "description": "CSI-powered vendor payments are no longer available.",
+          "regions": ["United States"],
+          "relatedConceptId": "vendor-payments"
+        }
+      ]
+    },
+    {
+      "area": "Accounts Receivable",
+      "features": [
+        {
+          "title": "Post multiple invoices and adjustments at the same time",
+          "description": "Batch-post invoices and adjustments.",
+          "regions": ["All regions"],
+          "relatedConceptId": "accounts-receivable"
+        },
+        {
+          "title": "Enhancements to embedded Customer Payment Services—Early Adopter",
+          "description": "Payment links, partial payments, and customer refunds.",
+          "isEarlyAdopter": true,
+          "regions": ["United States"],
+          "relatedConceptId": "accounts-receivable"
+        },
+        {
+          "title": "Customize sender and reply-to email for AR invoices and statements",
+          "description": "Control outbound AR email identity.",
+          "regions": ["All regions"],
+          "relatedConceptId": "accounts-receivable"
+        }
+      ]
+    },
+    {
+      "area": "Cash Management",
+      "features": [
+        {
+          "title": "Enhancements to Cash Intelligence—Early Adopter",
+          "description": "Improved Cash Intelligence capabilities.",
+          "isEarlyAdopter": true,
+          "regions": ["All regions"],
+          "relatedConceptId": "cash-management"
+        },
+        {
+          "title": "New bank file formats for SEPA",
+          "description": "Additional SEPA bank file formats.",
+          "regions": ["France", "Germany", "United Kingdom"],
+          "relatedConceptId": "cash-management"
+        },
+        {
+          "title": "Increased precision in reconciliation display",
+          "description": "Clearer reconciliation amounts and status.",
+          "regions": ["All regions"],
+          "relatedConceptId": "bank-reconciliation"
+        }
+      ]
+    },
+    {
+      "area": "General Ledger",
+      "features": [
+        {
+          "title": "Simplified General Ledger setup and journal entry approvals",
+          "description": "Easier GL setup and access to journal approvals.",
+          "regions": ["All regions"],
+          "relatedConceptId": "general-ledger"
+        },
+        {
+          "title": "Fast access to journal entry templates",
+          "description": "Quicker reuse of journal templates.",
+          "regions": ["All regions"],
+          "relatedConceptId": "journal-entries"
+        }
+      ]
+    },
+    {
+      "area": "Order Entry",
+      "features": [
+        {
+          "title": "Preview invoices for billing groups",
+          "description": "Preview billing-group invoices before posting.",
+          "regions": ["All regions"],
+          "relatedConceptId": "order-entry"
+        },
+        {
+          "title": "Combine multiple documents into a single transaction",
+          "description": "New workflow to merge documents into one transaction.",
+          "regions": ["All regions"],
+          "relatedConceptId": "order-entry"
+        }
+      ]
+    },
+    {
+      "area": "Purchasing",
+      "features": [
+        {
+          "title": "Expanded approval criteria for Custom Purchasing approvals—Early Adopter",
+          "description": "Broader criteria for custom purchasing approvals.",
+          "isEarlyAdopter": true,
+          "regions": ["All regions"],
+          "relatedConceptId": "purchasing"
+        },
+        {
+          "title": "Avalara use tax in Purchasing—Early Adopter",
+          "description": "Apply Avalara use tax on purchasing transactions.",
+          "isEarlyAdopter": true,
+          "regions": ["Canada", "United States"],
+          "relatedConceptId": "tax-management"
+        }
+      ]
+    },
+    {
+      "area": "Reporting & Insights",
+      "features": [
+        {
+          "title": "Smart Excel reporting—Early Adopter",
+          "description": "Linked Excel reports against live Intacct financial data.",
+          "isEarlyAdopter": true,
+          "regions": ["Canada", "United Kingdom", "United States"],
+          "relatedConceptId": "financial-reporting"
+        },
+        {
+          "title": "Compare-to options for additional reporting periods in performance cards",
+          "description": "More period compare options on performance cards.",
+          "regions": ["All regions"],
+          "relatedConceptId": "reporting-periods"
+        },
+        {
+          "title": "New ICRW data caching capabilities",
+          "description": "Improved Interactive Custom Report Writer caching.",
+          "regions": ["All regions"],
+          "relatedConceptId": "financial-reporting"
+        },
+        {
+          "title": "Exclude blank pages from reports",
+          "description": "Skip empty pages in report output.",
+          "regions": ["All regions"],
+          "relatedConceptId": "financial-reporting"
+        }
+      ]
+    },
+    {
+      "area": "Construction",
+      "features": [
+        {
+          "title": "Automated retainage holding on primary documents",
+          "description": "Define and assign automated retainage withholding rules.",
+          "regions": ["Australia", "Canada", "United Kingdom", "United States"],
+          "relatedConceptId": "construction"
+        },
+        {
+          "title": "Enhanced project contract billing workflow—Early Adopter",
+          "description": "More flexible project contract billing across periods and invoices.",
+          "isEarlyAdopter": true,
+          "regions": ["Australia", "Canada", "United Kingdom", "United States"],
+          "relatedConceptId": "construction"
+        }
+      ]
+    },
+    {
+      "area": "Fixed Assets Management",
+      "features": [
+        {
+          "title": "Reverse asset disposals",
+          "description": "Reverse previously posted asset disposals.",
+          "regions": ["All regions"],
+          "relatedConceptId": "fixed-assets"
+        },
+        {
+          "title": "Revert summarized depreciation postings",
+          "description": "Undo summarized depreciation postings when needed.",
+          "regions": ["All regions"],
+          "relatedConceptId": "fixed-assets"
+        }
+      ]
+    },
+    {
+      "area": "Company & Administration",
+      "features": [
+        {
+          "title": "Updated global navigation",
+          "description": "Bring Sage products and tools together in navigation.",
+          "regions": ["All regions"]
+        },
+        {
+          "title": "Email verification for user accounts",
+          "description": "Verify email addresses on user accounts.",
+          "regions": ["All regions"],
+          "relatedConceptId": "user-roles"
+        }
+      ]
+    }
+  ]
+}
