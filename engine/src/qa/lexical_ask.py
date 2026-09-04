@@ -57,6 +57,7 @@ def lexical_ask(question: IssueInput, okf_store: OkfStore | None) -> AskResult:
             ask_id=ask_id,
             status="refused",
             coverage_gap="Help corpus is not ingested yet. Run Re-ingest Help or bootstrap from an existing OKF bundle.",
+            refusal_reason="insufficient_evidence",
             error_code="INSUFFICIENT_HELP_COVERAGE",
         )
     retrieved = lexical_retrieve(okf_store, question.text)
@@ -77,6 +78,7 @@ def lexical_ask(question: IssueInput, okf_store: OkfStore | None) -> AskResult:
             status="refused",
             classification=classification,
             coverage_gap="No matching Help procedures were found in the current OKF bundle.",
+            refusal_reason="insufficient_evidence",
             error_code="INSUFFICIENT_HELP_COVERAGE",
         )
         return overlay_ask_result(result)

@@ -1,26 +1,21 @@
 {
-  "generatedAt": "2026-09-03T19:13:43.257433Z",
+  "generatedAt": "2026-09-03T22:31:37.229355Z",
   "model": "gemma3:12b",
   "concepts": [
     {
       "id": "general-ledger",
-      "summary": "The General Ledger is the foundation of Sage Intacct's financial reporting, providing a centralized record of all financial transactions.",
-      "whyItMatters": "Accountants and controllers rely on the General Ledger to maintain accurate financial records, ensure compliance with regulations, and generate reliable reports for decision-making. Features like approval delegation and restriction release streamline processes and improve efficiency.",
+      "summary": "The General Ledger is a core Intacct module that tracks all financial transactions within your organization. It serves as the central repository for your company's accounting data.",
+      "whyItMatters": "Accountants and controllers rely on the General Ledger to maintain accurate records of financial activity, enabling informed decision-making and compliance reporting. The associated reports provide visibility into account balances and transaction history.",
       "keyDetails": [
-        "Sage Intacct Planning integrates with the General Ledger to support budgeting and forecasting workflows.",
-        "Journal entry approvals can be delegated to ensure continuity even when approvers are unavailable.",
-        "Purpose-based restriction releases are available for organizations created with the Nonprofit QuickStart, enabling the release of restricted revenues after qualified expenses are met.",
-        "Regularization accounts help comply with regional reporting requirements by classifying accounts as assets or liabilities based on balance sheet needs.",
-        "The Account Balances report provides a snapshot of account balances for financial analysis.",
-        "General Ledger permissions control user access and functionality within the system.",
-        "Regional availability impacts certain General Ledger features."
+        "The General Ledger report allows you to view individual transactions and drill down for more details.",
+        "Access the standard General Ledger report through: General Ledger > All > Reports > General Ledger.",
+        "User roles such as Business, Approval, and Employee have permissions to run this report.",
+        "Related reports include the AP Ledger and AR Ledger, providing different perspectives on financial activity.",
+        "Terminology may vary depending on your region; refer to Intacct's documentation for localized terms."
       ],
       "sourceUrls": [
-        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Budgets_and_spending/Planning/about-SIBP.htm",
-        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Approvals/Approval_delegation/about_gl_approval_delegation.htm",
-        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Nonprofit_restriction_release/about-restriction-release.htm",
-        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/Regularization_accounts/about-regularization-accounts.htm",
-        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/General_Ledger_reports/Account_balance/about-account-balances-report.htm"
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/General_Ledger_reports/General_Ledger_report/about-general-ledger-rept.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/General_Ledger/General_Ledger_reports/Revaluation/about-revaluation.htm"
       ],
       "model": "gemma3:12b"
     },
@@ -67,65 +62,61 @@
     },
     {
       "id": "dimensions",
-      "summary": "Dimension groups are named sets of members within a dimension, allowing for flexible organization and reporting.",
-      "whyItMatters": "Accountants and controllers can use dimension groups to segment data based on specific criteria (like location or balance) which improves the quality of reports and simplifies analysis.",
+      "summary": "Dimensions provide a way to organize data beyond standard account reporting, allowing you to segment financial information in reports. Dimension groups are named sets of members within a dimension.",
+      "whyItMatters": "Accountants and controllers use dimensions to gain deeper insights into business performance by categorizing transactions based on criteria like location, department, or project. This enables more targeted analysis and better decision-making through customized financial reports.",
       "keyDetails": [
-        "Dimension groups can be created for standard dimensions like Affiliate entity.",
-        "They provide a way to organize members that meet certain criteria, such as customers in a particular state.",
-        "Dimension groups are used within reports and dashboards.",
-        "A dimension structure provides a flexible way to organize dimension data on financial reports.",
-        "You can create multiple report structures."
+        "Dimension structures define how dimension data is displayed in financial reports, allowing you to select specific subsets of dimensions (e.g., locations within a region).",
+        "You can create dimension groups to represent logical groupings of dimension members based on defined criteria (e.g., customers in a particular state).",
+        "Dimension groups and structures are used together to filter and organize data presented in financial reports.",
+        "Dimensions can be used for reporting purposes, allowing you to analyze performance by various categories.",
+        "Standard dimensions like Affiliate entity can be utilized with appropriate subscriptions."
       ],
       "sourceUrls": [
-        "https://www.intacct.com/ia/docs/en_US/help_action/Company/Checklists/about-checklists.htm",
-        "https://www.intacct.com/ia/docs/en_US/help_action/Company/Accounting_periods/accounting-periods.htm",
-        "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Dimensions/Manage_groups/dimension-groups.htm",
         "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Dimensions/Manage_structures/dimension-structure-lists.htm",
-        "https://www.intacct.com/ia/docs/en_US/help_action/Company/Multi-Entity_upgrade/overview-about-the-upgrade.htm"
+        "https://www.intacct.com/ia/docs/en_US/help_action/Reporting/Dimensions/Manage_groups/dimension-groups.htm"
       ],
       "model": "gemma3:12b"
     },
     {
       "id": "accounts-payable",
-      "summary": "Accounts Payable (AP) manages vendor invoices and payments. The AP Adjustments list provides a centralized location to manage debit and credit memo adjustments.",
-      "whyItMatters": "Accountants and controllers use Accounts Payable to track obligations to vendors, ensuring accurate financial reporting and efficient cash flow management. Managing adjustments through the AP Adjustments list helps maintain data integrity and facilitates reconciliation.",
+      "summary": "Accounts Payable (AP) manages payments to vendors for goods and services. It encompasses processes from receiving invoices to issuing payments.",
+      "whyItMatters": "Accurate Accounts Payable management is crucial for maintaining strong vendor relationships, ensuring timely payments, and controlling business expenses. Proper AP practices contribute to a healthy cash flow cycle and reliable financial reporting.",
       "keyDetails": [
-        "The AP Adjustments list allows users to create, edit, reverse, and print adjustments.",
-        "It supports managing debit memo and credit memo adjustments.",
-        "Users can export a view of the AP Adjustments list.",
-        "Custom views can be added to display specific list items.",
-        "CSV import is available for Accounts Payable adjustments.",
-        "To apply vendor credits, use the Pay bills page.",
-        "Related reports include the AP Ledger report and the AP Open Items Revaluation report."
+        "**AP Advances:** Used when you need to make advance payments to vendors, such as for retainer fees or deposits – these are not tied to an invoice.",
+        "**AP Automation:** Can streamline the bill processing workflow by automating tasks like data entry and matching invoices to purchase orders (if applicable).",
+        "**AP Adjustments:**  Allow you to correct discrepancies in vendor balances. Credit memos increase what you owe a vendor, while debit memos decrease it.",
+        "**Bill Processing:** The core function involves receiving, validating, and recording vendor invoices within the system.",
+        "**Payment Management:** Facilitates scheduling and executing payments to vendors through various payment methods.",
+        "**Setup & Configuration:** AP Automation requires initial setup including defining email addresses and default locations for line items."
       ],
       "sourceUrls": [
-        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Adjustments/ap-adjustments-list.htm",
-        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Automation/ap-bill-automation-faq.htm",
-        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/AP_reports/ap-ledger-report.htm",
-        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/AP_reports/ap-open-items-revaluation-report.htm",
-        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/AP_reports/ap-reclassification-report.htm"
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Setup/AP_Terms/ap-terms.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Advances/advances-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Automation/ap-bill-automation-overview.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Automation/Setup/about-ap-automation-configuration.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Payable/Adjustments/learn-about-ap-adjustments.htm"
       ],
       "model": "gemma3:12b"
     },
     {
       "id": "accounts-receivable",
-      "summary": "Accounts Receivable (AR) encompasses several reports within Sage Intacct that provide insights into customer transactions and outstanding balances. These reports help track revenue, manage collections, and ensure accurate financial reporting.",
-      "whyItMatters": "Accountants and controllers use AR reports to monitor cash flow, assess the collectability of receivables, and comply with accounting standards. Reports like the AR Reclassification report can aid in troubleshooting discrepancies, while others provide detailed views of recurring invoices or revaluations.",
+      "summary": "Accounts Receivable (AR) manages invoices and payments you receive from customers for goods or services provided. It tracks outstanding balances and helps ensure timely collections.",
+      "whyItMatters": "As a controller or accountant, AR is critical for maintaining accurate financial records and managing cash flow. Efficient AR processes lead to quicker payment cycles and improved working capital.",
       "keyDetails": [
-        "The **AR Ledger Report** provides a detailed view of account activity.",
-        "The **AR Open Items Revaluation Report** facilitates currency revaluation and allows for automatic draft journal entry creation.",
-        "The **AR Reclassification Report** displays transactions that have been reclassified, aiding in troubleshooting.",
-        "The **AR Recurring Report** tracks recurring invoices and payment details like frequency and term.",
-        "Reports can be customized with filters for time period, location/department, and transaction currency.",
-        "Formatting options are available to adjust report presentation including titles and footers.",
-        "PDF versions of reports can be generated."
+        "**Invoice Management:** You can add, edit, and delete invoices within Accounts Receivable, with key information readily visible.",
+        "**Payment Application:** AR facilitates receiving payments from customers and applying them to outstanding invoices.",
+        "**Terms Definition:** AR terms define the payment rules you offer customers (e.g., Net 30), influencing payment due dates and potential discounts.",
+        "**Invoice Correction:** If an invoice is incorrect, it can be either deleted entirely or reversed, creating an audit trail of changes.",
+        "**Payment Reversal:** Posted payments can be reversed to correct errors like applying a payment to the wrong customer or date. A reversal creates a linked 'Reversal' transaction.",
+        "**Audit Trails:** Intacct maintains an audit trail for invoice deletions, reversals, and payment reversals, ensuring transparency and accountability.",
+        "**Reporting:** AR provides reports to monitor outstanding balances, aging of receivables, and overall collection performance."
       ],
       "sourceUrls": [
-        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Receivable/AR_reports/ar-ledger-report.htm",
-        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Receivable/AR_reports/ar-open-items-revaluation-report.htm",
-        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Receivable/AR_reports/ar-reclassification-report.htm",
-        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Receivable/AR_reports/ar-recurring-report.htm",
-        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Receivable/Setup/Account_labels/aa-TOC-ar-account-labels.htm"
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Receivable/Invoices/Tasks/delete-or-reverse.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Receivable/Invoices/about-ar-invoices.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Receivable/Payments/Posted_payments/about-reversing-posted-payment.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Receivable/Setup/AR_Terms/ar-terms.htm",
+        "https://www.intacct.com/ia/docs/en_US/help_action/Accounts_Receivable/AR_reports/ar-reports-overview.htm"
       ],
       "model": "gemma3:12b"
     },

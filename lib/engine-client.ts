@@ -19,6 +19,7 @@ export type EngineAskResult = {
   } | null;
   sources: EngineSource[];
   coverage_gap?: string | null;
+  refusal_reason?: "out_of_scope" | "ambiguous" | "insufficient_evidence" | null;
   error_detail?: string | null;
   touched_concept_ids?: string[];
   skill_path_ids?: string[];

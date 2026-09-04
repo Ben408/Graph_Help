@@ -6,7 +6,7 @@ from src.knowledge.overlay import overlay_ask_result
 from src.knowledge.pack_loader import load_pack
 from src.knowledge.practice import practice_for_concept
 from src.llm.client import OllamaClient
-from src.models import AskResult, IssueInput, ProgressEvent, RefreshResult
+from src.models import AskFeedbackInput, AskResult, IssueInput, ProgressEvent, RefreshResult
 from src.qa.ask_agent import AskService
 from src.qa.lexical_ask import lexical_ask
 from src.rag.corpus_refresh import CorpusRefreshService
@@ -16,6 +16,8 @@ from src.runtime_gate import WorkGate
 from src.telemetry.logging import configure_logging
 from src.telemetry.progress import ProgressTracker
 from src.telemetry.run_store import JsonRunStore
+from datetime import UTC, datetime
+import json
 
 
 def create_app(
@@ -52,6 +54,8 @@ def create_app(
             settings.web_origin,
             "http://localhost:3000",
             "http://127.0.0.1:3000",
+            "http://localhost:3001",
+            "http://127.0.0.1:3001",
         ],
         allow_credentials=False,
         allow_methods=["*"],
@@ -111,6 +115,20 @@ def create_app(
         if "result" not in record:
             raise HTTPException(status_code=404, detail="Ask not found")
         return [ProgressEvent.model_validate(item) for item in record.get("events", [])]
+
+    @app.post("/api/ask/{ask_id}/feedback")
+    def post_ask_feedback(ask_id: str, payload: AskFeedbackInput) -> dict[str, object]:
+        """Stateless multi-user feedback: append-only JSONL under engine/data/runs/."""
+        if payload.ask_id != ask_id:
+            raise HTTPException(status_code=400, detail="ask_id mismatch")
+        path = settings.runs_dir / "ask_feedback.jsonl"
+        record = {
+            **payload.model_dump(),
+            "server_ts": datetime.now(UTC).isoformat(),
+        }
+        with path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+        return {"ok": True, "path": str(path.name)}
 
     @app.post("/api/corpus/refresh", status_code=202)
     def start_corpus_refresh(background_tasks: BackgroundTasks) -> RefreshResult:

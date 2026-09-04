@@ -57,7 +57,19 @@ export function searchConceptHits(pack: ContentPack, query: string): ConceptHit[
 export function matchSkillPaths(pack: ContentPack, query: string): SkillPath[] {
   const q = query.trim().toLowerCase();
   if (q.length < 2) return [];
-  return pack.skillPaths.filter((path) => {
+  const reconcile =
+    /(discrepan|mismatch|out of balance|does not match|don't match|reconcil|subledger)/.test(
+      q,
+    );
+  const hasGl = /\b(gl|general ledger)\b/.test(q);
+  const hasAp = /\b(ap|accounts payable)\b/.test(q);
+  const hasAr = /\b(ar|accounts receivable)\b/.test(q);
+  const preferClose = reconcile && hasGl && (hasAp || hasAr);
+
+  const hits = pack.skillPaths.filter((path) => {
+    if (preferClose && (path.id === "order-to-cash" || path.id === "procure-to-pay")) {
+      return false;
+    }
     const blob = [
       path.title,
       path.summary,
@@ -73,6 +85,13 @@ export function matchSkillPaths(pack: ContentPack, query: string): SkillPath[] {
       return concept ? scoreConcept(concept, q) >= 55 : false;
     });
   });
+
+  if (!preferClose) return hits;
+  const preferred = ["period-close", "ledger-foundations"];
+  return [
+    ...hits.filter((p) => preferred.includes(p.id)),
+    ...hits.filter((p) => !preferred.includes(p.id)),
+  ];
 }
 
 export function vocabularyIdsForQuery(pack: ContentPack, query: string): string[] {

@@ -10,6 +10,7 @@ import {
   ExternalLink,
   HelpCircle,
 } from "lucide-react";
+import { AskFeedback } from "@/components/ask-feedback";
 import { SiteHeader } from "@/components/site-header";
 import {
   engineHealth,
@@ -85,14 +86,32 @@ function AskInner() {
     }
   }
 
-  const suggestedPaths = [
-    ...new Set([
-      ...(result?.skill_path_ids ?? []),
-      ...(intent?.skillPathHits.map((p) => p.id) ?? []),
-    ]),
-  ]
-    .map((id) => getSkillPathById(id))
-    .filter(Boolean);
+  const refusalReason = result?.refusal_reason ?? null;
+  const suggestedPaths =
+    result?.status === "completed"
+      ? [
+          ...new Set(
+            (result?.skill_path_ids?.length
+              ? result.skill_path_ids
+              : (intent?.skillPathHits.map((p) => p.id) ?? [])) as string[],
+          ),
+        ]
+          .map((id) => getSkillPathById(id))
+          .filter(Boolean)
+      : [];
+
+  const uniqueSources = (() => {
+    const list = result?.sources ?? [];
+    const seen = new Set<string>();
+    const out: typeof list = [];
+    for (const source of list) {
+      const key = (source.source_url || source.source_id).split("#")[0];
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(source);
+    }
+    return out;
+  })();
 
   return (
     <div className="min-h-screen bg-background">
@@ -151,26 +170,43 @@ function AskInner() {
               <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-5">
                 <p className="font-medium text-foreground mb-2 inline-flex items-center gap-2">
                   <HelpCircle className="h-4 w-4" />
-                  Help does not cover this well enough
+                  {refusalReason === "out_of_scope"
+                    ? "Outside Sage Intacct Help"
+                    : refusalReason === "ambiguous"
+                      ? "Need a clearer product goal"
+                      : "Help does not cover this well enough"}
                 </p>
                 <p className="text-sm text-muted-foreground mb-4">
                   {result.coverage_gap ||
-                    "Current Help does not have a complete procedure for this question."}
+                    (refusalReason === "out_of_scope"
+                      ? "This does not look like an in-scope Sage Intacct Help question."
+                      : refusalReason === "ambiguous"
+                        ? "Try rephrasing with the Intacct module, object, and action you mean."
+                        : "Current Help does not have a complete procedure for this question.")}
                 </p>
-                <div className="flex flex-wrap gap-2">
+                {refusalReason === "insufficient_evidence" ? (
+                  <div className="flex flex-wrap gap-2">
+                    <Link
+                      href="/paths"
+                      className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      Learn a Skill Path
+                    </Link>
+                    <Link
+                      href={`/search?q=${encodeURIComponent(query)}`}
+                      className="rounded-lg border border-border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      Search related material
+                    </Link>
+                  </div>
+                ) : (
                   <Link
-                    href="/paths"
-                    className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                    href="/search"
+                    className="rounded-lg border border-border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-ring inline-flex"
                   >
-                    Learn a Skill Path
+                    Browse Find instead
                   </Link>
-                  <Link
-                    href={`/search?q=${encodeURIComponent(query)}`}
-                    className="rounded-lg border border-border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    Search related material
-                  </Link>
-                </div>
+                )}
               </div>
             )}
             {result.status === "failed" && (
@@ -233,11 +269,15 @@ function AskInner() {
               </article>
             )}
 
-            {(result.sources?.length ?? 0) > 0 && (
+            {uniqueSources.length > 0 && (
               <div>
-                <h2 className="text-sm font-semibold text-foreground mb-2">Cited Help</h2>
+                <h2 className="text-sm font-semibold text-foreground mb-2">
+                  {result.status === "completed"
+                    ? "Cited Help"
+                    : "Possibly related Help"}
+                </h2>
                 <ul className="space-y-2">
-                  {result.sources.map((source) => (
+                  {uniqueSources.map((source) => (
                     <li key={source.source_id}>
                       <a
                         href={source.source_url}
@@ -257,7 +297,8 @@ function AskInner() {
               </div>
             )}
 
-            {(result.touched_concept_ids?.length ?? 0) > 0 && (
+            {result.status === "completed" &&
+              (result.touched_concept_ids?.length ?? 0) > 0 && (
               <div>
                 <h2 className="text-sm font-semibold text-foreground mb-2">Related concepts</h2>
                 <div className="flex flex-wrap gap-2">
@@ -282,7 +323,7 @@ function AskInner() {
               </div>
             )}
 
-            {suggestedPaths[0] ? (
+            {result.status === "completed" && suggestedPaths[0] ? (
               <div className="rounded-xl border border-primary/30 bg-primary/5 p-5">
                 <p className="text-xs font-medium text-primary mb-1">Next: Learn</p>
                 <p className="text-sm font-semibold text-foreground">{suggestedPaths[0].title}</p>
@@ -296,6 +337,12 @@ function AskInner() {
                 </Link>
               </div>
             ) : null}
+
+            {(result.status === "completed" || result.status === "refused") &&
+              result.ask_id &&
+              result.ask_id !== "local" && (
+                <AskFeedback askId={result.ask_id} status={result.status} />
+              )}
           </div>
         )}
 

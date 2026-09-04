@@ -56,11 +56,8 @@ export const concepts: Concept[] = [
       "Enables drill-down from reports to source transactions",
     ],
     relationships: [
-      { targetId: "chart-of-accounts", type: "PART_OF" },
-      { targetId: "journal-entries", type: "PART_OF" },
-      { targetId: "dimensions", type: "USED_BY" },
-      { targetId: "budgets", type: "PART_OF" },
-      { targetId: "close-books", type: "PART_OF" },
+      // Children already declare PART_OF → general-ledger. Do not invert.
+      { targetId: "dimensions", type: "REQUIRES" },
       { targetId: "reporting-periods", type: "REQUIRES" },
       { targetId: "financial-reporting", type: "USED_BY" },
       { targetId: "accounts-payable", type: "USED_BY" },

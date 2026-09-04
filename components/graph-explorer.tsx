@@ -124,15 +124,24 @@ function GraphExplorerInner() {
         <aside className="w-72 shrink-0 border-r border-border bg-card flex flex-col overflow-hidden hidden lg:flex">
           <div className="p-4 border-b border-border">
             <p className="text-xs font-medium text-muted-foreground mb-2">
-              Ask the graph a question
+              Find a concept
             </p>
             <ConceptSearch
               size="sm"
-              placeholder="Find a concept…"
+              placeholder="Search concepts…"
               onSelect={(concept) => selectNode(concept.id)}
             />
+            <p className="mt-3 text-xs text-muted-foreground">
+              Need a how-to?{" "}
+              <Link href="/ask" className="text-primary font-medium hover:underline">
+                Ask about a goal
+              </Link>
+            </p>
           </div>
           <div className="p-3 border-b border-border space-y-1.5">
+            <p className="px-2.5 text-[11px] font-medium text-muted-foreground">
+              Explore these topics
+            </p>
             {PROMPTS.map((prompt) => (
               <button
                 key={prompt.label}

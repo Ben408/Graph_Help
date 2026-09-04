@@ -31,9 +31,17 @@ class ConceptDraft(BaseModel):
 SYSTEM = """You write curriculum copy for a Sage Intacct product noun on a concept-graph page.
 Use ONLY the supplied Help excerpts. Do not invent product behavior.
 This is not a how-to: no click paths, no numbered steps, no "Go to …".
-summary: 1-2 sentences, what the thing is.
-why_it_matters: why an accountant or controller should care, grounded in Help.
-key_details: 4-7 factual bullets from Help (capabilities, constraints, related objects).
+
+Prioritize foundational, everyday accountant usage over specialized scenarios.
+Prefer overview / HelpTopic material. Do NOT let niche procedures dominate a broad noun:
+avoid leading with nonprofit-only, regional-only, Planning integration, approval workflows,
+adjustments-only, report-catalog-only, or dimension-groups-only characterizations unless
+the noun itself is that niche topic.
+
+summary: 1-2 sentences defining what the thing is in ordinary Intacct use.
+why_it_matters: why a typical accountant or controller should care, grounded in Help.
+key_details ("When you use it"): 4-7 bullets of common capabilities and constraints.
+Put rare/specialized points last or omit them if space is limited.
 If Help is thin, stay short and conservative."""
 
 
@@ -58,21 +66,70 @@ def _sentences(text: str, limit: int = 6) -> list[str]:
     return parts
 
 
+_SPECIALIZED_TITLE_HINTS = (
+    "nonprofit",
+    "non-profit",
+    "regularization",
+    "delegation",
+    "planning",
+    "region",
+    "territory",
+    "adjustment",
+    "approv",
+    "dimension group",
+)
+
+# When rebuilding a broad noun, drop excerpt titles that are clearly another topic.
+_CONCEPT_TITLE_MUST_MATCH: dict[str, tuple[str, ...]] = {
+    "dimensions": ("dimension",),
+    "general-ledger": ("general ledger", "ledger", "gl "),
+    "accounts-payable": ("accounts payable", "payable", "vendor", " ap"),
+    "accounts-receivable": ("accounts receivable", "receivable", "customer", " ar"),
+}
+
+
 def _excerpt(store: OkfStore, concept_id: str, title: str = "") -> tuple[str, list[str]]:
     types = ("HelpTopic", "Procedure", "HelpSection")
-    rows = store.catalog_for_pack_concept(concept_id, types=types, limit=8)
+    rows = store.catalog_for_pack_concept(concept_id, types=types, limit=16)
     if not rows:
         rows = store.catalog_matching_url_fragments(
             CONCEPT_PATH_FRAGMENTS.get(concept_id, []),
             types=types,
-            limit=8,
+            limit=16,
         )
     if not rows and title:
         rows = [
             item
             for item in store.list_concepts(query=title, limit=40)
             if str(item.get("type") or "") in types
-        ][:8]
+        ][:16]
+
+    must = _CONCEPT_TITLE_MUST_MATCH.get(concept_id)
+    if must:
+        filtered = [
+            row
+            for row in rows
+            if any(tip in str(row.get("title") or "").lower() for tip in must)
+        ]
+        if filtered:
+            rows = filtered
+
+    def _row_rank(row: dict) -> tuple[int, int, int, int, str]:
+        kind = str(row.get("type") or "")
+        row_title = str(row.get("title") or "").lower()
+        specialized = any(tip in row_title for tip in _SPECIALIZED_TITLE_HINTS)
+        title_words = {w for w in title.lower().split() if len(w) > 3}
+        title_hit = 0 if (title_words and any(w in row_title for w in title_words)) else 1
+        overview = any(
+            tip in row_title
+            for tip in ("overview", "about", "basics", "what is", title.lower())
+        )
+        # Prefer HelpTopic overviews; demote specialized procedures.
+        kind_rank = 0 if kind == "HelpTopic" else 1 if kind == "HelpSection" else 2
+        return (title_hit, 1 if specialized else 0, 0 if overview else 1, kind_rank, row_title)
+
+    rows = sorted(rows, key=_row_rank)
+
     urls: list[str] = []
     blocks: list[str] = []
     for row in rows:
@@ -85,7 +142,6 @@ def _excerpt(store: OkfStore, concept_id: str, title: str = "") -> tuple[str, li
         kind = concept.type
         body = concept.body.strip()
         if kind == "Procedure":
-            # Titles + first non-step lines only — concept pages are not recipes.
             lines = [ln.strip() for ln in body.splitlines() if ln.strip()]
             kept = [ln for ln in lines if not _STEP_RE.match(ln)][:6]
             body = "\n".join(kept) or concept.title
@@ -123,12 +179,16 @@ def rebuild_concept_pages(
     store: OkfStore | None = None,
     output_path: Path | None = None,
     llm: OllamaClient | None = None,
+    concept_ids: list[str] | None = None,
 ) -> RebuildSummary:
     settings = settings or get_settings()
     store = store or OkfStore(settings.okf_dir)
     output_path = output_path or GENERATED_PATH
     pack = load_pack()
     nouns = [n for n in (pack.get("vocabulary") or []) if n.get("id")]
+    if concept_ids:
+        wanted = set(concept_ids)
+        nouns = [n for n in nouns if str(n.get("id")) in wanted]
     client = llm or OllamaClient(
         base_url=settings.ollama_base_url,
         chat_model=settings.ollama_chat_model,
@@ -136,6 +196,16 @@ def rebuild_concept_pages(
         fallback_model=None,
         timeout_seconds=min(settings.ollama_timeout_seconds, 90),
     )
+    # Merge into existing generated file when rebuilding a subset.
+    existing_by_id: dict[str, dict[str, object]] = {}
+    if output_path.is_file() and concept_ids:
+        try:
+            prior = json.loads(output_path.read_text(encoding="utf-8"))
+            for row in prior.get("concepts") or []:
+                if isinstance(row, dict) and row.get("id"):
+                    existing_by_id[str(row["id"])] = row
+        except json.JSONDecodeError:
+            existing_by_id = {}
     generated: list[dict[str, object]] = []
     fallback = 0
     skipped = 0
@@ -151,7 +221,9 @@ def rebuild_concept_pages(
         draft: ConceptDraft | None = None
         try:
             user = (
-                f"Concept id: {ident}\nTitle: {title}\n\nHelp excerpts:\n{excerpt[:6000]}"
+                f"Concept id: {ident}\nTitle: {title}\n"
+                f"Write foundational curriculum copy for everyday Intacct use.\n\n"
+                f"Help excerpts:\n{excerpt[:6000]}"
             )
             draft, model_used = client.generate_structured(SYSTEM, user, ConceptDraft)
             print(f"concept {ident}: gemma", flush=True)
@@ -170,6 +242,10 @@ def rebuild_concept_pages(
                 "model": model_used,
             }
         )
+    if existing_by_id:
+        for row in generated:
+            existing_by_id[str(row["id"])] = row
+        generated = list(existing_by_id.values())
     payload = {
         "generatedAt": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         "model": client.chat_model,
@@ -187,3 +263,18 @@ def rebuild_concept_pages(
         path=str(output_path),
         model=client.chat_model,
     )
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Rebuild concept page curriculum copy")
+    parser.add_argument(
+        "--concept",
+        action="append",
+        dest="concepts",
+        help="Limit to concept id (repeatable)",
+    )
+    args = parser.parse_args()
+    summary = rebuild_concept_pages(concept_ids=args.concepts)
+    print(summary)

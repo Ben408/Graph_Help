@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -23,15 +24,26 @@ import {
   getPack,
   getPathsForConcept,
   groupedRelationships,
-  neighborSet,
   sentenceFor,
 } from "@/lib/knowledge";
 import Link from "next/link";
+
+const NEIGHBORHOOD_DEFAULT = 4;
+const NEIGHBORHOOD_EXPANDED = 12;
 
 export function ConceptPageContent({ conceptId }: { conceptId: string }) {
   const router = useRouter();
   const pack = getPack();
   const concept = getConceptById(conceptId);
+  const [expandedNeighborhood, setExpandedNeighborhood] = useState(false);
+  const relLimit = expandedNeighborhood ? NEIGHBORHOOD_EXPANDED : NEIGHBORHOOD_DEFAULT;
+  const groups = groupedRelationships(pack, conceptId, relLimit);
+  const allGroups = useMemo(
+    () => groupedRelationships(pack, conceptId, NEIGHBORHOOD_EXPANDED),
+    [pack, conceptId]
+  );
+  const canExpand =
+    allGroups.reduce((n, g) => n + g.items.length, 0) > NEIGHBORHOOD_DEFAULT;
 
   if (!concept) {
     return (
@@ -41,11 +53,13 @@ export function ConceptPageContent({ conceptId }: { conceptId: string }) {
     );
   }
 
-  const groups = groupedRelationships(pack, conceptId, 6);
   const skillPaths = getPathsForConcept(conceptId);
   const color = CATEGORY_COLORS[concept.category];
   const helpLinkData = getHelpLinkData(conceptId);
-  const localIds = [...neighborSet(pack, [conceptId], 1)];
+  const localIds = [
+    conceptId,
+    ...groups.flatMap((g) => g.items.map((rel) => rel.concept.id)),
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -160,7 +174,18 @@ export function ConceptPageContent({ conceptId }: { conceptId: string }) {
             )}
 
             <section className="rounded-xl border border-border bg-card p-5">
-              <h2 className="text-sm font-semibold text-foreground mb-3">Related concepts</h2>
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <h2 className="text-sm font-semibold text-foreground">Related concepts</h2>
+                {canExpand && (
+                  <button
+                    type="button"
+                    onClick={() => setExpandedNeighborhood((v) => !v)}
+                    className="text-xs font-medium text-primary focus-visible:ring-2 focus-visible:ring-ring rounded"
+                  >
+                    {expandedNeighborhood ? "Show fewer" : "Expand neighborhood"}
+                  </button>
+                )}
+              </div>
               <div className="space-y-4">
                 {groups
                   .filter((group) => group.key !== "learn-first")
@@ -224,14 +249,29 @@ export function ConceptPageContent({ conceptId }: { conceptId: string }) {
 
           <div className="lg:col-span-2">
             <div className="sticky top-20 rounded-xl border border-border bg-card overflow-hidden">
-              <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+              <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-2">
                 <div>
                   <h3 className="text-sm font-semibold text-foreground">Neighborhood</h3>
-                  <p className="text-xs text-muted-foreground">Strongest nearby relationships</p>
+                  <p className="text-xs text-muted-foreground">
+                    {expandedNeighborhood
+                      ? "Expanded direct relationships"
+                      : `Strongest ${NEIGHBORHOOD_DEFAULT} direct relationships`}
+                  </p>
                 </div>
-                <Link href={`/graph?focus=${conceptId}`} className="text-xs font-medium text-primary">
-                  Open in full graph
-                </Link>
+                <div className="flex flex-col items-end gap-1">
+                  {canExpand && (
+                    <button
+                      type="button"
+                      onClick={() => setExpandedNeighborhood((v) => !v)}
+                      className="text-xs font-medium text-primary"
+                    >
+                      {expandedNeighborhood ? "Fewer" : "Expand"}
+                    </button>
+                  )}
+                  <Link href={`/graph?focus=${conceptId}`} className="text-xs font-medium text-primary">
+                    Open in full graph
+                  </Link>
+                </div>
               </div>
               <div className="h-[320px]">
                 <KnowledgeGraph

@@ -4,6 +4,14 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 
+class AskFeedbackInput(BaseModel):
+    ask_id: str = Field(min_length=3, max_length=80)
+    status: str = Field(default="completed", max_length=40)
+    rating: Literal["helpful", "partly_helpful", "not_helpful"]
+    reason: str = Field(default="", max_length=80)
+    client_ts: str | None = Field(default=None, max_length=64)
+
+
 class IssueInput(BaseModel):
     text: str = Field(min_length=3, max_length=20_000)
     module: str | None = Field(default=None, max_length=100)
@@ -197,6 +205,11 @@ class AskResult(BaseModel):
     okf_concepts: list[OkfConceptRef] = Field(default_factory=list)
     followup_queries: list[str] = Field(default_factory=list)
     coverage_gap: str | None = None
+    # Controls refuse UI: out_of_scope strips recs; insufficient_evidence may show
+    # carefully labeled possibly-related Help; ambiguous asks for clarification.
+    refusal_reason: (
+        Literal["out_of_scope", "ambiguous", "insufficient_evidence"] | None
+    ) = None
     error_code: str | None = None
     error_detail: str | None = None
     source_language: str | None = None
