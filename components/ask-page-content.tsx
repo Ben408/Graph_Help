@@ -37,6 +37,7 @@ function AskInner() {
   const [query, setQuery] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [engineOk, setEngineOk] = useState<boolean | null>(null);
+  const [engineWarning, setEngineWarning] = useState("");
   const [result, setResult] = useState<EngineAskResult | null>(null);
   const intent = query.trim().length >= 2 ? routeQuery(query) : null;
 
@@ -45,6 +46,7 @@ function AskInner() {
   useEffect(() => {
     engineHealth().then((h) => {
       setEngineOk(h.ok);
+      setEngineWarning(h.ready === false ? h.detail || "" : "");
     });
   }, []);
 
@@ -117,7 +119,7 @@ function AskInner() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <div className="mx-auto max-w-3xl px-4 lg:px-6 py-10" id="main">
-        <h1 className="font-serif text-3xl font-semibold text-foreground mb-2">Ask</h1>
+        <h1 className="font-serif heading-display text-3xl font-semibold text-foreground mb-2">Ask</h1>
         <p className="text-muted-foreground mb-6">
           Describe the outcome you need. Ask returns a cited procedure from
           current Help, or says when Help is not enough.
@@ -131,6 +133,19 @@ function AskInner() {
             </p>
             <p className="text-muted-foreground mt-2">
               The Help engine is offline. You can still use Learn and Explore.
+            </p>
+          </div>
+        )}
+
+        {engineWarning && (
+          <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm">
+            <p className="font-medium text-foreground flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4" />
+              Ask engine is not ready
+            </p>
+            <p className="text-muted-foreground mt-2">
+              {engineWarning} Answers will fail until this is fixed — restart with
+              start-graph-help.bat.
             </p>
           </div>
         )}
@@ -210,8 +225,21 @@ function AskInner() {
               </div>
             )}
             {result.status === "failed" && (
-              <div className="rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground">
-                Help could not retrieve an answer just now. Try again, or open Learn for a Skill Path.
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-5 text-sm">
+                <p className="font-medium text-foreground inline-flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  Ask engine problem — not a Help coverage gap
+                </p>
+                <p className="text-muted-foreground mt-2">
+                  The engine could not complete this question. Restart with
+                  start-graph-help.bat, then try again.
+                </p>
+                {result.error_code && (
+                  <p className="text-muted-foreground mt-2 font-mono text-xs">
+                    {result.error_code}
+                    {result.error_detail ? `: ${result.error_detail}` : ""}
+                  </p>
+                )}
               </div>
             )}
             {result.answer && (

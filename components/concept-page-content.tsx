@@ -103,7 +103,7 @@ export function ConceptPageContent({ conceptId }: { conceptId: string }) {
               <p className="text-xs font-medium text-muted-foreground mb-2" style={{ color }}>
                 {concept.category}
               </p>
-              <h1 className="font-serif text-3xl font-semibold text-foreground text-balance">
+              <h1 className="font-serif heading-display text-3xl font-semibold text-foreground text-balance">
                 {concept.title}
               </h1>
               <p className="mt-3 text-base text-muted-foreground leading-relaxed">

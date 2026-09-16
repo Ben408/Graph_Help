@@ -32,7 +32,7 @@ export function HomeScreen() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.08),transparent_60%)]" />
         <div className="relative mx-auto max-w-7xl px-4 lg:px-6 py-12 md:py-16">
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="font-serif text-4xl md:text-5xl font-semibold tracking-tight text-foreground text-balance">
+            <h1 className="font-serif heading-display text-4xl md:text-5xl font-semibold text-foreground text-balance">
               Get work done, learn a workflow, or understand the product
             </h1>
             <p className="mt-4 text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">

@@ -34,6 +34,8 @@ interface KnowledgeGraphProps {
   visibleIds?: string[];
   hops?: 1 | 2;
   onNodeClick?: (conceptId: string) => void;
+  onNodeDoubleClick?: (conceptId: string) => void;
+  onCanvasDoubleClick?: () => void;
   filterCategories?: string[];
   relationTypes?: RelationshipType[];
   sizeByDegree?: boolean;
@@ -52,6 +54,8 @@ export function KnowledgeGraph({
   visibleIds,
   hops: _hops = 1,
   onNodeClick,
+  onNodeDoubleClick,
+  onCanvasDoubleClick,
   filterCategories = [],
   relationTypes = [],
   sizeByDegree = true,
@@ -370,7 +374,7 @@ export function KnowledgeGraph({
         ref={canvasRef}
         tabIndex={0}
         role="application"
-        aria-label="Concept graph. Arrow keys move between concepts, Enter opens one, plus and minus zoom."
+        aria-label="Concept graph. Arrow keys move between concepts, Enter selects one and Enter again reads it, plus and minus zoom, 0 fits."
         className="w-full h-full cursor-grab active:cursor-grabbing focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset rounded-md"
         onMouseDown={(e) => {
           didDragRef.current = false;
@@ -434,6 +438,12 @@ export function KnowledgeGraph({
           const node = getNodeAtPos(e.clientX, e.clientY);
           if (node && onNodeClick) onNodeClick(node.id);
         }}
+        onDoubleClick={(e) => {
+          if (didDragRef.current) return;
+          const node = getNodeAtPos(e.clientX, e.clientY);
+          if (node) onNodeDoubleClick?.(node.id);
+          else onCanvasDoubleClick?.();
+        }}
         onKeyDown={(e) => {
           const nodes = nodesRef.current;
           if (nodes.length === 0) return;
@@ -453,7 +463,10 @@ export function KnowledgeGraph({
           } else if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             const id = keyboardFocusRef.current ?? ids[0];
-            if (id && onNodeClick) onNodeClick(id);
+            if (!id) return;
+            // Mirrors the mouse: select first, then open the already-selected node.
+            if (id === currentConceptId) onNodeDoubleClick?.(id);
+            else onNodeClick?.(id);
           } else if (e.key === "+" || e.key === "=") {
             e.preventDefault();
             zoomRef.current = Math.min(3, zoomRef.current * 1.08);

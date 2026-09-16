@@ -41,7 +41,9 @@ export function AdminPageContent() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main id="main" className="mx-auto max-w-3xl px-4 lg:px-6 py-10">
-        <h1 className="font-serif text-3xl font-semibold text-foreground mb-2">Diagnostics</h1>
+        <h1 className="font-serif heading-display text-3xl font-semibold text-foreground mb-2">
+          Diagnostics
+        </h1>
         <p className="text-muted-foreground mb-8">
           Engine health and Help corpus refresh. This is not part of the learner experience.
         </p>
@@ -66,7 +68,7 @@ export function AdminPageContent() {
           )}
         </section>
 
-        <section className="rounded-xl border border-border bg-card p-5">
+        <section className="rounded-xl border border-border bg-card p-5 mb-6">
           <h2 className="text-sm font-semibold text-foreground mb-2">Corpus refresh</h2>
           <p className="text-sm text-muted-foreground mb-4">
             Recrawl Help, rebuild Chroma, convert OKF, and regenerate concept copy. Can take a long time.
@@ -83,6 +85,56 @@ export function AdminPageContent() {
           {refreshStatus ? (
             <p className="text-sm text-muted-foreground mt-3">{refreshStatus}</p>
           ) : null}
+        </section>
+
+        <section
+          id="writers-admin"
+          className="rounded-xl border border-dashed border-border bg-card/40 p-5 mb-6"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-[10px] font-semibold uppercase tracking-wider rounded-full border border-border px-2 py-0.5 text-muted-foreground">
+              Planned
+            </span>
+            <h2 className="text-sm font-semibold text-foreground">
+              Writers admin (not built)
+            </h2>
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+            Future operator / instructional-writer console — separate from this
+            learner Diagnostics page. Placeholder only; no UI yet. TBD after the
+            demo, but intended as a durable tool for content developers (not a
+            one-off scaffold).
+          </p>
+          <ul className="text-sm text-muted-foreground space-y-2 list-disc pl-5">
+            <li>
+              <span className="text-foreground">Ask feedback triage</span> —
+              capture question, answer/refuse payload, rating, and reason;
+              review queue for authors (today ratings land in{" "}
+              <code className="text-xs">engine/data/runs/ask_feedback.jsonl</code>{" "}
+              without request/output pairing).
+            </li>
+            <li>
+              <span className="text-foreground">Council → writers</span> —
+              surface council results to writers with valid minority
+              recommendations, proposed remediation, and the editor panel.
+              Today singleton curriculum bullets fold into{" "}
+              <code className="text-xs">specialized_aside</code> / dissent; the
+              handoff should distinguish{" "}
+              <span className="text-foreground">genuinely specialized</span>{" "}
+              material,{" "}
+              <span className="text-foreground">plausible but unsupported</span>{" "}
+              suggestions, and{" "}
+              <span className="text-foreground">
+                grounded recommendations that lacked council agreement
+              </span>
+              .
+            </li>
+            <li>
+              <span className="text-foreground">OKF editor</span> — simple
+              YAML front-matter add/remove/populate plus body text edit for OKF
+              topics (no auto-publish to Help).
+            </li>
+          </ul>
         </section>
 
         <p className="text-xs text-muted-foreground mt-8">

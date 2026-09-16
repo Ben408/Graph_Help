@@ -58,6 +58,15 @@ export function WhatsNewContent() {
   );
   const [view, setView] = useState<"highlights" | "all">("highlights");
 
+  const totalChanges = allChanges.reduce((a, s) => a + s.features.length, 0);
+  const earlyAdopterCount =
+    highlights.filter((h) => h.isEarlyAdopter).length +
+    allChanges.reduce(
+      (n, section) =>
+        n + section.features.filter((f) => f.isEarlyAdopter).length,
+      0,
+    );
+
   const toggleSection = (area: string) => {
     setExpandedSections((prev) => {
       const next = new Set(prev);
@@ -102,7 +111,7 @@ export function WhatsNewContent() {
                 <Zap className="h-3.5 w-3.5" />
                 Latest Release
               </div>
-              <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground text-balance">
+              <h1 className="font-serif heading-display text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground text-balance">
                 {RELEASE_VERSION}{" "}
                 <span className="text-primary">Release Notes</span>
               </h1>
@@ -137,9 +146,14 @@ export function WhatsNewContent() {
         </div>
       </section>
 
-      {/* Quick stats */}
+      {/* Summary of this release's notes payload (same source as cards below) */}
       <section className="border-b border-border bg-card/50">
         <div className="mx-auto max-w-7xl px-4 lg:px-6 py-6">
+          <p className="text-xs font-medium text-muted-foreground mb-4 text-center md:text-left">
+            At a glance for <span className="text-foreground">{RELEASE_VERSION}</span>{" "}
+            — counts from this page&apos;s release notes (highlights below are the
+            same set).
+          </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center">
               <p className="text-2xl font-bold text-foreground">
@@ -148,9 +162,7 @@ export function WhatsNewContent() {
               <p className="text-sm text-muted-foreground mt-1">Highlights</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-foreground">
-                {allChanges.reduce((a, s) => a + s.features.length, 0)}
-              </p>
+              <p className="text-2xl font-bold text-foreground">{totalChanges}</p>
               <p className="text-sm text-muted-foreground mt-1">
                 Total Changes
               </p>
@@ -164,8 +176,12 @@ export function WhatsNewContent() {
               </p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-foreground">7</p>
-              <p className="text-sm text-muted-foreground mt-1">Regions</p>
+              <p className="text-2xl font-bold text-foreground">
+                {earlyAdopterCount}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Early Adopter items
+              </p>
             </div>
           </div>
         </div>

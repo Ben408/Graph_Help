@@ -40,7 +40,7 @@ export function SkillPathDetail({ pathId }: { pathId: string }) {
           All Skill Paths
         </Link>
 
-        <h1 className="font-serif text-3xl font-semibold text-foreground">{path.title}</h1>
+        <h1 className="font-serif heading-display text-3xl font-semibold text-foreground">{path.title}</h1>
         <p className="text-muted-foreground mt-2 leading-relaxed">{path.summary}</p>
 
         <div className="mt-4 flex flex-wrap gap-2 text-xs">

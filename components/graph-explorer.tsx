@@ -1,9 +1,17 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useMemo, useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Filter, RotateCcw, Maximize2, X } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronRight,
+  Filter,
+  Maximize2,
+  PanelRightOpen,
+  RotateCcw,
+  X,
+} from "lucide-react";
 import {
   concepts,
   getConceptById,
@@ -13,6 +21,7 @@ import {
   type RelationshipType,
 } from "@/data/concepts";
 import { KnowledgeGraph } from "@/components/knowledge-graph";
+import { ConceptPeekDialog } from "@/components/concept-peek-dialog";
 import { ConceptSearch } from "@/components/concept-search";
 import { SiteHeader } from "@/components/site-header";
 import {
@@ -51,6 +60,40 @@ const PROMPTS = [
   },
 ];
 
+function FilterGroup({
+  label,
+  summary,
+  open,
+  onToggle,
+  children,
+}: {
+  label: string;
+  summary: string;
+  open: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <div className="rounded-md border border-border/60">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={onToggle}
+        className="flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-[11px] hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <ChevronRight
+          className={`h-3 w-3 shrink-0 text-muted-foreground transition-transform ${
+            open ? "rotate-90" : ""
+          }`}
+        />
+        <span className="font-medium text-foreground">{label}</span>
+        <span className="ml-auto truncate text-muted-foreground">{summary}</span>
+      </button>
+      {open && <div className="px-1 pb-1.5">{children}</div>}
+    </div>
+  );
+}
+
 function GraphExplorerInner() {
   const params = useSearchParams();
   const initialFocus = params.get("focus");
@@ -62,7 +105,11 @@ function GraphExplorerInner() {
   const [filterCategories, setFilterCategories] = useState<Set<string>>(new Set());
   const [relTypes, setRelTypes] = useState<Set<RelationshipType>>(new Set());
   const [showFilters, setShowFilters] = useState(true);
+  // Groups start collapsed so the Visible list stays on screen without scrolling.
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
   const [fitToken, setFitToken] = useState(0);
+  const [peekId, setPeekId] = useState<string | null>(null);
+  const [showDetails, setShowDetails] = useState(true);
   const [lensId, setLensId] = useState<(typeof GRAPH_LENSES)[number]["id"]>("all");
   const pack = getPack();
 
@@ -86,6 +133,16 @@ function GraphExplorerInner() {
   function selectNode(id: string) {
     setSelectedId(id);
     setExpanded((prev) => new Set(prev).add(id));
+    setShowDetails(true);
+  }
+
+  function toggleGroup(id: string) {
+    setOpenGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   }
 
   function resetView() {
@@ -95,6 +152,7 @@ function GraphExplorerInner() {
     setLensId("all");
     setFilterCategories(new Set());
     setRelTypes(new Set());
+    setShowDetails(true);
     setFitToken((n) => n + 1);
   }
 
@@ -138,6 +196,8 @@ function GraphExplorerInner() {
               </Link>
             </p>
           </div>
+          {/* One scroll region: filter groups can never push Visible off-screen. */}
+          <div className="flex-1 min-h-0 overflow-y-auto">
           <div className="p-3 border-b border-border space-y-1.5">
             <p className="px-2.5 text-[11px] font-medium text-muted-foreground">
               Explore these topics
@@ -156,6 +216,7 @@ function GraphExplorerInner() {
           <div className="p-4 border-b border-border">
             <button
               type="button"
+              aria-expanded={showFilters}
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2 w-full text-xs font-medium text-foreground"
             >
@@ -163,9 +224,17 @@ function GraphExplorerInner() {
               Filters
             </button>
             {showFilters && (
-              <div className="mt-3 space-y-3">
-                <div>
-                  <p className="text-[11px] text-muted-foreground mb-1.5">Category</p>
+              <div className="mt-3 space-y-2">
+                <FilterGroup
+                  label="Category"
+                  summary={
+                    filterCategories.size > 0
+                      ? `${filterCategories.size} selected`
+                      : `All ${CATEGORIES.length}`
+                  }
+                  open={openGroups.has("category")}
+                  onToggle={() => toggleGroup("category")}
+                >
                   {CATEGORIES.map((cat) => {
                     const on = filterCategories.has(cat);
                     return (
@@ -192,9 +261,15 @@ function GraphExplorerInner() {
                       </button>
                     );
                   })}
-                </div>
-                <div>
-                  <p className="text-[11px] text-muted-foreground mb-1.5">Role or goal</p>
+                </FilterGroup>
+                <FilterGroup
+                  label="Role or goal"
+                  summary={
+                    GRAPH_LENSES.find((lens) => lens.id === lensId)?.label ?? "All"
+                  }
+                  open={openGroups.has("lens")}
+                  onToggle={() => toggleGroup("lens")}
+                >
                   {GRAPH_LENSES.map((lens) => {
                     const on = lensId === lens.id;
                     return (
@@ -218,9 +293,13 @@ function GraphExplorerInner() {
                       </button>
                     );
                   })}
-                </div>
-                <div>
-                  <p className="text-[11px] text-muted-foreground mb-1.5">Relationship</p>
+                </FilterGroup>
+                <FilterGroup
+                  label="Relationship"
+                  summary={relTypes.size > 0 ? `${relTypes.size} selected` : "Any"}
+                  open={openGroups.has("relationship")}
+                  onToggle={() => toggleGroup("relationship")}
+                >
                   {REL_TYPES.map((type) => {
                     const on = relTypes.has(type);
                     return (
@@ -243,11 +322,11 @@ function GraphExplorerInner() {
                       </button>
                     );
                   })}
-                </div>
+                </FilterGroup>
               </div>
             )}
           </div>
-          <div className="flex-1 overflow-y-auto p-2">
+          <div className="p-2">
             <p className="px-2 py-1 text-[11px] text-muted-foreground">
               Visible ({visibleIds.length})
             </p>
@@ -272,6 +351,7 @@ function GraphExplorerInner() {
                 </button>
               ))}
           </div>
+          </div>
         </aside>
 
         <main className="flex-1 relative" id="main">
@@ -283,9 +363,15 @@ function GraphExplorerInner() {
             relationTypes={[...relTypes]}
             fitToken={fitToken}
             onNodeClick={selectNode}
+            onNodeDoubleClick={(id) => {
+              selectNode(id);
+              setPeekId(id);
+            }}
+            onCanvasDoubleClick={() => setFitToken((n) => n + 1)}
           />
           <p className="absolute bottom-4 right-4 max-w-xs text-[11px] text-muted-foreground bg-card/90 border border-border rounded-md px-2 py-1.5">
-            Tab to the graph. Arrows move, Enter selects, + / − zoom, 0 fits.
+            Tab to the graph. Arrows move, Enter selects then reads, + / − zoom,
+            0 fits. Double-click a concept to read it, the background to refit.
           </p>
           <div className="absolute top-4 left-4 flex flex-wrap gap-2">
             <button
@@ -324,14 +410,29 @@ function GraphExplorerInner() {
               <Maximize2 className="h-3 w-3" />
               Fit selection
             </button>
+            {selected && !showDetails && (
+              <button
+                type="button"
+                onClick={() => setShowDetails(true)}
+                className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2.5 py-1.5 text-xs"
+              >
+                <PanelRightOpen className="h-3 w-3" />
+                Details
+              </button>
+            )}
           </div>
         </main>
 
-        {selected && (
+        {selected && showDetails && (
           <aside className="w-80 shrink-0 border-l border-border bg-card flex flex-col overflow-hidden">
             <div className="p-4 border-b border-border flex items-center justify-between gap-2">
               <h3 className="text-sm font-semibold text-foreground truncate">{selected.title}</h3>
-              <button type="button" onClick={() => setSelectedId(null)} className="text-muted-foreground">
+              <button
+                type="button"
+                onClick={() => setShowDetails(false)}
+                className="text-muted-foreground"
+                aria-label="Hide concept details"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -367,6 +468,7 @@ function GraphExplorerInner() {
           </aside>
         )}
       </div>
+      <ConceptPeekDialog conceptId={peekId} onClose={() => setPeekId(null)} />
     </div>
   );
 }

@@ -13,7 +13,7 @@ from src.rag.corpus_refresh import CorpusRefreshService
 from src.rag.okf.store import OkfStore
 from src.rag.vector_store import VectorStore
 from src.runtime_gate import WorkGate
-from src.telemetry.logging import configure_logging
+from src.telemetry.logging import configure_logging, log_event
 from src.telemetry.progress import ProgressTracker
 from src.telemetry.run_store import JsonRunStore
 from datetime import UTC, datetime
@@ -68,19 +68,32 @@ def create_app(
     def _run_ask(ask_id: str, issue: IssueInput) -> None:
         result = ask.run(ask_id, issue)
         if result.status == "failed":
+            log_event(
+                "ask_engine_failed",
+                run_id=ask_id,
+                error_code=result.error_code,
+                error_detail=(result.error_detail or "")[:300],
+            )
             fallback = lexical_ask(issue, _okf())
             fallback.ask_id = ask_id
-            result = fallback
+            # A lexical miss is not evidence that Help lacks coverage, so keep the
+            # engine failure visible rather than reporting a content gap.
+            if fallback.status == "completed":
+                result = fallback
         overlay_ask_result(result)
         ask._write_result(result)
 
     @app.get("/api/health")
     def health() -> dict[str, object]:
         okf = _okf()
+        okf_status = okf.status() if okf else {"available": False}
+        llm_status = ask.llm.check()
         return {
             "status": "ok",
+            "ready": bool(llm_status.get("ready")) and bool(okf_status.get("available")),
             "pack": load_pack().get("id"),
-            "okf": okf.status() if okf else {"available": False},
+            "llm": llm_status,
+            "okf": okf_status,
             "workspace": gate.status(),
         }
 

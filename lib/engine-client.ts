@@ -20,6 +20,7 @@ export type EngineAskResult = {
   sources: EngineSource[];
   coverage_gap?: string | null;
   refusal_reason?: "out_of_scope" | "ambiguous" | "insufficient_evidence" | null;
+  error_code?: string | null;
   error_detail?: string | null;
   touched_concept_ids?: string[];
   skill_path_ids?: string[];
@@ -33,11 +34,26 @@ export type EngineSource = {
   score: number;
 };
 
-export async function engineHealth(): Promise<{ ok: boolean; detail?: string }> {
+export async function engineHealth(): Promise<{
+  ok: boolean;
+  ready?: boolean;
+  detail?: string;
+}> {
   try {
     const res = await fetch(`${ENGINE_BASE}/api/health`);
     if (!res.ok) return { ok: false, detail: `Engine HTTP ${res.status}` };
-    return { ok: true };
+    const body = await res.json();
+    // Reachable but not ready means Ask will fail: Ollama down or model missing.
+    if (body?.ready === false) {
+      return {
+        ok: true,
+        ready: false,
+        detail:
+          body?.llm?.detail ||
+          "Engine is running but cannot reach its local model. Restart the engine and Ollama.",
+      };
+    }
+    return { ok: true, ready: true };
   } catch {
     return {
       ok: false,

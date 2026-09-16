@@ -1,7 +1,12 @@
 import json
+import os
 from pathlib import Path
 from threading import Lock
+from time import sleep
 from typing import Any
+
+REPLACE_ATTEMPTS = 12
+REPLACE_PAUSE_SECONDS = 0.05
 
 
 class JsonRunStore:
@@ -18,28 +23,39 @@ class JsonRunStore:
         )
         return self.root / f"{safe_id}.json"
 
-    def read(self, run_id: str) -> dict[str, Any]:
-        path = self._path(run_id)
+    def _load(self, path: Path, run_id: str) -> dict[str, Any]:
         if not path.exists():
             return {"run_id": run_id, "events": []}
         return json.loads(path.read_text(encoding="utf-8"))
 
-    def write(self, run_id: str, record: dict[str, Any]) -> None:
-        path = self._path(run_id)
+    def _save(self, path: Path, record: dict[str, Any]) -> None:
+        temporary = path.with_suffix(".tmp")
+        temporary.write_text(json.dumps(record, indent=2, default=str), encoding="utf-8")
+        # On Windows the replace is denied while anything else holds the target
+        # open — a polling reader, Defender, or the search indexer. Retry briefly
+        # instead of failing the run it belongs to.
+        for attempt in range(REPLACE_ATTEMPTS):
+            try:
+                os.replace(temporary, path)
+                return
+            except PermissionError:
+                if attempt == REPLACE_ATTEMPTS - 1:
+                    raise
+                sleep(REPLACE_PAUSE_SECONDS)
+
+    def read(self, run_id: str) -> dict[str, Any]:
+        # Reads share the lock so in-process pollers never hold a run file open
+        # while the pipeline is replacing it.
         with self._lock:
-            temporary = path.with_suffix(".tmp")
-            temporary.write_text(json.dumps(record, indent=2, default=str), encoding="utf-8")
-            temporary.replace(path)
+            return self._load(self._path(run_id), run_id)
+
+    def write(self, run_id: str, record: dict[str, Any]) -> None:
+        with self._lock:
+            self._save(self._path(run_id), record)
 
     def append_event(self, run_id: str, event: dict[str, Any]) -> None:
         with self._lock:
             path = self._path(run_id)
-            record = (
-                json.loads(path.read_text(encoding="utf-8"))
-                if path.exists()
-                else {"run_id": run_id, "events": []}
-            )
+            record = self._load(path, run_id)
             record.setdefault("events", []).append(event)
-            temporary = path.with_suffix(".tmp")
-            temporary.write_text(json.dumps(record, indent=2, default=str), encoding="utf-8")
-            temporary.replace(path)
+            self._save(path, record)

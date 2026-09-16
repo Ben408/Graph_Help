@@ -48,7 +48,7 @@ function SearchPageInner() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <div className="mx-auto max-w-5xl px-4 lg:px-6 py-8" id="main">
-        <h1 className="font-serif text-3xl font-semibold text-foreground mb-2">Find</h1>
+        <h1 className="font-serif heading-display text-3xl font-semibold text-foreground mb-2">Find</h1>
         <p className="text-muted-foreground mb-6">
           Answers, tasks, concepts, Skill Paths, documentation, and recent changes
         </p>

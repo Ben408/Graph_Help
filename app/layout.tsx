@@ -5,15 +5,24 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 import "./globals.css";
 
-const _inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const _inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  adjustFontFallback: true,
+});
 const _serif = Source_Serif_4({
   subsets: ["latin"],
   weight: ["400", "600", "700"],
   variable: "--font-source-serif",
+  display: "swap",
+  adjustFontFallback: true,
 });
 const _jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains-mono",
+  display: "swap",
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
