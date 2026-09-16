@@ -44,6 +44,8 @@ interface KnowledgeGraphProps {
   className?: string;
 }
 
+const CLICK_SLOP_PX = 5;
+
 function getNodeColor(node: GraphNode): string {
   if (node.isCurrent) return "#10b981";
   return CATEGORY_COLORS[node.category] || "#3b82f6";
@@ -77,6 +79,8 @@ export function KnowledgeGraph({
   const zoomRef = useRef(1);
   const isPanningRef = useRef(false);
   const lastMouseRef = useRef({ x: 0, y: 0 });
+  const pressPosRef = useRef({ x: 0, y: 0 });
+  const pressNodeRef = useRef<GraphNode | null>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const stabilizedRef = useRef(false);
   const frameCountRef = useRef(0);
@@ -353,6 +357,14 @@ export function KnowledgeGraph({
   const keyboardFocusRef = useRef<string | null>(null);
   const [keyboardFocusId, setKeyboardFocusId] = useState<string | null>(null);
 
+  // Hand jitter while pressing must not count as a drag, or the click that
+  // selects a node is swallowed and the details panel never opens.
+  const movedPastClickSlop = useCallback((clientX: number, clientY: number) => {
+    const dx = clientX - pressPosRef.current.x;
+    const dy = clientY - pressPosRef.current.y;
+    return dx * dx + dy * dy > CLICK_SLOP_PX * CLICK_SLOP_PX;
+  }, []);
+
   const getNodeAtPos = useCallback((clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
@@ -382,19 +394,23 @@ export function KnowledgeGraph({
           if (node) dragNodeRef.current = node;
           else isPanningRef.current = true;
           lastMouseRef.current = { x: e.clientX, y: e.clientY };
+          pressPosRef.current = { x: e.clientX, y: e.clientY };
+          // Selecting refits the view, so the second click of a double-click can
+          // land on empty canvas. Remember what the sequence started on.
+          if (e.detail <= 1) pressNodeRef.current = node;
         }}
         onMouseMove={(e) => {
           if (dragNodeRef.current) {
             const dx = (e.clientX - lastMouseRef.current.x) / zoomRef.current;
             const dy = (e.clientY - lastMouseRef.current.y) / zoomRef.current;
-            if (Math.abs(dx) + Math.abs(dy) > 0.5) didDragRef.current = true;
+            if (movedPastClickSlop(e.clientX, e.clientY)) didDragRef.current = true;
             dragNodeRef.current.x += dx;
             dragNodeRef.current.y += dy;
             dragNodeRef.current.vx = 0;
             dragNodeRef.current.vy = 0;
             lastMouseRef.current = { x: e.clientX, y: e.clientY };
           } else if (isPanningRef.current) {
-            didDragRef.current = true;
+            if (movedPastClickSlop(e.clientX, e.clientY)) didDragRef.current = true;
             panRef.current.x += e.clientX - lastMouseRef.current.x;
             panRef.current.y += e.clientY - lastMouseRef.current.y;
             lastMouseRef.current = { x: e.clientX, y: e.clientY };
@@ -440,7 +456,7 @@ export function KnowledgeGraph({
         }}
         onDoubleClick={(e) => {
           if (didDragRef.current) return;
-          const node = getNodeAtPos(e.clientX, e.clientY);
+          const node = pressNodeRef.current ?? getNodeAtPos(e.clientX, e.clientY);
           if (node) onNodeDoubleClick?.(node.id);
           else onCanvasDoubleClick?.();
         }}

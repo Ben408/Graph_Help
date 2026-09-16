@@ -354,7 +354,10 @@ function GraphExplorerInner() {
           </div>
         </aside>
 
-        <main className="flex-1 relative" id="main">
+        {/* min-w-0: the canvas carries an explicit pixel width, so without this
+            the default min-width:auto keeps main from shrinking and pushes the
+            details panel outside the viewport. */}
+        <main className="flex-1 min-w-0 relative" id="main">
           <KnowledgeGraph
             currentConceptId={selectedId ?? undefined}
             visibleIds={visibleIds}
