@@ -2,7 +2,7 @@ import { matchSkillPaths, searchConceptHits, vocabularyIdsForQuery } from "./sea
 import type { ContentPack, IntentResult, QueryIntent } from "./types";
 
 const GOAL_RE =
-  /\b(how (do i|to|can i|does one)|steps? to|walk me through|help me|close my books|close the books|reverse a|post a|configure|set up|troubleshoot)\b/i;
+  /\b(how (do i|to|can i|does one)|what (is|are)|explain|steps? to|walk me through|help me|close my books|close the books|reverse a|post a|configure|set up|troubleshoot)\b/i;
 
 const SKILL_RE =
   /\b(learn|skill path|curriculum|get better at|master|onboard|practice|path to)\b/i;

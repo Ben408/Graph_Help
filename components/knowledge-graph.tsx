@@ -47,7 +47,7 @@ interface KnowledgeGraphProps {
 const CLICK_SLOP_PX = 5;
 
 function getNodeColor(node: GraphNode): string {
-  if (node.isCurrent) return "#10b981";
+  if (node.isCurrent) return "#007E45";
   return CATEGORY_COLORS[node.category] || "#3b82f6";
 }
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Network, Moon, Sun, Compass, MessageSquare, GraduationCap, Sparkles } from "lucide-react";
+import { Moon, Sun, Compass, MessageSquare, GraduationCap, Sparkles } from "lucide-react";
 import { useTheme } from "next-themes";
 import { ConceptSearch } from "@/components/concept-search";
 
@@ -26,12 +26,17 @@ export function SiteHeader() {
         Skip to content
       </a>
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 lg:px-6">
-        <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <Network className="h-4 w-4 text-primary-foreground" />
-          </div>
+        <Link href="/" className="flex items-center gap-2 shrink-0" aria-label="Sage Intacct home">
+          {/* Official mark from Intacct product branding (ia/resources/branding/logos/svg/Sage_Logo.svg) */}
+          <img
+            src="/brand/Sage_Logo.svg"
+            alt=""
+            className="h-7 w-auto"
+            width={71}
+            height={28}
+          />
           <span className="text-sm font-semibold text-foreground hidden sm:block">
-            Sage Intacct
+            Intacct
           </span>
         </Link>
 

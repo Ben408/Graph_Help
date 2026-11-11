@@ -22,9 +22,12 @@ import { getPathsForConcept } from "@/lib/knowledge";
 export function ConceptPeekDialog({
   conceptId,
   onClose,
+  onOpenFullPage,
 }: {
   conceptId: string | null;
   onClose: () => void;
+  /** When set, opens the full concept view without navigating the panel iframe. */
+  onOpenFullPage?: (conceptId: string) => void;
 }) {
   const concept = conceptId ? getConceptById(conceptId) : null;
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -178,15 +181,26 @@ export function ConceptPeekDialog({
         </div>
 
         <div className="flex items-center justify-between gap-4 border-t border-border px-8 py-4">
-          <p className="text-xs text-muted-foreground">Close to keep exploring the graph.</p>
-          <Link
-            href={`/concept/${concept.id}`}
-            onClick={onClose}
-            className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-          >
-            Open full page
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+          <p className="text-xs text-muted-foreground">Close to keep exploring.</p>
+          {onOpenFullPage ? (
+            <button
+              type="button"
+              onClick={() => onOpenFullPage(concept.id)}
+              className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+            >
+              Open full page
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          ) : (
+            <Link
+              href={`/concept/${concept.id}`}
+              onClick={onClose}
+              className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+            >
+              Open full page
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          )}
         </div>
       </div>
     </div>

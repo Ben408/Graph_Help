@@ -62,16 +62,118 @@ export async function engineHealth(): Promise<{
   }
 }
 
-export async function submitAsk(text: string): Promise<EngineAskResult> {
+export type AskSubmitOptions = {
+  module?: string;
+  screen?: string;
+  error_code?: string;
+  help_url?: string;
+  concept_ids?: string[];
+  skill_path_id?: string;
+  mode?: "ask" | "guided";
+  preferred_source_ids?: string[];
+};
+
+function clamp(value: string | undefined, max: number): string | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  return trimmed.length > max ? trimmed.slice(0, max) : trimmed;
+}
+
+/** Prefer a short Help/doc URL; strip oversized Intacct app query strings. */
+function normalizeHelpUrl(raw: string | undefined): string | undefined {
+  const value = clamp(raw, 2000);
+  if (!value) return undefined;
+  try {
+    const u = new URL(value);
+    // In-app Intacct URLs are context, not Help — omit so they cannot 422 Ask.
+    if (/\.intacct\.com$/i.test(u.hostname) && !/help/i.test(u.pathname)) {
+      return undefined;
+    }
+    // Keep identity without giant query blobs.
+    if (value.length > 1800) {
+      return clamp(`${u.origin}${u.pathname}`, 2000);
+    }
+  } catch {
+    /* keep clamped string */
+  }
+  return value;
+}
+
+export async function submitAsk(
+  text: string,
+  options: AskSubmitOptions = {}
+): Promise<EngineAskResult> {
+  const body: Record<string, unknown> = {
+    text: clamp(text, 20_000) || text,
+  };
+  const module = clamp(options.module, 100);
+  const screen = clamp(options.screen, 200);
+  const errorCode = clamp(options.error_code, 100);
+  const helpUrl = normalizeHelpUrl(options.help_url);
+  const skillPathId = clamp(options.skill_path_id, 80);
+  if (module) body.module = module;
+  if (screen) body.screen = screen;
+  if (errorCode) body.error_code = errorCode;
+  if (helpUrl) body.help_url = helpUrl;
+  if (options.concept_ids?.length) {
+    body.concept_ids = options.concept_ids.slice(0, 24);
+  }
+  if (skillPathId) body.skill_path_id = skillPathId;
+  if (options.mode) body.mode = options.mode;
+  if (options.preferred_source_ids?.length) {
+    body.preferred_source_ids = options.preferred_source_ids.slice(0, 12);
+  }
   const res = await fetch(`${ENGINE_BASE}/api/ask`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify(body),
   });
   if (!res.ok) {
-    throw new Error(`Ask failed (${res.status})`);
+    let detail = "";
+    try {
+      const errBody = await res.json();
+      const first = Array.isArray(errBody?.detail) ? errBody.detail[0] : null;
+      if (first?.msg) {
+        detail = `: ${first.loc?.join(".") || "body"} ${first.msg}`;
+      } else if (typeof errBody?.detail === "string") {
+        detail = `: ${errBody.detail}`;
+      }
+    } catch {
+      /* ignore */
+    }
+    throw new Error(`Ask failed (${res.status})${detail}`);
   }
   return res.json();
+}
+
+export type ContextResolveResult = {
+  conceptIds: string[];
+  skillPathIds: string[];
+  suggestedQuery: string;
+  module: string | null;
+  screen: string | null;
+  mapped: boolean;
+};
+
+export async function resolveContext(params: {
+  module?: string;
+  screen?: string;
+  title?: string;
+  help_url?: string;
+}): Promise<ContextResolveResult | null> {
+  const q = new URLSearchParams();
+  if (params.module) q.set("module", params.module);
+  if (params.screen) q.set("screen", params.screen);
+  if (params.title) q.set("title", params.title);
+  if (params.help_url) q.set("help_url", params.help_url);
+  try {
+    const res = await fetch(`${ENGINE_BASE}/api/context/resolve?${q}`);
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
 }
 
 export async function getAsk(askId: string): Promise<EngineAskResult> {

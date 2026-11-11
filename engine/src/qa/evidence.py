@@ -530,6 +530,8 @@ def select_coherent_pages(
     fused: dict[str, RankedChunk],
     *,
     max_pages: int = DEFAULT_MAX_PAGES,
+    boost_concept_ids: list[str] | None = None,
+    help_url: str | None = None,
 ) -> list[RetrievedChunk]:
     if not fused:
         return []
@@ -546,6 +548,26 @@ def select_coherent_pages(
     for ranked in fused.values():
         if _is_strong_troubleshooting_title(question, ranked.chunk):
             ranked.boost += 4.0
+
+    want = {str(x).strip() for x in (boost_concept_ids or []) if str(x).strip()}
+    if want:
+        for ranked in fused.values():
+            stamped = {
+                str(x)
+                for x in (getattr(ranked.chunk, "pack_concept_ids", None) or [])
+                if x
+            }
+            if stamped & want:
+                ranked.boost += 1.5
+
+    help_key = ""
+    if help_url:
+        help_key = help_url.split("?", 1)[0].rstrip("/").lower()
+    if help_key:
+        for ranked in fused.values():
+            url = (ranked.chunk.source_url or "").split("?", 1)[0].rstrip("/").lower()
+            if help_key and (help_key in url or url in help_key):
+                ranked.boost += 2.5
 
     # Evaluate the best fused candidate before cohesion pruning.
     best_overall = max(fused.values(), key=lambda item: item.score)
@@ -686,6 +708,9 @@ def retrieve_and_select_evidence(
     classification_query: str,
     help_language: str,
     plan_followups,
+    boost_concept_ids: list[str] | None = None,
+    help_url: str | None = None,
+    preferred_source_ids: list[str] | None = None,
 ) -> tuple[list[RetrievedChunk], list[str]]:
     """Retrieve with provenance, fuse ranks, enrich, then pick a coherent page set."""
     lists: dict[str, list[RetrievedChunk]] = {}
@@ -776,5 +801,16 @@ def retrieve_and_select_evidence(
     for source_id, chunk in zip(id_order, enriched, strict=True):
         fused[source_id].chunk = chunk
 
-    selected = select_coherent_pages(question, fused)
+    if preferred_source_ids:
+        want_ids = {str(x) for x in preferred_source_ids if x}
+        for ranked in fused.values():
+            if ranked.chunk.source_id in want_ids:
+                ranked.boost += 3.0
+
+    selected = select_coherent_pages(
+        question,
+        fused,
+        boost_concept_ids=boost_concept_ids,
+        help_url=help_url,
+    )
     return selected, follow_ups

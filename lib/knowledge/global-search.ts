@@ -2,6 +2,7 @@ import { highlights, type ReleaseHighlight } from "@/data/release-notes";
 import { buildSageSearchUrl } from "@/packs/sage-intacct/help-links";
 import { getActivePack } from "./active-pack";
 import { classifyIntent } from "./intent";
+import { significantTokens } from "./search";
 import type { Concept, SkillPath } from "./types";
 
 export type TaskHit = {
@@ -25,11 +26,15 @@ export type GlobalSearchResult = {
 export function searchTasks(query: string, limit = 8): TaskHit[] {
   const q = query.trim().toLowerCase();
   if (q.length < 2) return [];
+  const tokens = significantTokens(q);
   const hits: TaskHit[] = [];
   for (const concept of getActivePack().concepts) {
     for (const task of concept.tasks ?? []) {
       const blob = `${task} ${concept.title}`.toLowerCase();
-      if (blob.includes(q) || q.split(/\s+/).every((part) => blob.includes(part))) {
+      const fullHit = blob.includes(q);
+      const tokenHit =
+        tokens.length > 0 && tokens.every((part) => blob.includes(part));
+      if (fullHit || tokenHit) {
         hits.push({ conceptId: concept.id, conceptTitle: concept.title, task });
       }
     }
@@ -58,7 +63,9 @@ export function globalSearch(query: string): GlobalSearchResult {
   return {
     query: q,
     intent: routed?.intent ?? "concept",
-    answers: Boolean(looksGoal || /^(how|can i|steps?)\b/i.test(q)),
+    answers: Boolean(
+      looksGoal || /^(how|can i|steps?|what (is|are)|explain)\b/i.test(q)
+    ),
     tasks: searchTasks(q),
     concepts: (routed?.conceptHits ?? []).slice(0, 9).map((h) => h.concept),
     paths: routed?.skillPathHits ?? [],

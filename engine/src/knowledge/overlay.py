@@ -99,7 +99,12 @@ def _prefer_reconcile_paths(
     return ranked
 
 
-def overlay_ask_result(result: AskResult) -> AskResult:
+def overlay_ask_result(
+    result: AskResult,
+    *,
+    seed_concept_ids: list[str] | None = None,
+    preferred_skill_path_id: str | None = None,
+) -> AskResult:
     # Refuses must not recommend Skill Paths or invent pack nouns from weak rewrites.
     if result.status == "refused":
         if result.refusal_reason in {"out_of_scope", "ambiguous"}:
@@ -121,6 +126,10 @@ def overlay_ask_result(result: AskResult) -> AskResult:
     ids: set[str] = set()
     for source in sources:
         ids.update(_ids_from_source(source))
+    for cid in seed_concept_ids or []:
+        token = str(cid).strip()
+        if token:
+            ids.add(token)
 
     classification = result.classification
     question_blob = ""
@@ -153,6 +162,10 @@ def overlay_ask_result(result: AskResult) -> AskResult:
             concept_ids=ids,
             source_titles=[s.title for s in sources if getattr(s, "title", None)],
         )
+
+    pin = (preferred_skill_path_id or "").strip()
+    if pin:
+        path_ids = [pin] + [p for p in path_ids if p != pin]
 
     result.touched_concept_ids = sorted(ids)
     result.skill_path_ids = path_ids

@@ -35,6 +35,8 @@ function AskInner() {
   const searchParams = useSearchParams();
   const initial = searchParams.get("q") || "";
   const [query, setQuery] = useState(initial);
+  /** Query that produced the current result — not tied to live typing. */
+  const [answeredQuery, setAnsweredQuery] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [engineOk, setEngineOk] = useState<boolean | null>(null);
   const [engineWarning, setEngineWarning] = useState("");
@@ -70,10 +72,12 @@ function AskInner() {
   }
 
   async function runAsk(text: string) {
+    const asked = text.trim();
     setBusy(true);
     setResult(null);
+    setAnsweredQuery(asked);
     try {
-      const queued = await submitAsk(text);
+      const queued = await submitAsk(asked);
       await pollAsk(queued.ask_id);
     } catch (error) {
       setResult({
@@ -208,7 +212,7 @@ function AskInner() {
                       Learn a Skill Path
                     </Link>
                     <Link
-                      href={`/search?q=${encodeURIComponent(query)}`}
+                      href={`/search?q=${encodeURIComponent(answeredQuery || query)}`}
                       className="rounded-lg border border-border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       Search related material
@@ -245,7 +249,9 @@ function AskInner() {
             {result.answer && (
               <article className="rounded-xl border border-border bg-card p-5">
                 <p className="text-xs font-medium text-primary mb-2">Procedure</p>
-                <h2 className="text-lg font-semibold text-foreground mb-3">{query}</h2>
+                <h2 className="text-lg font-semibold text-foreground mb-3">
+                  {answeredQuery}
+                </h2>
                 <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
                   {result.answer.summary}
                 </p>

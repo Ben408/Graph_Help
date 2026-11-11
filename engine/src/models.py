@@ -25,6 +25,12 @@ class IssueInput(BaseModel):
     target_language: str | None = Field(default=None, max_length=10)
     # Mode 1 (Create from Ask): pin Ask-cited chunk ids to the front of retrieval.
     preferred_source_ids: list[str] = Field(default_factory=list, max_length=12)
+    # In-product panel context (optional bias; hosted-portable).
+    # Soft cap; client also normalizes. Raised so long Intacct deep-links do not 422.
+    help_url: str | None = Field(default=None, max_length=8000)
+    concept_ids: list[str] = Field(default_factory=list, max_length=24)
+    skill_path_id: str | None = Field(default=None, max_length=80)
+    mode: Literal["ask", "guided"] | None = Field(default=None)
 
 
 class NormalizedIssue(BaseModel):

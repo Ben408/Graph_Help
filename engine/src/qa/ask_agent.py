@@ -217,6 +217,9 @@ class AskService:
                     classification_query=classification.search_query,
                     help_language=help_language,
                     plan_followups=_plan_followups,
+                    boost_concept_ids=list(question.concept_ids or []),
+                    help_url=question.help_url,
+                    preferred_source_ids=list(question.preferred_source_ids or []),
                 )
 
             if not retrieved and help_language != "en_US":
@@ -251,6 +254,9 @@ class AskService:
                         classification_query=classification.search_query,
                         help_language="en_US",
                         plan_followups=_plan_followups,
+                        boost_concept_ids=list(question.concept_ids or []),
+                        help_url=question.help_url,
+                        preferred_source_ids=list(question.preferred_source_ids or []),
                     )
                     log_event(
                         "ask_en_grounding_fallback",
@@ -296,6 +302,11 @@ class AskService:
                             classification_query=classification_en.search_query,
                             help_language="en_US",
                             plan_followups=_plan_followups,
+                            boost_concept_ids=list(question.concept_ids or []),
+                            help_url=question.help_url,
+                            preferred_source_ids=list(
+                                question.preferred_source_ids or []
+                            ),
                         )
                         evidence_gap = evidence_covers_goal(
                             issue.raw_text, retrieved_en
@@ -507,7 +518,7 @@ def _draft_to_answer(
             "title": chunk.title,
             "heading": chunk.heading_path,
             "url": chunk.source_url,
-            "text": chunk.text[:2_000],
+            "text": chunk.text[:1_200],
         }
         for chunk in grounded
     ]
@@ -525,6 +536,7 @@ def _draft_to_answer(
         f"and set coverage_sufficient=true when it explains causes or checks.\n"
         f"If these sources do not support that goal at all, set coverage_sufficient=false "
         f"and leave steps empty.\n"
+        f"Keep summary and steps concise so the JSON response stays complete.\n"
         f"Official help sources:\n{json.dumps(source_payload, ensure_ascii=False)}"
     )
     draft, model = llm.generate_structured(ANSWER_SYSTEM, user, AnswerDraft)

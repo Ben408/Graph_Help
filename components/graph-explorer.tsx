@@ -97,10 +97,22 @@ function FilterGroup({
 function GraphExplorerInner() {
   const params = useSearchParams();
   const initialFocus = params.get("focus");
-  const [selectedId, setSelectedId] = useState<string | null>(initialFocus);
+  const initialPathId = params.get("path");
+  const initialPath = initialPathId ? getSkillPathById(initialPathId) : null;
+  const initialPathIds = initialPath?.steps.map((s) => s.conceptId) ?? [];
+  const [selectedId, setSelectedId] = useState<string | null>(
+    initialFocus || initialPathIds[0] || null
+  );
   const [hops, setHops] = useState<1 | 2>(1);
   const [expanded, setExpanded] = useState<Set<string>>(
-    () => new Set(initialFocus ? [initialFocus] : [])
+    () =>
+      new Set(
+        initialPathIds.length
+          ? initialPathIds
+          : initialFocus
+            ? [initialFocus]
+            : []
+      )
   );
   const [filterCategories, setFilterCategories] = useState<Set<string>>(new Set());
   const [relTypes, setRelTypes] = useState<Set<RelationshipType>>(new Set());

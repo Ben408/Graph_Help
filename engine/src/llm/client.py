@@ -1,4 +1,5 @@
 import json
+import re
 from time import monotonic, sleep
 from typing import Protocol, TypeVar
 
@@ -21,6 +22,56 @@ class StructuredLLM(Protocol):
 
 class LLMResponseError(RuntimeError):
     pass
+
+
+def _strip_code_fence(content: str) -> str:
+    text = content.strip()
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.I)
+        text = re.sub(r"\s*```$", "", text)
+    return text.strip()
+
+
+def _repair_truncated_json(text: str) -> str:
+    """Close truncated Gemma JSON (unterminated strings / missing braces)."""
+    start = text.find("{")
+    if start < 0:
+        return text
+    text = text[start:]
+    in_string = False
+    escape = False
+    stack: list[str] = []
+    for ch in text:
+        if in_string:
+            if escape:
+                escape = False
+            elif ch == "\\":
+                escape = True
+            elif ch == '"':
+                in_string = False
+            continue
+        if ch == '"':
+            in_string = True
+        elif ch in "{[":
+            stack.append("}" if ch == "{" else "]")
+        elif ch in "}]" and stack and stack[-1] == ch:
+            stack.pop()
+    if in_string:
+        text += '"'
+    # Drop trailing comma before we close
+    text = re.sub(r",\s*$", "", text)
+    while stack:
+        text += stack.pop()
+    return text
+
+
+def parse_llm_json(content: str) -> object:
+    raw = _strip_code_fence(content)
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        repaired = _repair_truncated_json(raw)
+        return json.loads(repaired)
 
 
 class OllamaClient:
@@ -115,7 +166,9 @@ class OllamaClient:
                                 {"role": "system", "content": system},
                                 {"role": "user", "content": f"{user}{repair}"},
                             ],
-                            "options": {"temperature": 0.1},
+                            # num_predict: gemma3 often truncates long AnswerDraft JSON
+                            # mid-string without a higher cap → JSONDecodeError.
+                            "options": {"temperature": 0.1, "num_predict": 4096},
                         },
                         timeout=self.timeout_seconds,
                     )
@@ -126,7 +179,8 @@ class OllamaClient:
                         )
                         continue
                     content = response.json()["message"]["content"]
-                    return response_model.model_validate(json.loads(content)), model
+                    parsed = parse_llm_json(content)
+                    return response_model.model_validate(parsed), model
                 except (
                     httpx.HTTPError,
                     OSError,
@@ -136,10 +190,8 @@ class OllamaClient:
                     ValidationError,
                 ) as error:
                     failures.append(f"{model}:{type(error).__name__}({error})"[:200])
-                    if isinstance(error, OSError):
-                        # Windows can refuse a socket for a moment (WinError 10013
-                        # when the OS hands out a reserved ephemeral port). Pause
-                        # before retrying instead of failing the whole ask.
+                    if isinstance(error, (OSError, json.JSONDecodeError)):
+                        # Socket blip or truncated JSON — brief pause then retry.
                         sleep(0.5)
         raise LLMResponseError(
             "Local LLM failed to return valid structured output: " + ", ".join(failures)

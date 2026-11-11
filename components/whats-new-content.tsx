@@ -26,7 +26,7 @@ import { CATEGORY_COLORS } from "@/data/concepts";
 import { SiteHeader } from "@/components/site-header";
 
 const AREA_COLORS: Record<string, string> = {
-  "Sage Copilot": "#10b981",
+  "Sage Copilot": "#007E45",
   "AI and Automation": "#ef4444",
   "Accounts Payable": "#3b82f6",
   "Accounts Receivable": "#f59e0b",

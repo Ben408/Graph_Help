@@ -24,7 +24,7 @@ export const CATEGORIES = [
 ] as const;
 
 export const CATEGORY_COLORS: Record<string, string> = {
-  "Core Financials": "#10b981",
+  "Core Financials": "#007E45",
   "Accounts Payable": "#3b82f6",
   "Accounts Receivable": "#f59e0b",
   "Cash Management": "#8b5cf6",
@@ -79,6 +79,14 @@ export const concepts: Concept[] = [
   {
     id: "chart-of-accounts",
     title: "Chart of Accounts",
+    aliases: [
+      "Account",
+      "Accounts",
+      "GL account",
+      "GL accounts",
+      "financial account",
+      "statistical account",
+    ],
     summary:
       "The organized listing of all financial and statistical accounts used to classify transactions.",
     whyItMatters:

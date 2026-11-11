@@ -2,6 +2,7 @@ from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from config.settings import Settings, get_settings
+from src.knowledge.context_resolve import resolve_panel_context
 from src.knowledge.overlay import overlay_ask_result
 from src.knowledge.pack_loader import load_pack
 from src.knowledge.practice import practice_for_concept
@@ -56,7 +57,10 @@ def create_app(
             "http://127.0.0.1:3000",
             "http://localhost:3001",
             "http://127.0.0.1:3001",
+            "http://localhost:3002",
+            "http://127.0.0.1:3002",
         ],
+        allow_origin_regex=r"chrome-extension://.*",
         allow_credentials=False,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -80,7 +84,11 @@ def create_app(
             # engine failure visible rather than reporting a content gap.
             if fallback.status == "completed":
                 result = fallback
-        overlay_ask_result(result)
+        overlay_ask_result(
+            result,
+            seed_concept_ids=list(issue.concept_ids or []),
+            preferred_skill_path_id=issue.skill_path_id,
+        )
         ask._write_result(result)
 
     @app.get("/api/health")
@@ -174,6 +182,20 @@ def create_app(
             "okfAvailable": True,
             "procedures": practice_for_concept(okf, concept_id),
         }
+
+    @app.get("/api/context/resolve")
+    def context_resolve(
+        module: str | None = None,
+        screen: str | None = None,
+        title: str | None = None,
+        help_url: str | None = None,
+    ) -> dict[str, object]:
+        return resolve_panel_context(
+            module=module,
+            screen=screen,
+            title=title,
+            help_url=help_url,
+        )
 
     return app
 
