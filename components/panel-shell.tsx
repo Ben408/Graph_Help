@@ -8,6 +8,7 @@ import { PanelAsk } from "@/components/panel-ask";
 import { PanelGuide } from "@/components/panel-guide";
 import { PanelContextTab } from "@/components/panel-context-tab";
 import {
+  isSageHelpUrl,
   resolvePanelContext,
   type PanelMode,
   type ResolvedPanelContext,
@@ -38,16 +39,28 @@ function mergeLiveContext(
     helpUrl: string;
   }>
 ): ResolvedPanelContext {
+  const nextTitle = live.title || base.title;
+  const nextScreen = live.screen || base.screen;
+  const sameScreen =
+    nextTitle === base.title && nextScreen === base.screen;
+
   const params = new URLSearchParams();
   params.set("mode", base.mode);
-  params.set("title", live.title || base.title);
-  params.set("screen", live.screen || base.screen);
+  params.set("title", nextTitle);
+  params.set("screen", nextScreen);
   params.set("module", live.module || base.module);
   if (live.ifmod) params.set("ifmod", live.ifmod);
-  params.set("help_url", live.helpUrl || base.helpUrl);
+
+  const candidateHelp = live.helpUrl || base.helpUrl;
+  if (isSageHelpUrl(candidateHelp)) params.set("help_url", candidateHelp);
+
   if (base.q) params.set("q", base.q);
-  if (base.skillPathId) params.set("path", base.skillPathId);
-  if (base.conceptIds[0]) params.set("concept", base.conceptIds.join(","));
+  // Only keep prior path/concepts when the Intacct screen identity is unchanged.
+  // On navigation, let DEMO_SPINE rematch cleanly (e.g. Bill → bills.htm guide).
+  if (sameScreen) {
+    if (base.skillPathId) params.set("path", base.skillPathId);
+    if (base.conceptIds[0]) params.set("concept", base.conceptIds.join(","));
+  }
   return resolvePanelContext(params);
 }
 
@@ -82,7 +95,10 @@ function PanelShellInner() {
         const nextScreen = data.screen || prev.screen;
         const nextModule = data.module || prev.module;
         const nextIfmod = data.ifmod || "";
-        const nextHelp = data.helpUrl || prev.helpUrl;
+        const incomingHelp = isSageHelpUrl(data.helpUrl)
+          ? data.helpUrl
+          : "";
+        const nextHelp = incomingHelp || prev.helpUrl;
         if (
           nextTitle === prev.title &&
           nextScreen === prev.screen &&
@@ -91,16 +107,18 @@ function PanelShellInner() {
         ) {
           return prev;
         }
-        // Keep current mode / ask seed; rematch spine for the new screen only.
+        const screenChanged =
+          nextTitle !== prev.title || nextScreen !== prev.screen;
+        // Rematch spine for the new screen; return to Guide on navigation.
         return {
           ...mergeLiveContext(prev, {
             title: nextTitle,
             screen: nextScreen,
             module: nextModule,
             ifmod: nextIfmod,
-            helpUrl: nextHelp,
+            helpUrl: incomingHelp || undefined,
           }),
-          mode: prev.mode,
+          mode: screenChanged ? "guide" : prev.mode,
         };
       });
     }

@@ -3,91 +3,18 @@
  * Demo spine is hand-tuned; moduleMap covers coarse module bias.
  */
 
+import { getHelpLinkData } from "@/packs/sage-intacct/help-links";
+import {
+  DEMO_SPINE,
+  MODULE_SKILL_PATHS,
+  buildGenericGuideSteps,
+  buildModuleGuideSteps,
+  type PanelScreenSpine,
+} from "@/lib/panel-spines";
+
 export type PanelMode = "help" | "guide" | "context";
-
-export type PanelScreenSpine = {
-  id: string;
-  /** Match against title / screen label (case-insensitive substring). */
-  match: RegExp;
-  module?: string;
-  conceptIds: string[];
-  skillPathId?: string;
-  suggestedQuery?: string;
-  /** Labels in iamain to outline during Guide mode. */
-  highlightLabels?: string[];
-  guideSteps?: { title: string; detail: string; highlight?: string }[];
-};
-
-/** High-quality showcase screens for Guide + seeded Help. */
-export const DEMO_SPINE: PanelScreenSpine[] = [
-  {
-    id: "close-books",
-    match: /close\s*books/i,
-    module: "General_Ledger",
-    conceptIds: ["close-books", "general-ledger", "reporting-periods"],
-    skillPathId: "period-close",
-    suggestedQuery: "How do I close my books for the period?",
-    highlightLabels: [
-      "Entity or entity group",
-      "To the end of period",
-      "Close company books from",
-    ],
-    guideSteps: [
-      {
-        title: "Open Close books",
-        detail:
-          "You are on General Ledger → Close books. Closing locks periods so users cannot post into ranges you already reported.",
-      },
-      {
-        title: "Choose entity (if needed)",
-        detail:
-          "Use Entity or entity group when you close for one entity or a group instead of the top level.",
-        highlight: "Entity or entity group",
-      },
-      {
-        title: "Select the end period",
-        detail:
-          "In To the end of period, pick the last period to close. Preceding open periods close with it.",
-        highlight: "To the end of period",
-      },
-      {
-        title: "Confirm permissions",
-        detail:
-          "You need General Ledger: Close books permission. The period must allow close.",
-      },
-    ],
-  },
-  {
-    id: "journal-entries",
-    match: /journal\s*entr/i,
-    module: "General_Ledger",
-    conceptIds: ["journal-entries", "general-ledger"],
-    skillPathId: "ledger-foundations",
-    suggestedQuery: "How do I reverse a journal entry in Sage Intacct?",
-    highlightLabels: ["Reverse", "Posting date", "Journal"],
-    guideSteps: [
-      {
-        title: "Find the journal entry",
-        detail: "Open the posted journal entry you need to reverse.",
-      },
-      {
-        title: "Reverse in an open period",
-        detail:
-          "Use Reverse when the entry is posted, not already reversed, and the period is open.",
-        highlight: "Reverse",
-      },
-    ],
-  },
-  {
-    id: "ap-bills",
-    match: /\bbills?\b|vendor\s*invoice/i,
-    module: "Accounts_Payable",
-    conceptIds: ["accounts-payable", "vendors"],
-    skillPathId: "procure-to-pay",
-    suggestedQuery: "How do I enter an Accounts Payable bill?",
-    highlightLabels: ["Vendor", "Bill number", "Amount"],
-  },
-];
+export type { PanelScreenSpine };
+export { DEMO_SPINE };
 
 export type ResolvedPanelContext = {
   mode: PanelMode;
@@ -116,6 +43,7 @@ const MODULE_BY_IFMOD: Record<string, string> = {
   so: "Order_Entry",
   cm: "Cash_Management",
   co: "Company",
+  reportcenter: "Reporting",
 };
 
 /** Coarse module → concept ids (mirrors pack.json moduleMap). */
@@ -160,6 +88,21 @@ export function matchSpine(
   return null;
 }
 
+/** True when the URL points at Sage Help docs (not an Intacct app screen). */
+export function isSageHelpUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  try {
+    const u = new URL(url);
+    return (
+      /intacct\.com$/i.test(u.hostname) &&
+      (/\/ia\/docs\//i.test(u.pathname) ||
+        /help_action/i.test(u.pathname + u.href))
+    );
+  } catch {
+    return /\/ia\/docs\/|help_action/i.test(url);
+  }
+}
+
 export function resolvePanelContext(
   params: URLSearchParams | Record<string, string | null | undefined>
 ): ResolvedPanelContext {
@@ -173,7 +116,9 @@ export function resolvePanelContext(
   const screen = get("screen") || title;
   const moduleParam = get("module");
   const ifmod = get("ifmod");
-  const helpUrl = get("help_url") || get("helpUrl");
+  let helpUrl = get("help_url") || get("helpUrl");
+  // App iframe URLs were previously passed as help_url — drop those.
+  if (!isSageHelpUrl(helpUrl)) helpUrl = "";
   const q = get("q");
   const conceptParam = get("concept");
   const pathParam = get("path");
@@ -197,31 +142,61 @@ export function resolvePanelContext(
     suggestedQuery = suggestedQuery || spine.suggestedQuery || "";
     highlightLabels = spine.highlightLabels || [];
     guideSteps = spine.guideSteps || [];
+    if (spine.helpUrl) helpUrl = spine.helpUrl;
+    if (spine.module && !moduleParam) {
+      // keep resolved module from ifmod when present; spine.module is fallback
+    }
   } else if (module && MODULE_CONCEPTS[module]) {
     moduleOnly = true;
     conceptIds = [...MODULE_CONCEPTS[module]];
+    skillPathId = skillPathId || MODULE_SKILL_PATHS[module] || null;
+    suggestedQuery =
+      suggestedQuery ||
+      `How do I use ${screen || module.replace(/_/g, " ")} in Sage Intacct?`;
+    guideSteps = buildModuleGuideSteps(module, screen || title);
+    if (!helpUrl && conceptIds[0]) {
+      helpUrl = getHelpLinkData(conceptIds[0])?.helpUrl || "";
+    }
+  } else {
+    suggestedQuery =
+      suggestedQuery ||
+      (screen || title
+        ? `How do I use ${screen || title} in Sage Intacct?`
+        : "How do I get help on this Intacct screen?");
+    guideSteps = buildGenericGuideSteps(screen, title);
+    if (!helpUrl && conceptIds[0]) {
+      helpUrl = getHelpLinkData(conceptIds[0])?.helpUrl || "";
+    }
   }
 
   if (conceptParam) {
-    const extra = conceptParam.split(",").map((s) => s.trim()).filter(Boolean);
+    const extra = conceptParam
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     conceptIds = [...new Set([...extra, ...conceptIds])];
   }
   if (focus && !conceptIds.includes(focus)) {
     conceptIds = [focus, ...conceptIds];
   }
 
-  let mode: PanelMode = "help";
+  // Prefer Help URL from primary concept when spine/module did not supply one.
+  if (!helpUrl && conceptIds[0]) {
+    helpUrl = getHelpLinkData(conceptIds[0])?.helpUrl || "";
+  }
+
+  // Default to Guide for in-Intacct panel opens. Explicit mode wins;
+  // a seeded q alone does not steal the tab away from Guide.
+  let mode: PanelMode = "guide";
   if (modeRaw === "guide" || modeRaw === "context" || modeRaw === "help") {
     mode = modeRaw;
-  } else if (mapped && !q) {
-    mode = "guide";
   }
 
   return {
     mode,
     title,
     screen,
-    module,
+    module: module || spine?.module || "",
     helpUrl,
     q,
     conceptIds,

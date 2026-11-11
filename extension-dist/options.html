@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Smart Help settings</title>
+    <style>
+      body {
+        font: 13px/1.4 system-ui, sans-serif;
+        margin: 16px;
+        min-width: 320px;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px;
+        margin-bottom: 12px;
+      }
+      button {
+        padding: 8px 12px;
+        font-weight: 600;
+      }
+      .hint {
+        color: #64748b;
+        font-size: 12px;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <label for="uiBase">UI base URL</label>
+    <input id="uiBase" type="url" placeholder="https://v0-concept-graph-demo.vercel.app" />
+    <button id="save" type="button">Save</button>
+    <p class="hint">
+      Local default: <code>https://v0-concept-graph-demo.vercel.app</code>. For a hosted prototype,
+      set this to your Vercel (or other) origin that serves <code>/panel</code>.
+    </p>
+    <p id="saved" class="hint" hidden>Saved.</p>
+    <script src="options.js"></script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+---
+description: Keep local Smart Help extension and extension-dist in sync with a bumped distribution number
+alwaysApply: true
+---
+
+# Extension distribution sync
+
+Whenever you change or rebuild the **local-use** Chrome extension under `concept-graph-demo/extension/`:
+
+1. Run `npm run extension:dist` from `concept-graph-demo` (or `node scripts/sync-extension-dist.mjs`).
+2. That script **increments the distribution number**, writes the same version into both `extension/manifest.json` and `extension-dist/manifest.json`, copies shared scripts/HTML into `extension-dist/`, and rewrites hosted defaults (Vercel UI base + host_permissions).
+3. Do **not** hand-edit `extension-dist/` copies of shared files — edit `extension/` then sync.
+4. Tell the user the new **distribution number** (and version) after the sync.
+5. Use `--no-bump` only when re-syncing without a behavioral change (rare).
+
+Source of truth for the number: `concept-graph-demo/extension/distribution.json`.

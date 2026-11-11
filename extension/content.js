@@ -193,9 +193,11 @@
     }
 
     let ifmod = "";
+    let config = "";
     try {
       const u = new URL(mainUrl || location.href);
       ifmod = u.searchParams.get(".ifmod") || u.searchParams.get("ifmod") || "";
+      config = u.searchParams.get(".config") || u.searchParams.get("config") || "";
     } catch {
       /* ignore */
     }
@@ -212,8 +214,34 @@
 
     const title = mainTitle || document.title || "";
     let screen = screenLabel;
-    if (/close books/i.test(title)) screen = "Close books";
-    else if (/journal/i.test(title)) screen = title.replace(/^Intacct\s*-?\s*/i, "");
+    const blob = `${title} ${screenLabel} ${config}`;
+
+    // Prefer explicit page titles / NextGen .config paths over body snippets.
+    const titleOnly = title
+      .replace(/^Intacct(\s+Corporation)?\s*-?\s*/i, "")
+      .replace(/^IA\./i, "")
+      .trim();
+    if (titleOnly && titleOnly.length < 80 && !/^nextgen$/i.test(titleOnly)) {
+      screen = titleOnly;
+    }
+
+    if (/close\s*books/i.test(blob)) screen = "Close books";
+    else if (/close\s*ap\s*subledger/i.test(blob)) screen = "Close AP subledger";
+    else if (/close\s*ar\s*subledger/i.test(blob)) screen = "Close AR subledger";
+    else if (/close\s*period|close_period/i.test(blob)) screen = "Close period";
+    else if (/pay\s*bills?/i.test(blob)) screen = "Pay bills";
+    else if (/ap\/stable\/bill|\/bill\./i.test(config))
+      screen = /list/i.test(config) ? "Bills" : "Bill";
+    else if (/\bbills\b/i.test(blob) && !/pay\s*bills?/i.test(blob))
+      screen = "Bills";
+    else if (/(?:^|[^a-z])bill(?:$|[^a-z])/i.test(blob)) screen = "Bill";
+    else if (/journal\s*entries/i.test(blob)) screen = "Journal entries";
+    else if (/journal\s*entry/i.test(blob)) screen = "Journal entry";
+    else if (/reconcil\w*\s*bank|check\s*reconcil/i.test(blob))
+      screen = "Reconcile bank account";
+    else if (/purchase\s*order/i.test(blob)) screen = "Purchase Order";
+    else if (/sales\s*order/i.test(blob)) screen = "Sales Order";
+    else if (/reporting\s*periods?/i.test(blob)) screen = "Reporting periods";
 
     let module = "";
     const ifmodMap = {
@@ -223,10 +251,16 @@
       po: "Purchasing",
       so: "Order_Entry",
       cm: "Cash_Management",
+      reportcenter: "Reporting",
     };
     if (ifmod && ifmodMap[ifmod.toLowerCase()]) {
       module = ifmodMap[ifmod.toLowerCase()];
-    }
+    } else if (/\/ap\//i.test(config)) module = "Accounts_Payable";
+    else if (/\/ar\//i.test(config)) module = "Accounts_Receivable";
+    else if (/\/gl\//i.test(config)) module = "General_Ledger";
+    else if (/\/po\//i.test(config)) module = "Purchasing";
+    else if (/\/so\//i.test(config)) module = "Order_Entry";
+    else if (/\/cm\//i.test(config)) module = "Cash_Management";
 
     return {
       title,
@@ -248,20 +282,67 @@
     chrome.runtime.sendMessage({ type: "graph-help:open-panel" });
   }
 
+  function ownLabel(el) {
+    const direct = Array.from(el.childNodes)
+      .filter((n) => n.nodeType === Node.TEXT_NODE)
+      .map((n) => n.textContent || "")
+      .join("")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (direct) return direct;
+    return (el.textContent || "").replace(/\s+/g, " ").trim();
+  }
+
+  function looksLikeFieldHelp(el) {
+    if (!(el instanceof Element)) return false;
+    // Field-level Sage Help affordances (?, help balls, "What can I do here?").
+    // These must keep opening native Help — never Smart Help.
+    if (el.closest(".help, .ia-help, .field-help, .qhelp, [data-help]")) {
+      return true;
+    }
+    const labeled = el.closest("a, button, [role='button'], img, svg, span");
+    if (!labeled) return false;
+    const tip = `${labeled.getAttribute("title") || ""} ${
+      labeled.getAttribute("aria-label") || ""
+    }`.toLowerCase();
+    if (
+      tip.includes("what can i do") ||
+      tip === "help" ||
+      tip.includes("field help") ||
+      tip.includes("page help")
+    ) {
+      return true;
+    }
+    const label = ownLabel(labeled);
+    if (label === "?" || label === "？") return true;
+    if (/^what can i do here\??$/i.test(label)) return true;
+    return false;
+  }
+
   function interceptHelpOnThisPage() {
     document.addEventListener(
       "click",
       (event) => {
+        // Field-level ? balls often trigger Help via a synthetic click on
+        // "Help on this page". Never intercept those — only real user clicks
+        // on the shell menu item should open Smart Help.
+        if (!event.isTrusted) return;
+
         const t = event.target;
         if (!(t instanceof Element)) return;
-        const link = t.closest("a, button, li, span");
-        if (!link) return;
-        const text = (link.textContent || "").replace(/\s+/g, " ").trim();
-        if (/^help on this page$/i.test(text)) {
-          event.preventDefault();
-          event.stopPropagation();
-          openGraphHelp();
-        }
+        if (looksLikeFieldHelp(t)) return;
+
+        // Only the exact shell menu item "Help on this page".
+        // Intacct renders it as an <li>; match own label only (never a parent
+        // whose textContent concatenates the whole Help menu).
+        const control = t.closest("a, button, [role='menuitem'], li");
+        if (!control) return;
+        const text = ownLabel(control);
+        if (!/^help on this page$/i.test(text)) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        openGraphHelp();
       },
       true
     );

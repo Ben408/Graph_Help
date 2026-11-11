@@ -1,0 +1,6 @@
+{
+  "distribution": 5,
+  "version": "0.3.5",
+  "note": "Bump via: npm run extension:dist (or node scripts/sync-extension-dist.mjs). Local + extension-dist share this number.",
+  "updatedAt": "2026-11-11T21:28:27.191Z"
+}

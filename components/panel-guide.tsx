@@ -61,20 +61,35 @@ export function PanelGuide({
     return () => postHighlightLabels([]);
   }, [stepIndex, hasFieldGuide, steps, context.highlightLabels]);
 
+  const topicId = context.conceptIds[0];
+  const topicHelp = topicId ? getHelpLinkData(topicId) : null;
+  const screenHelpUrl = context.helpUrl || topicHelp?.helpUrl || null;
+
   if (!hasFieldGuide) {
     return (
       <div className="flex flex-col gap-4 p-3">
         <div>
           <h1 className="text-base font-semibold">Guide</h1>
           <p className="text-xs text-muted-foreground mt-1">
-            No field-level guide for this screen yet. Ask for a procedure or
-            explore concepts for this area of Intacct.
+            No field-level guide for this screen yet. Open the Sage Help topic
+            for this area, ask for a procedure, or explore concepts.
           </p>
         </div>
+        {screenHelpUrl && (
+          <a
+            href={screenHelpUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="h-9 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground inline-flex items-center justify-center gap-1.5"
+          >
+            Open Sage Intacct Help topic
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        )}
         <button
           type="button"
           onClick={() => onAsk(context.suggestedQuery || undefined)}
-          className="h-9 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground inline-flex items-center justify-center gap-1.5"
+          className="h-9 rounded-lg border border-border px-3 text-sm font-medium inline-flex items-center justify-center gap-1.5"
         >
           <Sparkles className="h-3.5 w-3.5" />
           Ask about this screen
@@ -171,37 +186,30 @@ export function PanelGuide({
         </button>
       </div>
 
-      {(() => {
-        const topicId = context.conceptIds[0];
-        const help = topicId ? getHelpLinkData(topicId) : null;
-        if (help?.helpUrl) {
-          return (
-            <a
-              href={help.helpUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs font-medium text-primary inline-flex items-center gap-1"
-            >
-              Open Sage Intacct Help topic
-              <ExternalLink className="h-3 w-3" />
-            </a>
-          );
-        }
-        return (
-          <button
-            type="button"
-            onClick={() =>
-              onAsk(
-                context.suggestedQuery ||
-                  "How do I close my books for the period?"
-              )
-            }
-            className="text-xs font-medium text-primary text-left"
-          >
-            Ask for a cited Help procedure →
-          </button>
-        );
-      })()}
+      {screenHelpUrl ? (
+        <a
+          href={screenHelpUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs font-medium text-primary inline-flex items-center gap-1"
+        >
+          Open Sage Intacct Help topic
+          <ExternalLink className="h-3 w-3" />
+        </a>
+      ) : (
+        <button
+          type="button"
+          onClick={() =>
+            onAsk(
+              context.suggestedQuery ||
+                "How do I close my books for the period?"
+            )
+          }
+          className="text-xs font-medium text-primary text-left"
+        >
+          Ask for a cited Help procedure →
+        </button>
+      )}
 
       {path && (
         <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
