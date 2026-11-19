@@ -18,6 +18,15 @@ export const corpus: CorpusBinding = {
     "http://help.intacct-planning.com/",
   ],
   pathMarker: "/core/Topics/",
+  // MadCap TOC folders are often javascript:void(0); seed Get started pages explicitly.
+  seedUrls: [
+    "https://help.intacct-planning.com/core/Resources/MasterPages/Homepage-web.htm",
+    "https://help.intacct-planning.com/core/Topics/planning-glossary.htm",
+    "https://help.intacct-planning.com/core/Topics/explore-planning.htm",
+    "https://help.intacct-planning.com/core/Topics/community.htm",
+    "https://help.intacct-planning.com/core/Topics/known-issues.htm",
+    "https://help.intacct-planning.com/core/Topics/FAQs-get-started.htm",
+  ],
 };
 
 /** App SPA path fragments + Help topic folders → concept ids. */

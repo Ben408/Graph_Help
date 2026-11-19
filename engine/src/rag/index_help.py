@@ -88,6 +88,9 @@ def build_index(
         locale = str(pack_corpus.get("locale") or "en_US")
         cache_dir = cache_dir_for_locale(settings.help_cache_dir, locale)
         cache_dir.mkdir(parents=True, exist_ok=True)
+        seed_urls = [
+            str(u) for u in (pack_corpus.get("seedUrls") or []) if u
+        ]
         part = _build_index_single(
             max_pages=max_pages,
             delete_stale=delete_stale,
@@ -100,6 +103,7 @@ def build_index(
             cache_dir=cache_dir,
             start_url=str(pack_corpus["startUrl"]),
             allowed_prefix=str(pack_corpus["allowedPrefix"]),
+            extra_start_urls=seed_urls,
         )
         part.locales = [locale]
         part.by_locale = {
@@ -166,6 +170,7 @@ def _build_index_single(
     cache_dir: Path,
     start_url: str,
     allowed_prefix: str,
+    extra_start_urls: list[str] | None = None,
 ) -> IndexSummary:
     state_path = settings.vector_store_dir / f"index_state_{locale}.json"
     # Keep legacy EN state filename for backward compatibility.
@@ -245,6 +250,7 @@ def _build_index_single(
         allowed_prefix=allowed_prefix,
         cache_dir=cache_dir,
         delay_seconds=settings.crawl_delay_seconds,
+        extra_start_urls=extra_start_urls,
         on_progress=lambda crawled, queued, url: _crawl_progress(locale, crawled, queued, url),
         on_document=index_document,
     )

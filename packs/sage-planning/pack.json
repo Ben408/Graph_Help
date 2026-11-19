@@ -10,6 +10,14 @@
     "citationAllowlist": [
       "https://help.intacct-planning.com/",
       "http://help.intacct-planning.com/"
+    ],
+    "seedUrls": [
+      "https://help.intacct-planning.com/core/Resources/MasterPages/Homepage-web.htm",
+      "https://help.intacct-planning.com/core/Topics/planning-glossary.htm",
+      "https://help.intacct-planning.com/core/Topics/explore-planning.htm",
+      "https://help.intacct-planning.com/core/Topics/community.htm",
+      "https://help.intacct-planning.com/core/Topics/known-issues.htm",
+      "https://help.intacct-planning.com/core/Topics/FAQs-get-started.htm"
     ]
   },
   "vocabulary": [

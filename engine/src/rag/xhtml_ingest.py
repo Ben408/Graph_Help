@@ -69,6 +69,7 @@ class XhtmlCrawler:
         timeout_seconds: float = 30,
         max_retries: int = 4,
         checkpoint_every: int = 25,
+        extra_start_urls: list[str] | None = None,
         client: httpx.Client | None = None,
         on_progress: Callable[[int, int, str], None] | None = None,
         on_document: Callable[[XhtmlDocument], None] | None = None,
@@ -76,6 +77,11 @@ class XhtmlCrawler:
         if not is_allowed_help_url(start_url, allowed_prefix):
             raise ValueError("Start URL must be inside the configured crawl boundary")
         self.start_url = start_url
+        self.extra_start_urls = [
+            u
+            for u in (extra_start_urls or [])
+            if u and is_allowed_help_url(u, allowed_prefix)
+        ]
         self.allowed_prefix = allowed_prefix
         self.cache_dir = cache_dir
         self.delay_seconds = max(delay_seconds, 0)
@@ -101,8 +107,13 @@ class XhtmlCrawler:
             raise ValueError("max_pages must be positive")
 
         previous = self._read_manifest()
-        queue = deque([self.start_url])
-        queued = {self.start_url}
+        seeds = [self.start_url, *self.extra_start_urls]
+        queue: deque[str] = deque()
+        queued: set[str] = set()
+        for seed in seeds:
+            if seed not in queued:
+                queue.append(seed)
+                queued.add(seed)
         visited: set[str] = set()
         documents: list[XhtmlDocument] = []
 

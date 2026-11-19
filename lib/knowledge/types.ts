@@ -75,6 +75,8 @@ export interface CorpusBinding {
   citationAllowlist: string[];
   /** Help URL path marker after which module/topic segments begin. */
   pathMarker?: string;
+  /** Extra BFS seeds when MadCap TOC folders are not in-body links. */
+  seedUrls?: string[];
 }
 
 export interface ModuleConceptMap {
