@@ -1,11 +1,20 @@
 "use client";
 
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SkillPathCard } from "@/components/skill-path-card";
-import { getSkillPaths } from "@/lib/knowledge";
+import {
+  getActivePack,
+  setSessionPackId,
+} from "@/lib/knowledge";
 
-export function SkillPathsContent() {
-  const paths = getSkillPaths();
+function SkillPathsInner() {
+  const searchParams = useSearchParams();
+  const packParam = searchParams.get("pack");
+  setSessionPackId(packParam);
+  const pack = getActivePack(packParam);
+  const paths = pack.skillPaths;
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
@@ -22,5 +31,20 @@ export function SkillPathsContent() {
         </div>
       </div>
     </div>
+  );
+}
+
+export function SkillPathsContent() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background">
+          <SiteHeader />
+          <p className="p-8 text-muted-foreground">Loading paths…</p>
+        </div>
+      }
+    >
+      <SkillPathsInner />
+    </Suspense>
   );
 }

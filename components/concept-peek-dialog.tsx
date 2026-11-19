@@ -12,8 +12,14 @@ import {
   ListChecks,
   X,
 } from "lucide-react";
-import { CATEGORY_COLORS, getConceptById, getHelpLinkData } from "@/data/concepts";
-import { getPathsForConcept } from "@/lib/knowledge";
+import {
+  conceptHref,
+  getActivePack,
+  getConceptById,
+  getPathsForConcept,
+  skillPathHref,
+  withPackQuery,
+} from "@/lib/knowledge";
 
 // Deliberately not built on Radix Dialog: its modal layer sets
 // pointer-events:none on document.body and restores it from layer bookkeeping,
@@ -29,6 +35,7 @@ export function ConceptPeekDialog({
   /** When set, opens the full concept view without navigating the panel iframe. */
   onOpenFullPage?: (conceptId: string) => void;
 }) {
+  const pack = getActivePack();
   const concept = conceptId ? getConceptById(conceptId) : null;
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -47,8 +54,9 @@ export function ConceptPeekDialog({
 
   if (!concept) return null;
 
-  const helpLink = getHelpLinkData(concept.id);
+  const helpUrl = concept.helpUrl;
   const skillPaths = getPathsForConcept(concept.id);
+  const color = pack.categoryColors[concept.category];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -74,10 +82,7 @@ export function ConceptPeekDialog({
         </button>
 
         <div className="border-b border-border py-5 pl-8 pr-14">
-          <p
-            className="mb-1 text-xs font-medium"
-            style={{ color: CATEGORY_COLORS[concept.category] }}
-          >
+          <p className="mb-1 text-xs font-medium" style={{ color }}>
             {concept.category}
           </p>
           <h2
@@ -132,7 +137,10 @@ export function ConceptPeekDialog({
                 {concept.tasks!.map((task) => (
                   <Link
                     key={task}
-                    href={`/ask?q=${encodeURIComponent(task)}`}
+                    href={withPackQuery(
+                      `/ask?q=${encodeURIComponent(task)}`,
+                      pack.id
+                    )}
                     onClick={onClose}
                     className="rounded-full bg-secondary px-3 py-1.5 text-xs font-medium hover:bg-primary/10 hover:text-primary"
                   >
@@ -150,7 +158,7 @@ export function ConceptPeekDialog({
                 {skillPaths.map((path) => (
                   <Link
                     key={path.id}
-                    href={`/paths/${path.id}`}
+                    href={skillPathHref(path.id, pack.id)}
                     onClick={onClose}
                     className="rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary"
                   >
@@ -161,19 +169,19 @@ export function ConceptPeekDialog({
             </section>
           )}
 
-          {helpLink && (
+          {helpUrl && (
             <section>
               <div className="mb-1.5 flex items-center gap-2">
                 <BookOpen className="h-4 w-4 text-primary" />
                 <h3 className="text-sm font-semibold text-foreground">Source documentation</h3>
               </div>
               <a
-                href={helpLink.helpUrl}
+                href={helpUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
               >
-                Sage Intacct Help
+                {pack.name} Help
                 <ExternalLink className="h-3.5 w-3.5" />
               </a>
             </section>
@@ -193,7 +201,7 @@ export function ConceptPeekDialog({
             </button>
           ) : (
             <Link
-              href={`/concept/${concept.id}`}
+              href={conceptHref(concept.id, pack.id)}
               onClick={onClose}
               className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
             >

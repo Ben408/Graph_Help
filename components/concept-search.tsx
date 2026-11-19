@@ -4,8 +4,14 @@ import React from "react";
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Search, X, ExternalLink, Route, ListChecks } from "lucide-react";
-import { CATEGORY_COLORS, buildSageSearchUrl, type Concept } from "@/data/concepts";
-import { routeQuery } from "@/lib/knowledge";
+import { buildSageSearchUrl, type Concept } from "@/data/concepts";
+import {
+  conceptHref,
+  getActivePack,
+  routeQuery,
+  skillPathHref,
+  withPackQuery,
+} from "@/lib/knowledge";
 import { useRouter } from "next/navigation";
 
 interface ConceptSearchProps {
@@ -30,6 +36,8 @@ export function ConceptSearch({
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
+  const pack = getActivePack();
+  const categoryColors = pack.categoryColors;
   const routed = query.length >= 2 ? routeQuery(query) : null;
   const conceptHits = (routed?.conceptHits ?? []).slice(0, 5);
   const pathHits = (routed?.skillPathHits ?? []).slice(0, 3);
@@ -43,7 +51,10 @@ export function ConceptSearch({
 
   const rows: Row[] = [];
   if (showGoal) {
-    rows.push({ kind: "goal", href: `/ask?q=${encodeURIComponent(query)}` });
+    rows.push({
+      kind: "goal",
+      href: withPackQuery(`/ask?q=${encodeURIComponent(query)}`, pack.id),
+    });
   }
   for (const path of pathHits) {
     rows.push({ kind: "path", id: path.id, title: path.title });
@@ -65,10 +76,10 @@ export function ConceptSearch({
       if (onSelect) {
         onSelect(concept);
       } else {
-        router.push(`/concept/${concept.id}`);
+        router.push(conceptHref(concept.id, pack.id));
       }
     },
-    [onSelect, router]
+    [onSelect, pack.id, router]
   );
 
   const activateRow = useCallback(
@@ -76,10 +87,11 @@ export function ConceptSearch({
       setQuery("");
       setIsOpen(false);
       if (row.kind === "goal") router.push(row.href);
-      else if (row.kind === "path") router.push(`/paths/${row.id}`);
+      else if (row.kind === "path")
+        router.push(skillPathHref(row.id, pack.id));
       else handleSelectConcept(row.concept);
     },
-    [handleSelectConcept, router]
+    [handleSelectConcept, pack.id, router]
   );
 
   const handleKeyDown = useCallback(
@@ -95,13 +107,19 @@ export function ConceptSearch({
         e.preventDefault();
         const row = rows[selectedIndex];
         if (row) activateRow(row);
-        else if (showGoal) router.push(`/ask?q=${encodeURIComponent(query)}`);
-        else router.push(`/search?q=${encodeURIComponent(query)}`);
+        else if (showGoal)
+          router.push(
+            withPackQuery(`/ask?q=${encodeURIComponent(query)}`, pack.id)
+          );
+        else
+          router.push(
+            withPackQuery(`/search?q=${encodeURIComponent(query)}`, pack.id)
+          );
       } else if (e.key === "Escape") {
         setIsOpen(false);
       }
     },
-    [isOpen, rows, selectedIndex, activateRow, showGoal, query, router]
+    [isOpen, rows, selectedIndex, activateRow, showGoal, query, router, pack.id]
   );
 
   useEffect(() => {
@@ -218,7 +236,7 @@ export function ConceptSearch({
               >
                 <span
                   className="mt-1 h-2 w-2 rounded-full shrink-0"
-                  style={{ backgroundColor: CATEGORY_COLORS[concept.category] }}
+                  style={{ backgroundColor: categoryColors[concept.category] }}
                 />
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">

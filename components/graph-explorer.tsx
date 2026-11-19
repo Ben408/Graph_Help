@@ -18,6 +18,7 @@ import { ConceptPeekDialog } from "@/components/concept-peek-dialog";
 import { ConceptSearch } from "@/components/concept-search";
 import { SiteHeader } from "@/components/site-header";
 import {
+  conceptHref,
   foundationIdsForPack,
   getActivePack,
   getConceptById,
@@ -563,7 +564,7 @@ function GraphExplorerInner() {
             </div>
             <div className="p-4 border-t border-border">
               <Link
-                href={`/concept/${selected.id}`}
+                href={conceptHref(selected.id, pack.id)}
                 className="flex items-center justify-center gap-2 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"
               >
                 Open concept page

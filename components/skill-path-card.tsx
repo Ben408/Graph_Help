@@ -2,15 +2,20 @@
 
 import Link from "next/link";
 import { ArrowRight, Route } from "lucide-react";
-import { getConceptById, type SkillPath } from "@/lib/knowledge";
-import { CATEGORY_COLORS } from "@/data/concepts";
+import {
+  getActivePack,
+  getConceptById,
+  skillPathHref,
+  type SkillPath,
+} from "@/lib/knowledge";
 import { usePathProgress } from "@/lib/path-progress";
 
 export function SkillPathCard({ path }: { path: SkillPath }) {
+  const pack = getActivePack();
   const progress = usePathProgress(path.id, path.steps.length);
   return (
     <Link
-      href={`/paths/${path.id}`}
+      href={skillPathHref(path.id, pack.id)}
       className="group flex flex-col rounded-xl border border-border bg-card p-5 hover:border-primary/30 hover:shadow-md transition-all"
     >
       <div className="flex items-start gap-3 mb-3">
@@ -40,7 +45,9 @@ export function SkillPathCard({ path }: { path: SkillPath }) {
               <span
                 className="h-1.5 w-1.5 rounded-full"
                 style={{
-                  backgroundColor: concept ? CATEGORY_COLORS[concept.category] : undefined,
+                  backgroundColor: concept
+                    ? pack.categoryColors[concept.category]
+                    : undefined,
                 }}
               />
               {concept?.title ?? step.conceptId}

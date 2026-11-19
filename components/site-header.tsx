@@ -7,7 +7,7 @@ import { Moon, Sun, Compass, MessageSquare, GraduationCap, Sparkles } from "luci
 import { useTheme } from "next-themes";
 import { ConceptSearch } from "@/components/concept-search";
 import { ProductSwitcher } from "@/components/product-switcher";
-import { getActivePack } from "@/lib/knowledge";
+import { getActivePack, withPackQuery } from "@/lib/knowledge";
 
 const NAV = [
   { href: "/ask", label: "Ask", match: (p: string) => p.startsWith("/ask"), icon: MessageSquare },
@@ -30,7 +30,11 @@ export function SiteHeader() {
         Skip to content
       </a>
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 lg:px-6">
-        <Link href="/" className="flex items-center gap-2 shrink-0" aria-label={`${pack.name} home`}>
+        <Link
+          href={withPackQuery("/", pack.id)}
+          className="flex items-center gap-2 shrink-0"
+          aria-label={`${pack.name} home`}
+        >
           {/* Official mark from Intacct product branding (ia/resources/branding/logos/svg/Sage_Logo.svg) */}
           <img
             src="/brand/Sage_Logo.svg"
@@ -51,7 +55,7 @@ export function SiteHeader() {
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={withPackQuery(item.href, pack.id)}
                 className={`px-3 py-1.5 rounded-md text-sm transition-colors inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-ring ${
                   active
                     ? "text-foreground font-medium bg-secondary"

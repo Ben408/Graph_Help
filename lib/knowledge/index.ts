@@ -33,6 +33,17 @@ export {
 export type { PackId } from "./product-detect";
 export { getPackById, listPacks, knownPackIds } from "./pack-registry";
 export {
+  allConceptStaticParams,
+  allSkillPathStaticParams,
+  conceptHref,
+  findConceptAcrossPacks,
+  findPackForConceptId,
+  findPackForSkillPathId,
+  findSkillPathAcrossPacks,
+  skillPathHref,
+  withPackQuery,
+} from "./cross-pack";
+export {
   getConceptById,
   getConceptsByCategory,
   getPack,

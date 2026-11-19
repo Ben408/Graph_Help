@@ -19,11 +19,14 @@ import {
   type EngineAskResult,
 } from "@/lib/engine-client";
 import {
+  conceptHref,
+  getActivePack,
   getConceptById,
   getSkillPathById,
   routeQuery,
+  setSessionPackId,
+  skillPathHref,
 } from "@/lib/knowledge";
-import { CATEGORY_COLORS } from "@/data/concepts";
 
 function isDecision(text: string) {
   return /\b(if you|if the|when you|when the|unless|only if|depending on|before you|after you)\b/i.test(
@@ -33,6 +36,10 @@ function isDecision(text: string) {
 
 function AskInner() {
   const searchParams = useSearchParams();
+  const packParam = searchParams.get("pack");
+  setSessionPackId(packParam);
+  const pack = getActivePack(packParam);
+  const categoryColors = pack.categoryColors;
   const initial = searchParams.get("q") || "";
   const [query, setQuery] = useState(initial);
   /** Query that produced the current result — not tied to live typing. */
@@ -342,12 +349,12 @@ function AskInner() {
                     return (
                       <Link
                         key={id}
-                        href={`/concept/${id}`}
+                        href={conceptHref(id, pack.id)}
                         className="inline-flex items-center gap-1.5 text-xs rounded-full bg-secondary px-3 py-1.5 focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         <span
                           className="h-1.5 w-1.5 rounded-full"
-                          style={{ backgroundColor: CATEGORY_COLORS[concept.category] }}
+                          style={{ backgroundColor: categoryColors[concept.category] }}
                         />
                         {concept.title}
                       </Link>
@@ -363,7 +370,7 @@ function AskInner() {
                 <p className="text-sm font-semibold text-foreground">{suggestedPaths[0].title}</p>
                 <p className="text-sm text-muted-foreground mt-1">{suggestedPaths[0].goal}</p>
                 <Link
-                  href={`/paths/${suggestedPaths[0].id}`}
+                  href={skillPathHref(suggestedPaths[0].id, pack.id)}
                   className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-primary focus-visible:ring-2 focus-visible:ring-ring rounded"
                 >
                   <Route className="h-3.5 w-3.5" />

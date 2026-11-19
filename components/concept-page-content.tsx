@@ -13,28 +13,35 @@ import {
   Route,
   Clock3,
 } from "lucide-react";
-import {
-  getConceptById,
-  CATEGORY_COLORS,
-  getHelpLinkData,
-} from "@/data/concepts";
 import { KnowledgeGraph } from "@/components/knowledge-graph";
 import { SiteHeader } from "@/components/site-header";
 import {
-  getPack,
+  conceptHref,
+  getActivePack,
   getPathsForConcept,
   groupedRelationships,
   sentenceFor,
+  setSessionPackId,
+  skillPathHref,
+  withPackQuery,
 } from "@/lib/knowledge";
 import Link from "next/link";
 
 const NEIGHBORHOOD_DEFAULT = 4;
 const NEIGHBORHOOD_EXPANDED = 12;
 
-export function ConceptPageContent({ conceptId }: { conceptId: string }) {
+export function ConceptPageContent({
+  conceptId,
+  packId,
+}: {
+  conceptId: string;
+  packId?: string | null;
+}) {
+  setSessionPackId(packId);
   const router = useRouter();
-  const pack = getPack();
-  const concept = getConceptById(conceptId);
+  const pack = getActivePack(packId);
+  const concept = pack.concepts.find((item) => item.id === conceptId);
+  const categoryColors = pack.categoryColors;
   const [expandedNeighborhood, setExpandedNeighborhood] = useState(false);
   const relLimit = expandedNeighborhood ? NEIGHBORHOOD_EXPANDED : NEIGHBORHOOD_DEFAULT;
   const groups = groupedRelationships(pack, conceptId, relLimit);
@@ -54,8 +61,9 @@ export function ConceptPageContent({ conceptId }: { conceptId: string }) {
   }
 
   const skillPaths = getPathsForConcept(conceptId);
-  const color = CATEGORY_COLORS[concept.category];
-  const helpLinkData = getHelpLinkData(conceptId);
+  const color = categoryColors[concept.category];
+  const helpUrl = concept.helpUrl;
+  const hierarchy = concept.hierarchy;
   const localIds = [
     conceptId,
     ...groups.flatMap((g) => g.items.map((rel) => rel.concept.id)),
@@ -75,18 +83,24 @@ export function ConceptPageContent({ conceptId }: { conceptId: string }) {
               <ArrowLeft className="h-3.5 w-3.5" />
               Back
             </button>
-            {helpLinkData?.hierarchy.breadcrumb.map((crumb, i) => (
+            {hierarchy?.breadcrumb.map((crumb, i) => (
               <span key={i} className="flex items-center gap-1.5">
                 {i > 0 && <ChevronRight className="h-3 w-3 text-muted-foreground/50" />}
-                <span className={`text-xs ${i === helpLinkData.hierarchy.breadcrumb.length - 1 ? "text-foreground" : "text-muted-foreground"}`}>
+                <span
+                  className={`text-xs ${
+                    i === hierarchy.breadcrumb.length - 1
+                      ? "text-foreground"
+                      : "text-muted-foreground"
+                  }`}
+                >
                   {crumb}
                 </span>
               </span>
             ))}
           </div>
-          {helpLinkData && (
+          {helpUrl && (
             <a
-              href={helpLinkData.helpUrl}
+              href={helpUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-xs font-medium text-primary bg-primary/10 rounded-lg px-3 py-2"
@@ -143,7 +157,7 @@ export function ConceptPageContent({ conceptId }: { conceptId: string }) {
                     .items.map((rel) => (
                       <Link
                         key={rel.concept.id}
-                        href={`/concept/${rel.concept.id}`}
+                        href={conceptHref(rel.concept.id, pack.id)}
                         className="block text-sm text-foreground hover:text-primary"
                       >
                         {sentenceFor(pack, conceptId, rel)}
@@ -163,7 +177,10 @@ export function ConceptPageContent({ conceptId }: { conceptId: string }) {
                   {concept.tasks!.map((task) => (
                     <Link
                       key={task}
-                      href={`/ask?q=${encodeURIComponent(task)}`}
+                      href={withPackQuery(
+                        `/ask?q=${encodeURIComponent(task)}`,
+                        pack.id
+                      )}
                       className="text-xs font-medium bg-secondary rounded-full px-3 py-1.5 hover:bg-primary/10 hover:text-primary"
                     >
                       {task}
@@ -196,7 +213,7 @@ export function ConceptPageContent({ conceptId }: { conceptId: string }) {
                       {group.items.map((rel) => (
                         <Link
                           key={`${rel.concept.id}-${rel.type}`}
-                          href={`/concept/${rel.concept.id}`}
+                          href={conceptHref(rel.concept.id, pack.id)}
                           className="block rounded-lg border border-border px-3 py-2 text-sm hover:bg-secondary/50"
                         >
                           {sentenceFor(pack, conceptId, rel)}
@@ -218,7 +235,7 @@ export function ConceptPageContent({ conceptId }: { conceptId: string }) {
                   {skillPaths.map((path) => (
                     <Link
                       key={path.id}
-                      href={`/paths/${path.id}`}
+                      href={skillPathHref(path.id, pack.id)}
                       className="text-xs font-medium rounded-full bg-primary/10 text-primary px-3 py-1.5"
                     >
                       {path.title}
@@ -228,19 +245,19 @@ export function ConceptPageContent({ conceptId }: { conceptId: string }) {
               </section>
             )}
 
-            {helpLinkData && (
+            {helpUrl && (
               <section className="rounded-xl border border-border bg-card p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <BookOpen className="h-4 w-4 text-primary" />
                   <h2 className="text-sm font-semibold text-foreground">Source documentation</h2>
                 </div>
                 <a
-                  href={helpLinkData.helpUrl}
+                  href={helpUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-primary hover:underline inline-flex items-center gap-1.5"
                 >
-                  Sage Intacct Help
+                  {pack.name} Help
                   <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               </section>
@@ -268,17 +285,21 @@ export function ConceptPageContent({ conceptId }: { conceptId: string }) {
                       {expandedNeighborhood ? "Fewer" : "Expand"}
                     </button>
                   )}
-                  <Link href={`/graph?focus=${conceptId}`} className="text-xs font-medium text-primary">
+                  <Link
+                    href={withPackQuery(`/graph?focus=${conceptId}`, pack.id)}
+                    className="text-xs font-medium text-primary"
+                  >
                     Open in full graph
                   </Link>
                 </div>
               </div>
               <div className="h-[320px]">
                 <KnowledgeGraph
+                  packId={pack.id}
                   currentConceptId={conceptId}
                   visibleIds={localIds}
                   dimUnrelated={false}
-                  onNodeClick={(id) => router.push(`/concept/${id}`)}
+                  onNodeClick={(id) => router.push(conceptHref(id, pack.id))}
                 />
               </div>
             </div>

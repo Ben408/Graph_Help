@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { type Concept, CATEGORY_COLORS } from "@/data/concepts";
+import { type Concept } from "@/data/concepts";
+import { conceptHref, getActivePack } from "@/lib/knowledge";
 
 interface ConceptCardProps {
   concept: Concept;
@@ -19,8 +20,9 @@ export function ConceptCard({
   href,
   onSelect,
 }: ConceptCardProps) {
-  const color = CATEGORY_COLORS[concept.category];
-  const target = href ?? `/concept/${concept.id}`;
+  const pack = getActivePack();
+  const color = pack.categoryColors[concept.category];
+  const target = href ?? conceptHref(concept.id, pack.id);
 
   if (variant === "compact") {
     const className =
