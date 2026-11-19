@@ -1,5 +1,10 @@
+import { Suspense } from "react";
 import { HomeScreen } from "@/components/home-screen";
 
 export default function Page() {
-  return <HomeScreen />;
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <HomeScreen />
+    </Suspense>
+  );
 }

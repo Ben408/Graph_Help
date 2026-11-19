@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   getActivePackId,
   listPacks,
@@ -11,7 +11,6 @@ import {
 
 /** Standalone demo control: switch Intacct vs Planning content packs. */
 export function ProductSwitcher() {
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [packId, setPackId] = useState<PackId>("sage-intacct");
