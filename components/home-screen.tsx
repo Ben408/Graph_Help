@@ -1,12 +1,14 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, Compass, GraduationCap, MessageSquare } from "lucide-react";
 import {
   foundationIdsForPack,
   getActivePack,
   getSkillPaths,
+  setSessionPackId,
 } from "@/lib/knowledge";
 import { SkillPathCard } from "@/components/skill-path-card";
 import { ConceptSearch } from "@/components/concept-search";
@@ -16,7 +18,12 @@ import { KnowledgeGraph } from "@/components/knowledge-graph";
 
 export function HomeScreen() {
   const router = useRouter();
-  const pack = getActivePack();
+  const searchParams = useSearchParams();
+  const packParam = searchParams.get("pack");
+  useEffect(() => {
+    setSessionPackId(packParam);
+  }, [packParam]);
+  const pack = getActivePack(packParam);
   const { categories: CATEGORIES, categoryColors: CATEGORY_COLORS, concepts } =
     pack;
   const foundation = foundationIdsForPack(pack);

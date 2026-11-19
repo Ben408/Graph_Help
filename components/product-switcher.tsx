@@ -30,11 +30,11 @@ export function ProductSwitcher() {
       const params = new URLSearchParams(searchParams.toString());
       params.set("pack", next);
       const qs = params.toString();
-      router.push(qs ? `${pathname}?${qs}` : pathname);
-      // Soft reload so pack-bound data modules refresh in the client tree.
-      router.refresh();
+      const href = qs ? `${pathname}?${qs}` : pathname;
+      // Full navigation so every surface remounts against the selected pack.
+      window.location.assign(href);
     },
-    [pathname, router, searchParams]
+    [pathname, searchParams]
   );
 
   return (
