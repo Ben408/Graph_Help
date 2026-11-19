@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ExternalLink } from "lucide-react";
-import { ENGINE_BASE } from "@/lib/engine-client";
+import { getEngineBase } from "@/lib/engine-client";
 
 type Procedure = {
   id: string;
@@ -16,7 +16,7 @@ export function PracticeLinks({ conceptId }: { conceptId: string }) {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`${ENGINE_BASE}/api/practice/${conceptId}`)
+    fetch(`${getEngineBase()}/api/practice/${conceptId}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((payload) => {
         if (cancelled || !payload) return;

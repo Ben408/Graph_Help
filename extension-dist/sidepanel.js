@@ -154,6 +154,29 @@ window.addEventListener("message", async (event) => {
   if (!data) return;
 
   const tabId = await activeTabId();
+
+  // Panel asks which surface we are and whether a page shot is available.
+  // Side panel chrome is not in the Intacct tab — tell the panel to use DOM capture.
+  if (data.type === "graph-help:request-screenshot") {
+    const frame = document.getElementById("frame");
+    const reply = (payload) => {
+      try {
+        frame?.contentWindow?.postMessage(
+          {
+            type: "graph-help:screenshot-result",
+            requestId: data.requestId || null,
+            ...payload,
+          },
+          "*"
+        );
+      } catch {
+        /* ignore */
+      }
+    };
+    reply({ ok: false, surface: "sidepanel", useDom: true });
+    return;
+  }
+
   if (tabId == null) return;
 
   if (data.type === "graph-help:highlight") {

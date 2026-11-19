@@ -12,6 +12,22 @@ class AskFeedbackInput(BaseModel):
     client_ts: str | None = Field(default=None, max_length=64)
 
 
+class PilotBugInput(BaseModel):
+    """In-panel pilot bug report (screenshot + description → Jira)."""
+
+    description: str = Field(min_length=3, max_length=8_000)
+    screenshot_data_url: str = Field(min_length=32, max_length=8_000_000)
+    module: str | None = Field(default=None, max_length=100)
+    screen: str | None = Field(default=None, max_length=200)
+    title: str | None = Field(default=None, max_length=200)
+    help_url: str | None = Field(default=None, max_length=8000)
+    panel_mode: str | None = Field(default=None, max_length=40)
+    extension_version: str | None = Field(default=None, max_length=40)
+    distribution: str | None = Field(default=None, max_length=40)
+    surface: str | None = Field(default=None, max_length=40)
+    client_ts: str | None = Field(default=None, max_length=64)
+
+
 class IssueInput(BaseModel):
     text: str = Field(min_length=3, max_length=20_000)
     module: str | None = Field(default=None, max_length=100)

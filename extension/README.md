@@ -1,6 +1,6 @@
 # Graph Help extension (Chrome / Edge)
 
-Local-first side panel for Sage Intacct. **Copilot is untouched.** This replaces **Help on this page** with Graph Help (Help / Guide / Context).
+Local-first side panel for Sage Intacct. **Copilot is untouched.** Native **Help on this page** stays untouched so Smart Help can be compared side-by-side.
 
 ## Prerequisites
 
@@ -19,11 +19,12 @@ Local-first side panel for Sage Intacct. **Copilot is untouched.** This replaces
 ## Use
 
 1. Sign in to Intacct (e.g. Close books under General Ledger)
-2. Click the extension action, the floating **Graph Help** button, or **Help on this page**
+2. Click the extension action or the floating **Smart Help** button (**Help on this page** still opens native Sage Help)
 3. Side panel opens `/panel` with page context
    - **Close books** → Guide tab + field highlights
    - Unmapped screens → Help tab ready to Ask (never a “not enough context” dead end)
 4. **Context** tab: concept cards + mini graph
+5. **Report a bug** (panel header, any tab): snip with **Win + Shift + S**, paste with **Ctrl + V**, add a short description, Send. Files a Jira Bug via the engine. Confirmation stays in-panel — Jira is not opened so testing continues. Requires engine Jira env (see `engine/README.md`).
 
 The side panel loads `/panel` **once**. Intacct navigation updates context via `postMessage` only when the screen identity changes — it does not remount the iframe (so Ask and Context stay put).
 

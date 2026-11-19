@@ -282,72 +282,6 @@
     chrome.runtime.sendMessage({ type: "graph-help:open-panel" });
   }
 
-  function ownLabel(el) {
-    const direct = Array.from(el.childNodes)
-      .filter((n) => n.nodeType === Node.TEXT_NODE)
-      .map((n) => n.textContent || "")
-      .join("")
-      .replace(/\s+/g, " ")
-      .trim();
-    if (direct) return direct;
-    return (el.textContent || "").replace(/\s+/g, " ").trim();
-  }
-
-  function looksLikeFieldHelp(el) {
-    if (!(el instanceof Element)) return false;
-    // Field-level Sage Help affordances (?, help balls, "What can I do here?").
-    // These must keep opening native Help — never Smart Help.
-    if (el.closest(".help, .ia-help, .field-help, .qhelp, [data-help]")) {
-      return true;
-    }
-    const labeled = el.closest("a, button, [role='button'], img, svg, span");
-    if (!labeled) return false;
-    const tip = `${labeled.getAttribute("title") || ""} ${
-      labeled.getAttribute("aria-label") || ""
-    }`.toLowerCase();
-    if (
-      tip.includes("what can i do") ||
-      tip === "help" ||
-      tip.includes("field help") ||
-      tip.includes("page help")
-    ) {
-      return true;
-    }
-    const label = ownLabel(labeled);
-    if (label === "?" || label === "？") return true;
-    if (/^what can i do here\??$/i.test(label)) return true;
-    return false;
-  }
-
-  function interceptHelpOnThisPage() {
-    document.addEventListener(
-      "click",
-      (event) => {
-        // Field-level ? balls often trigger Help via a synthetic click on
-        // "Help on this page". Never intercept those — only real user clicks
-        // on the shell menu item should open Smart Help.
-        if (!event.isTrusted) return;
-
-        const t = event.target;
-        if (!(t instanceof Element)) return;
-        if (looksLikeFieldHelp(t)) return;
-
-        // Only the exact shell menu item "Help on this page".
-        // Intacct renders it as an <li>; match own label only (never a parent
-        // whose textContent concatenates the whole Help menu).
-        const control = t.closest("a, button, [role='menuitem'], li");
-        if (!control) return;
-        const text = ownLabel(control);
-        if (!/^help on this page$/i.test(text)) return;
-
-        event.preventDefault();
-        event.stopPropagation();
-        openGraphHelp();
-      },
-      true
-    );
-  }
-
   function injectMenuHint() {
     if (document.getElementById("graph-help-entry")) return;
     const btn = document.createElement("button");
@@ -416,6 +350,50 @@
     if (data.type === "graph-help:collapse-home") {
       collapseExpanded();
     }
+    // Overlay iframe: capture the Intacct tab (includes Smart Help modal + app UI).
+    if (data.type === "graph-help:request-screenshot") {
+      const requestId = data.requestId || null;
+      const reply = (payload) => {
+        const overlay = document.getElementById(EXPAND_ID);
+        const frame = overlay?.querySelector("iframe");
+        try {
+          frame?.contentWindow?.postMessage(
+            { type: "graph-help:screenshot-result", requestId, ...payload },
+            "*"
+          );
+        } catch {
+          /* ignore */
+        }
+      };
+      chrome.runtime.sendMessage(
+        { type: "graph-help:capture-screenshot" },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            reply({
+              ok: false,
+              surface: "overlay",
+              useDom: true,
+              error: chrome.runtime.lastError.message,
+            });
+            return;
+          }
+          if (response?.ok && response.dataUrl) {
+            reply({
+              ok: true,
+              surface: "overlay",
+              dataUrl: response.dataUrl,
+            });
+            return;
+          }
+          reply({
+            ok: false,
+            surface: "overlay",
+            useDom: true,
+            error: response?.error || "capture failed",
+          });
+        }
+      );
+    }
   });
 
   chrome.runtime.onMessage.addListener((message) => {
@@ -433,7 +411,7 @@
     }
   });
 
-  interceptHelpOnThisPage();
+  // Native "Help on this page" stays untouched so testers can compare with Smart Help.
   injectMenuHint();
   watchMainNavigation();
   pushContextIfChanged(true);

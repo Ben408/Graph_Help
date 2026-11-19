@@ -50,5 +50,39 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
     });
   }
+  if (message?.type === "graph-help:capture-screenshot") {
+    const tabId = message.tabId || sender.tab?.id;
+    const run = async () => {
+      let windowId;
+      if (tabId != null) {
+        try {
+          const tab = await chrome.tabs.get(tabId);
+          windowId = tab.windowId;
+        } catch {
+          /* fall through */
+        }
+      }
+      if (windowId == null) {
+        const [active] = await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        windowId = active?.windowId;
+      }
+      if (windowId == null) {
+        return { ok: false, error: "No window to capture" };
+      }
+      try {
+        const dataUrl = await chrome.tabs.captureVisibleTab(windowId, {
+          format: "png",
+        });
+        return { ok: true, dataUrl, surface: "page" };
+      } catch (err) {
+        return { ok: false, error: String(err) };
+      }
+    };
+    run().then(sendResponse);
+    return true;
+  }
   return false;
 });

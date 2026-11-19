@@ -1,12 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Smart Help for Sage Intacct",
-  "version": "0.3.5",
+  "version": "0.3.7",
   "description": "Context-aware Smart Help beside Intacct (hosted UI). Copilot stays untouched. Field ? help stays native.",
   "permissions": [
     "storage",
     "sidePanel",
     "activeTab",
+    "tabs",
     "scripting"
   ],
   "host_permissions": [

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ENGINE_BASE } from "@/lib/engine-client";
+import { getEngineBase } from "@/lib/engine-client";
 
 type Rating = "helpful" | "partly_helpful" | "not_helpful";
 
@@ -60,7 +60,7 @@ export function AskFeedback({
       /* ignore quota */
     }
     try {
-      await fetch(`${ENGINE_BASE}/api/ask/${encodeURIComponent(askId)}/feedback`, {
+      await fetch(`${getEngineBase()}/api/ask/${encodeURIComponent(askId)}/feedback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

@@ -7,6 +7,7 @@ import { Home } from "lucide-react";
 import { PanelAsk } from "@/components/panel-ask";
 import { PanelGuide } from "@/components/panel-guide";
 import { PanelContextTab } from "@/components/panel-context-tab";
+import { PanelReportBugButton } from "@/components/panel-report-bug";
 import {
   isSageHelpUrl,
   resolvePanelContext,
@@ -205,21 +206,35 @@ function PanelShellInner() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background text-foreground">
+    <div
+      className="h-screen flex flex-col bg-background text-foreground"
+      data-smart-help-panel
+    >
       <header className="shrink-0 border-b border-border px-3 pt-2 pb-0">
         <div className="flex items-center justify-between gap-2 mb-1.5">
           <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
             Smart Help
           </p>
-          <button
-            type="button"
-            onClick={openHomeExpanded}
-            className="inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline"
-            title="Open Smart Help home as a wide overlay"
-          >
-            <Home className="h-3 w-3" />
-            Home
-          </button>
+          <div className="flex items-center gap-2">
+            <PanelReportBugButton
+              context={{
+                module: context.module,
+                screen: context.screen || context.title,
+                title: context.title,
+                helpUrl: context.helpUrl,
+                panelMode: mode,
+              }}
+            />
+            <button
+              type="button"
+              onClick={openHomeExpanded}
+              className="inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline"
+              title="Open Smart Help home as a wide overlay"
+            >
+              <Home className="h-3 w-3" />
+              Home
+            </button>
+          </div>
         </div>
         <nav className="flex gap-1" aria-label="Panel modes">
           {TABS.map((tab) => (

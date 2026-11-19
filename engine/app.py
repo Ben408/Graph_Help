@@ -7,7 +7,20 @@ from src.knowledge.overlay import overlay_ask_result
 from src.knowledge.pack_loader import load_pack
 from src.knowledge.practice import practice_for_concept
 from src.llm.client import OllamaClient
-from src.models import AskFeedbackInput, AskResult, IssueInput, ProgressEvent, RefreshResult
+from src.models import (
+    AskFeedbackInput,
+    AskResult,
+    IssueInput,
+    PilotBugInput,
+    ProgressEvent,
+    RefreshResult,
+)
+from src.pilot.jira_bugs import (
+    MAX_DESCRIPTION_CHARS,
+    append_pilot_bug_mirror,
+    create_jira_bug,
+    jira_configured,
+)
 from src.qa.ask_agent import AskService
 from src.qa.lexical_ask import lexical_ask
 from src.rag.corpus_refresh import CorpusRefreshService
@@ -60,7 +73,8 @@ def create_app(
             "http://localhost:3002",
             "http://127.0.0.1:3002",
         ],
-        allow_origin_regex=r"chrome-extension://.*",
+        # Extension + Vercel preview/prod origins for hosted Diagnostics.
+        allow_origin_regex=r"(chrome-extension://.*|https://.*\.vercel\.app)",
         allow_credentials=False,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -96,13 +110,46 @@ def create_app(
         okf = _okf()
         okf_status = okf.status() if okf else {"available": False}
         llm_status = ask.llm.check()
+        vector_status: dict[str, object] = {
+            "available": False,
+            "dir": str(settings.vector_store_dir),
+        }
+        try:
+            store = ask.vector_store
+            count = store.count() if hasattr(store, "count") else None
+            vector_status = {
+                "available": count is None or int(count) > 0,
+                "count": count,
+                "dir": str(settings.vector_store_dir),
+            }
+        except Exception as error:  # noqa: BLE001 — health must never crash
+            vector_status = {
+                "available": False,
+                "dir": str(settings.vector_store_dir),
+                "detail": f"{type(error).__name__}: {error}"[:200],
+            }
+
+        chat_ready = bool(llm_status.get("chat_model_pulled") or llm_status.get("ready"))
+        embed_ready = bool(llm_status.get("embed_model_pulled") or llm_status.get("ready"))
+        if "chat_model_pulled" not in llm_status and llm_status.get("ready"):
+            chat_ready = True
+            embed_ready = True
+
         return {
             "status": "ok",
             "ready": bool(llm_status.get("ready")) and bool(okf_status.get("available")),
             "pack": load_pack().get("id"),
-            "llm": llm_status,
+            "app_env": settings.app_env,
+            "llm": {
+                **llm_status,
+                "chat_ready": chat_ready,
+                "embed_ready": embed_ready,
+            },
             "okf": okf_status,
+            "vector": vector_status,
             "workspace": gate.status(),
+            "jira": {"configured": jira_configured(settings)},
+            "checked_at": datetime.now(UTC).isoformat(),
         }
 
     @app.get("/api/pack")
@@ -150,6 +197,78 @@ def create_app(
         with path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(record, ensure_ascii=False) + "\n")
         return {"ok": True, "path": str(path.name)}
+
+    @app.post("/api/pilot/bugs")
+    def post_pilot_bug(payload: PilotBugInput) -> dict[str, object]:
+        """Pilot Report a bug → JSONL mirror + Jira issue with screenshot."""
+        description = payload.description.strip()
+        if len(description) > MAX_DESCRIPTION_CHARS:
+            raise HTTPException(status_code=400, detail="description too long")
+
+        context = {
+            "module": payload.module,
+            "screen": payload.screen,
+            "title": payload.title,
+            "help_url": payload.help_url,
+            "panel_mode": payload.panel_mode,
+            "extension_version": payload.extension_version,
+            "distribution": payload.distribution,
+            "surface": payload.surface,
+            "client_ts": payload.client_ts,
+        }
+        mirror = {
+            "description": description,
+            "screenshot_bytes_est": max(0, len(payload.screenshot_data_url) // 4 * 3),
+            **{k: v for k, v in context.items() if v},
+        }
+        mirror_name = append_pilot_bug_mirror(settings, mirror)
+
+        if not jira_configured(settings):
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Jira is not configured on the engine. "
+                    "Set JIRA_BASE_URL, JIRA_EMAIL, JIRA_API_TOKEN, and JIRA_PROJECT_KEY. "
+                    f"Report was saved locally ({mirror_name})."
+                ),
+            )
+
+        try:
+            result = create_jira_bug(
+                settings,
+                description=description,
+                screenshot_data_url=payload.screenshot_data_url,
+                context=context,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except Exception as exc:
+            log_event(
+                "pilot_bug_jira_failed",
+                error_detail=str(exc)[:400],
+            )
+            raise HTTPException(
+                status_code=502,
+                detail=(
+                    f"Jira create failed: {exc}. "
+                    f"Report was saved locally ({mirror_name})."
+                ),
+            ) from exc
+
+        append_pilot_bug_mirror(
+            settings,
+            {
+                **mirror,
+                "jira_key": result.key,
+                "jira_url": result.url,
+            },
+        )
+        return {
+            "ok": True,
+            "key": result.key,
+            "url": result.url,
+            "mirrored": mirror_name,
+        }
 
     @app.post("/api/corpus/refresh", status_code=202)
     def start_corpus_refresh(background_tasks: BackgroundTasks) -> RefreshResult:

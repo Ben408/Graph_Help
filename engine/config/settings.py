@@ -41,6 +41,15 @@ class Settings(BaseSettings):
     runs_dir: Path = ENGINE_ROOT / "data" / "runs"
     log_level: str = "INFO"
 
+    # Pilot bug reports → Jira Cloud (optional; JSONL mirror always written)
+    jira_base_url: str = ""
+    jira_email: str = ""
+    jira_api_token: str = ""
+    jira_project_key: str = ""
+    jira_issue_type: str = "Bug"
+    # Prefer OS trust store (Windows corporate CAs). Set false only for local debug.
+    jira_ssl_verify: bool = True
+
     def ensure_runtime_directories(self) -> None:
         for path in (
             self.data_dir,
