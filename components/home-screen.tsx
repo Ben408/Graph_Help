@@ -3,27 +3,24 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Compass, GraduationCap, MessageSquare } from "lucide-react";
-import { concepts, CATEGORIES, CATEGORY_COLORS } from "@/data/concepts";
-import { FOUNDATION_IDS, getSkillPaths } from "@/lib/knowledge";
+import {
+  foundationIdsForPack,
+  getActivePack,
+  getSkillPaths,
+} from "@/lib/knowledge";
 import { SkillPathCard } from "@/components/skill-path-card";
 import { ConceptSearch } from "@/components/concept-search";
 import { ConceptCard } from "@/components/concept-card";
 import { SiteHeader } from "@/components/site-header";
 import { KnowledgeGraph } from "@/components/knowledge-graph";
 
-const FEATURED_IDS = [
-  "general-ledger",
-  "accounts-payable",
-  "accounts-receivable",
-  "dimensions",
-  "close-books",
-  "ap-automation",
-];
-
-const featuredConcepts = concepts.filter((c) => FEATURED_IDS.includes(c.id));
-
 export function HomeScreen() {
   const router = useRouter();
+  const pack = getActivePack();
+  const { categories: CATEGORIES, categoryColors: CATEGORY_COLORS, concepts } =
+    pack;
+  const foundation = foundationIdsForPack(pack);
+  const featuredConcepts = concepts.filter((c) => foundation.includes(c.id)).slice(0, 6);
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
@@ -105,7 +102,7 @@ export function HomeScreen() {
           </div>
           <div className="h-[200px] pointer-events-none">
             <KnowledgeGraph
-              visibleIds={[...FOUNDATION_IDS]}
+              visibleIds={[...foundation]}
               dimUnrelated={false}
               onNodeClick={(id) => router.push(`/graph?focus=${id}`)}
             />
@@ -118,7 +115,7 @@ export function HomeScreen() {
           <div>
             <h2 className="font-serif text-2xl font-semibold text-foreground">Learn</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Skill Paths for close, procure-to-pay, cash, and the ledger
+              Skill Paths for this product’s core workflows
             </p>
           </div>
           <Link href="/paths" className="text-sm font-medium text-primary hover:underline">

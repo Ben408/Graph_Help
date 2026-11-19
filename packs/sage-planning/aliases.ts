@@ -1,0 +1,31 @@
+export const CONCEPT_ALIASES: Record<string, string[]> = {
+  "sage-planning": [
+    "Planning",
+    "Sage Planning",
+    "Intacct Planning",
+    "FP&A",
+    "financial planning",
+  ],
+  "navigate-planning": ["navigate", "home", "plan chrome", "application"],
+  "plans-and-versions": ["plan", "plans", "version", "versions", "working plan"],
+  forecasts: ["forecast", "rolling forecast", "actuals"],
+  scenarios: ["scenario", "what-if", "what if"],
+  "workforce-planning": [
+    "workforce",
+    "WFP",
+    "headcount",
+    "salaries",
+    "benefits",
+    "employees",
+  ],
+  "plan-accounts": [
+    "accounts",
+    "income statement",
+    "statistical accounts",
+    "plan lines",
+  ],
+  "formulas-and-data": ["formula", "formulas", "data", "plan line", "merge"],
+  "manage-and-share": ["share", "collaborate", "review", "permissions"],
+  "planning-settings": ["settings", "setup", "configuration", "admin"],
+  "planning-glossary": ["glossary", "terminology", "terms"],
+};

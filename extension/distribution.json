@@ -1,6 +1,6 @@
 {
-  "distribution": 7,
-  "version": "0.3.7",
+  "distribution": 8,
+  "version": "0.3.8",
   "note": "Bump via: npm run extension:dist (or node scripts/sync-extension-dist.mjs). Local + extension-dist share this number.",
-  "updatedAt": "2026-11-17T23:36:09.387Z"
+  "updatedAt": "2026-11-19T17:31:03.820Z"
 }

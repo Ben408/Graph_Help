@@ -73,6 +73,8 @@ export interface CorpusBinding {
   helpSearchUrl: string;
   locale: string;
   citationAllowlist: string[];
+  /** Help URL path marker after which module/topic segments begin. */
+  pathMarker?: string;
 }
 
 export interface ModuleConceptMap {
@@ -92,6 +94,8 @@ export interface ContentPack {
   concepts: Concept[];
   skillPaths: SkillPath[];
   moduleMap: ModuleConceptMap[];
+  /** Seed concept ids for the home / Explore foundation graph. */
+  foundationIds?: readonly string[];
 }
 
 export interface ConceptHit {

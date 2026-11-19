@@ -16,7 +16,22 @@ export type {
   VocabularyNoun,
 } from "./types";
 
-export { getActivePack, ACTIVE_PACK_ID } from "./active-pack";
+export {
+  getActivePack,
+  getActivePackId,
+  getPackForUrls,
+  setSessionPackId,
+  ACTIVE_PACK_ID,
+} from "./active-pack";
+export {
+  detectPackIdFromUrl,
+  resolvePackId,
+  DEFAULT_PACK_ID,
+  PACK_IDS,
+  isPackId,
+} from "./product-detect";
+export type { PackId } from "./product-detect";
+export { getPackById, listPacks, knownPackIds } from "./pack-registry";
 export {
   getConceptById,
   getConceptsByCategory,
@@ -47,6 +62,7 @@ export {
 } from "./relationship-copy";
 export {
   FOUNDATION_IDS,
+  foundationIdsForPack,
   conceptDegree,
   neighborSet,
   conceptsByIds,

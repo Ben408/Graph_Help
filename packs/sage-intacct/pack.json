@@ -6,6 +6,7 @@
     "allowedPrefix": "https://www.intacct.com/ia/docs/en_US/help_action/",
     "helpSearchUrl": "https://www.intacct.com/ia/docs/en_US/help_action/Default.htm#t=Search%2FSearch.htm&rhsearch=",
     "locale": "en_US",
+    "pathMarker": "/help_action/",
     "citationAllowlist": [
       "https://www.intacct.com/ia/docs/",
       "http://www.intacct.com/ia/docs/"

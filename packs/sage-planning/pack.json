@@ -1,0 +1,41 @@
+{
+  "id": "sage-planning",
+  "name": "Sage Planning",
+  "corpus": {
+    "startUrl": "https://help.intacct-planning.com/core/Topics/overview.htm",
+    "allowedPrefix": "https://help.intacct-planning.com/core/",
+    "helpSearchUrl": "https://help.intacct-planning.com/core/Search.htm?q=",
+    "locale": "en_US",
+    "pathMarker": "/core/Topics/",
+    "citationAllowlist": [
+      "https://help.intacct-planning.com/",
+      "http://help.intacct-planning.com/"
+    ]
+  },
+  "vocabulary": [
+    {"id": "sage-planning", "title": "Sage Planning", "aliases": ["Planning", "Sage Planning", "Intacct Planning", "FP&A"]},
+    {"id": "navigate-planning", "title": "Navigate the application", "aliases": ["navigate", "home", "plan chrome"]},
+    {"id": "plans-and-versions", "title": "Plans and versions", "aliases": ["plan", "plans", "version", "versions"]},
+    {"id": "forecasts", "title": "Forecasts", "aliases": ["forecast", "rolling forecast", "actuals"]},
+    {"id": "scenarios", "title": "Scenarios", "aliases": ["scenario", "what-if"]},
+    {"id": "workforce-planning", "title": "Workforce planning", "aliases": ["workforce", "WFP", "headcount", "salaries", "benefits"]},
+    {"id": "plan-accounts", "title": "Plan accounts", "aliases": ["accounts", "income statement", "statistical accounts"]},
+    {"id": "formulas-and-data", "title": "Formulas and data", "aliases": ["formula", "formulas", "data", "merge"]},
+    {"id": "manage-and-share", "title": "Manage and share", "aliases": ["share", "collaborate", "review"]},
+    {"id": "planning-settings", "title": "Planning settings", "aliases": ["settings", "setup", "configuration"]},
+    {"id": "planning-glossary", "title": "Planning glossary", "aliases": ["glossary", "terminology"]}
+  ],
+  "moduleMap": [
+    {"module": "Home", "urlIncludes": ["/", "/Topics/overview", "/Topics/quickstart"], "conceptIds": ["sage-planning", "navigate-planning"]},
+    {"module": "Plans", "urlIncludes": ["/plan/", "forecast", "version", "scenario"], "conceptIds": ["plans-and-versions", "forecasts", "scenarios"]},
+    {"module": "Accounts", "urlIncludes": ["/accounts", "income-statement", "statistical", "formula"], "conceptIds": ["plan-accounts", "formulas-and-data"]},
+    {"module": "Workforce", "urlIncludes": ["/workforce", "workforce"], "conceptIds": ["workforce-planning"]},
+    {"module": "Collaborate", "urlIncludes": ["share", "merge", "manage"], "conceptIds": ["manage-and-share"]},
+    {"module": "Settings", "urlIncludes": ["/settings"], "conceptIds": ["planning-settings"]}
+  ],
+  "skillPaths": [
+    {"id": "planning-get-started", "steps": [{"conceptId": "sage-planning"}, {"conceptId": "navigate-planning"}, {"conceptId": "plans-and-versions"}]},
+    {"id": "create-forecast", "steps": [{"conceptId": "plans-and-versions"}, {"conceptId": "forecasts"}, {"conceptId": "formulas-and-data"}]},
+    {"id": "workforce-plan", "steps": [{"conceptId": "plans-and-versions"}, {"conceptId": "workforce-planning"}, {"conceptId": "manage-and-share"}]}
+  ]
+}

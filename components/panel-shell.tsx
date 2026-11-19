@@ -14,6 +14,7 @@ import {
   type PanelMode,
   type ResolvedPanelContext,
 } from "@/lib/panel-context";
+import { setSessionPackId } from "@/lib/knowledge";
 
 function useForcedLightTheme() {
   const { setTheme } = useTheme();
@@ -38,6 +39,8 @@ function mergeLiveContext(
     module: string;
     ifmod: string;
     helpUrl: string;
+    pageUrl: string;
+    pack: string;
   }>
 ): ResolvedPanelContext {
   const nextTitle = live.title || base.title;
@@ -51,13 +54,15 @@ function mergeLiveContext(
   params.set("screen", nextScreen);
   params.set("module", live.module || base.module);
   if (live.ifmod) params.set("ifmod", live.ifmod);
+  params.set("pack", live.pack || base.packId);
+  const pageUrl = live.pageUrl || "";
+  if (pageUrl) params.set("page_url", pageUrl);
 
   const candidateHelp = live.helpUrl || base.helpUrl;
   if (isSageHelpUrl(candidateHelp)) params.set("help_url", candidateHelp);
 
   if (base.q) params.set("q", base.q);
-  // Only keep prior path/concepts when the Intacct screen identity is unchanged.
-  // On navigation, let DEMO_SPINE rematch cleanly (e.g. Bill → bills.htm guide).
+  // Only keep prior path/concepts when the screen identity is unchanged.
   if (sameScreen) {
     if (base.skillPathId) params.set("path", base.skillPathId);
     if (base.conceptIds[0]) params.set("concept", base.conceptIds.join(","));
@@ -80,6 +85,7 @@ function PanelShellInner() {
   const [askSeed, setAskSeed] = useState(fromUrl.q || fromUrl.suggestedQuery);
 
   useEffect(() => {
+    setSessionPackId(fromUrl.packId);
     setContext(fromUrl);
     setMode(fromUrl.mode);
     setAskSeed(fromUrl.q || fromUrl.suggestedQuery);
@@ -111,14 +117,18 @@ function PanelShellInner() {
         const screenChanged =
           nextTitle !== prev.title || nextScreen !== prev.screen;
         // Rematch spine for the new screen; return to Guide on navigation.
+        const merged = mergeLiveContext(prev, {
+          title: nextTitle,
+          screen: nextScreen,
+          module: nextModule,
+          ifmod: nextIfmod,
+          helpUrl: incomingHelp || undefined,
+          pageUrl: data.pageUrl || "",
+          pack: data.pack || prev.packId,
+        });
+        setSessionPackId(merged.packId);
         return {
-          ...mergeLiveContext(prev, {
-            title: nextTitle,
-            screen: nextScreen,
-            module: nextModule,
-            ifmod: nextIfmod,
-            helpUrl: incomingHelp || undefined,
-          }),
+          ...merged,
           mode: screenChanged ? "guide" : prev.mode,
         };
       });

@@ -1,10 +1,13 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Moon, Sun, Compass, MessageSquare, GraduationCap, Sparkles } from "lucide-react";
 import { useTheme } from "next-themes";
 import { ConceptSearch } from "@/components/concept-search";
+import { ProductSwitcher } from "@/components/product-switcher";
+import { getActivePack } from "@/lib/knowledge";
 
 const NAV = [
   { href: "/ask", label: "Ask", match: (p: string) => p.startsWith("/ask"), icon: MessageSquare },
@@ -16,6 +19,7 @@ const NAV = [
 export function SiteHeader() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
+  const pack = getActivePack();
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
@@ -26,7 +30,7 @@ export function SiteHeader() {
         Skip to content
       </a>
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 lg:px-6">
-        <Link href="/" className="flex items-center gap-2 shrink-0" aria-label="Sage Intacct home">
+        <Link href="/" className="flex items-center gap-2 shrink-0" aria-label={`${pack.name} home`}>
           {/* Official mark from Intacct product branding (ia/resources/branding/logos/svg/Sage_Logo.svg) */}
           <img
             src="/brand/Sage_Logo.svg"
@@ -36,7 +40,7 @@ export function SiteHeader() {
             height={28}
           />
           <span className="text-sm font-semibold text-foreground hidden sm:block">
-            Intacct
+            {pack.id === "sage-planning" ? "Planning" : "Intacct"}
           </span>
         </Link>
 
@@ -64,6 +68,10 @@ export function SiteHeader() {
         <div className="flex-1 max-w-md ml-auto">
           <ConceptSearch size="sm" placeholder="Search concepts, tasks, or questions…" />
         </div>
+
+        <Suspense fallback={null}>
+          <ProductSwitcher />
+        </Suspense>
 
         <button
           type="button"

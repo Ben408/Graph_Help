@@ -173,7 +173,46 @@
     }
   }
 
+  function isPlanningHost() {
+    return /(^|\.)intacct-planning\.com$/i.test(location.hostname);
+  }
+
+  function collectPlanningContext() {
+    const path = location.pathname || "/";
+    const h1 =
+      document.querySelector("h1")?.textContent?.replace(/\s+/g, " ").trim() ||
+      "";
+    let screen = h1 || document.title || "Planning";
+    let module = "Home";
+    if (/\/workforce/i.test(path)) {
+      module = "Workforce";
+      screen = screen || "Workforce";
+    } else if (/\/accounts/i.test(path)) {
+      module = "Accounts";
+      if (/income-statement/i.test(path)) screen = "Income statement accounts";
+      else if (/statistical/i.test(path)) screen = "Statistical accounts";
+      else screen = screen || "Accounts";
+    } else if (/\/settings/i.test(path)) {
+      module = "Settings";
+      screen = screen || "Settings";
+    } else if (/\/plan\//i.test(path)) {
+      module = "Plans";
+    }
+    return {
+      title: document.title || "Planning",
+      screen,
+      module,
+      ifmod: "",
+      mainUrl: "",
+      helpId: null,
+      pageUrl: location.href,
+      pack: "sage-planning",
+    };
+  }
+
   function collectContext() {
+    if (isPlanningHost()) return collectPlanningContext();
+
     const main = document.getElementById("iamain");
     let mainUrl = "";
     let mainTitle = "";
@@ -270,6 +309,7 @@
       mainUrl,
       helpId,
       pageUrl: location.href,
+      pack: "sage-intacct",
     };
   }
 

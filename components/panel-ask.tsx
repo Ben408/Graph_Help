@@ -115,6 +115,12 @@ export function PanelAsk({
       concept_ids: context.conceptIds.length ? context.conceptIds : undefined,
       skill_path_id: context.skillPathId || undefined,
       mode: "ask",
+      pack_id: context.packId,
+      page_url:
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search).get("page_url") ||
+            undefined
+          : undefined,
     };
     try {
       const queued = await submitAsk(text, opts);

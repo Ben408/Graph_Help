@@ -68,10 +68,12 @@ Never put source_id values, content hashes, or Help file names (.htm / .xhtml) i
 summary, steps, or notes — cite only via the structured source_ids field on each step.
 Structured data only."""
 
-# Only official Intacct Help Center links may appear in Ask free text.
+# Fallback when pack corpus has no citationAllowlist.
 _ALLOWED_HELP_URL_PREFIXES = (
     "https://www.intacct.com/ia/docs/",
     "http://www.intacct.com/ia/docs/",
+    "https://help.intacct-planning.com/",
+    "http://help.intacct-planning.com/",
 )
 _MD_LINK_RE = re.compile(r"\[([^\]]*)\]\((https?://[^)\s]+)\)", re.IGNORECASE)
 _BARE_URL_RE = re.compile(r"https?://[^\s<>\]\)\"']+", re.IGNORECASE)
@@ -142,7 +144,32 @@ class AskService:
 
     def run(self, ask_id: str, question: IssueInput) -> AskResult:
         with self._pipeline_lock:
-            return self._run_locked(ask_id, question)
+            return self._run_with_pack(ask_id, question)
+
+    def _run_with_pack(self, ask_id: str, question: IssueInput) -> AskResult:
+        from src.knowledge.pack_context import active_pack
+        from src.knowledge.pack_paths import resolve_pack_id, runtime_paths_for_pack
+        from src.rag.chroma_store import ChromaVectorStore
+
+        pack_id = resolve_pack_id(
+            pack_id=question.pack_id,
+            page_url=question.page_url,
+            help_url=question.help_url,
+        )
+        paths = runtime_paths_for_pack(self.settings, pack_id)
+        prev_vs = self.vector_store
+        prev_okf = self.okf_store
+        self.vector_store = ChromaVectorStore(paths.vector_store_dir)
+        if paths.okf_dir.joinpath("catalog.json").is_file():
+            self.okf_store = OkfStore(paths.okf_dir)
+        else:
+            self.okf_store = None
+        try:
+            with active_pack(pack_id):
+                return self._run_locked(ask_id, question)
+        finally:
+            self.vector_store = prev_vs
+            self.okf_store = prev_okf
 
     def get_result(self, ask_id: str) -> AskResult | None:
         record = self.run_store.read(ask_id)
@@ -674,6 +701,14 @@ def _as_source(chunk) -> SourceReference:
 def is_allowed_help_url(url: str) -> bool:
     cleaned = (url or "").strip().rstrip(").,;]!>?")
     low = cleaned.lower()
+    try:
+        from src.knowledge.pack_loader import load_pack
+
+        allow = load_pack().get("corpus", {}).get("citationAllowlist") or []
+        if allow and any(low.startswith(str(prefix).lower()) for prefix in allow):
+            return True
+    except Exception:  # noqa: BLE001
+        pass
     return any(low.startswith(prefix) for prefix in _ALLOWED_HELP_URL_PREFIXES)
 
 

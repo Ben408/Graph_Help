@@ -47,6 +47,9 @@ class IssueInput(BaseModel):
     concept_ids: list[str] = Field(default_factory=list, max_length=24)
     skill_path_id: str | None = Field(default=None, max_length=80)
     mode: Literal["ask", "guided"] | None = Field(default=None)
+    # sage-intacct | sage-planning — also inferred from help_url / page host.
+    pack_id: str | None = Field(default=None, max_length=80)
+    page_url: str | None = Field(default=None, max_length=8000)
 
 
 class NormalizedIssue(BaseModel):

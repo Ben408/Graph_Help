@@ -140,6 +140,8 @@ export type AskSubmitOptions = {
   skill_path_id?: string;
   mode?: "ask" | "guided";
   preferred_source_ids?: string[];
+  pack_id?: string;
+  page_url?: string;
 };
 
 function clamp(value: string | undefined, max: number): string | undefined {
@@ -155,8 +157,16 @@ function normalizeHelpUrl(raw: string | undefined): string | undefined {
   if (!value) return undefined;
   try {
     const u = new URL(value);
-    // In-app Intacct URLs are context, not Help — omit so they cannot 422 Ask.
-    if (/\.intacct\.com$/i.test(u.hostname) && !/help/i.test(u.pathname)) {
+    // In-app product URLs are context, not Help — omit so they cannot 422 Ask.
+    const host = u.hostname.toLowerCase();
+    const isPlanningHelp = host.includes("help.intacct-planning.com");
+    const isPlanningApp =
+      host.includes("intacct-planning.com") && !isPlanningHelp;
+    const isIntacctApp =
+      host.endsWith(".intacct.com") &&
+      !host.includes("intacct-planning") &&
+      !/help/i.test(u.pathname + u.href);
+    if (isPlanningApp || isIntacctApp) {
       return undefined;
     }
     // Keep identity without giant query blobs.
@@ -193,6 +203,10 @@ export async function submitAsk(
   if (options.preferred_source_ids?.length) {
     body.preferred_source_ids = options.preferred_source_ids.slice(0, 12);
   }
+  const packId = clamp(options.pack_id, 80);
+  const pageUrl = clamp(options.page_url, 2000);
+  if (packId) body.pack_id = packId;
+  if (pageUrl) body.page_url = pageUrl;
   const res = await fetch(`${getEngineBase()}/api/ask`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -251,8 +265,13 @@ export async function getAsk(askId: string): Promise<EngineAskResult> {
   return res.json();
 }
 
-export async function startRefresh(): Promise<{ refresh_id: string }> {
-  const res = await fetch(`${getEngineBase()}/api/corpus/refresh`, { method: "POST" });
+export async function startRefresh(
+  packId?: string
+): Promise<{ refresh_id: string }> {
+  const q = packId ? `?pack_id=${encodeURIComponent(packId)}` : "";
+  const res = await fetch(`${getEngineBase()}/api/corpus/refresh${q}`, {
+    method: "POST",
+  });
   if (!res.ok) throw new Error(`Refresh failed (${res.status})`);
   return res.json();
 }

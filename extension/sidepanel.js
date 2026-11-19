@@ -11,15 +11,22 @@ function contextFingerprint(ctx) {
     .toLowerCase();
 }
 
+function detectPack(ctx) {
+  if (ctx?.pack) return ctx.pack;
+  const url = ctx?.pageUrl || "";
+  if (/intacct-planning\.com/i.test(url)) return "sage-planning";
+  return "sage-intacct";
+}
+
 function buildPanelUrl(uiBase, ctx) {
   const u = new URL("/panel", uiBase.replace(/\/$/, "") + "/");
   if (ctx?.title) u.searchParams.set("title", ctx.title);
   if (ctx?.screen) u.searchParams.set("screen", ctx.screen);
   if (ctx?.module) u.searchParams.set("module", ctx.module);
   if (ctx?.ifmod) u.searchParams.set("ifmod", ctx.ifmod);
-  // Never pass the Intacct app iframe URL as help_url — that is not Sage Help.
-  // The panel resolves the canonical Help topic from DEMO_SPINE / help-links.
-  // Always open on Guide so every Intacct screen gets an oriented help experience.
+  if (ctx?.pageUrl) u.searchParams.set("page_url", ctx.pageUrl);
+  u.searchParams.set("pack", detectPack(ctx));
+  // Never pass the product app URL as help_url — panel resolves Help from spines.
   u.searchParams.set("mode", "guide");
   return u.toString();
 }
@@ -48,6 +55,8 @@ function postContextToFrame(ctx) {
         screen: ctx.screen,
         module: ctx.module,
         ifmod: ctx.ifmod,
+        pageUrl: ctx.pageUrl || "",
+        pack: detectPack(ctx),
         // Only forward real Sage Help URLs; never the app mainUrl.
         helpUrl: ctx.helpUrl || "",
         soft: true,

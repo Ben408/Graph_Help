@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Compass, ExternalLink, ListChecks, Sparkles } from "lucide-react";
-import { getConceptById, getSkillPathById } from "@/lib/knowledge";
+import { getActivePack, getConceptById, getSkillPathById } from "@/lib/knowledge";
 import type { ResolvedPanelContext } from "@/lib/panel-context";
-import { CATEGORY_COLORS, getHelpLinkData } from "@/data/concepts";
 
 const HIGHLIGHT_MSG = "graph-help:highlight";
 
@@ -38,11 +37,13 @@ export function PanelGuide({
   onOpenSkillPath,
 }: PanelGuideProps) {
   const [stepIndex, setStepIndex] = useState(0);
+  const pack = getActivePack(context.packId);
   const path = context.skillPathId
     ? getSkillPathById(context.skillPathId)
     : null;
   const steps = context.guideSteps;
   const hasFieldGuide = steps.length > 0;
+  const categoryColors = pack.categoryColors;
 
   useEffect(() => {
     setStepIndex(0);
@@ -62,8 +63,10 @@ export function PanelGuide({
   }, [stepIndex, hasFieldGuide, steps, context.highlightLabels]);
 
   const topicId = context.conceptIds[0];
-  const topicHelp = topicId ? getHelpLinkData(topicId) : null;
-  const screenHelpUrl = context.helpUrl || topicHelp?.helpUrl || null;
+  const screenHelpUrl =
+    context.helpUrl ||
+    (topicId ? getConceptById(topicId)?.helpUrl : null) ||
+    null;
 
   if (!hasFieldGuide) {
     return (
@@ -82,7 +85,7 @@ export function PanelGuide({
             rel="noopener noreferrer"
             className="h-9 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground inline-flex items-center justify-center gap-1.5"
           >
-            Open Sage Intacct Help topic
+            Open {context.packName} Help topic
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
         )}
@@ -193,7 +196,7 @@ export function PanelGuide({
           rel="noopener noreferrer"
           className="text-xs font-medium text-primary inline-flex items-center gap-1"
         >
-          Open Sage Intacct Help topic
+          Open {context.packName} Help topic
           <ExternalLink className="h-3 w-3" />
         </a>
       ) : (
@@ -237,7 +240,7 @@ export function PanelGuide({
                 >
                   <span
                     className="h-1.5 w-1.5 rounded-full"
-                    style={{ backgroundColor: CATEGORY_COLORS[c.category] }}
+                    style={{ backgroundColor: categoryColors[c.category] }}
                   />
                   {c.title}
                 </button>

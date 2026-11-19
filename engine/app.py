@@ -153,14 +153,18 @@ def create_app(
         }
 
     @app.get("/api/pack")
-    def pack() -> dict[str, object]:
-        payload = load_pack()
+    def pack(pack_id: str | None = None) -> dict[str, object]:
+        from src.knowledge.pack_paths import KNOWN_PACK_IDS, normalize_pack_id
+
+        pid = normalize_pack_id(pack_id)
+        payload = load_pack(pid)
         return {
             "id": payload.get("id"),
             "name": payload.get("name"),
             "vocabularyCount": len(payload.get("vocabulary") or []),
             "skillPathCount": len(payload.get("skillPaths") or []),
             "corpus": payload.get("corpus"),
+            "knownPackIds": list(KNOWN_PACK_IDS),
         }
 
     @app.post("/api/ask", status_code=202)
@@ -271,10 +275,12 @@ def create_app(
         }
 
     @app.post("/api/corpus/refresh", status_code=202)
-    def start_corpus_refresh(background_tasks: BackgroundTasks) -> RefreshResult:
+    def start_corpus_refresh(
+        background_tasks: BackgroundTasks, pack_id: str | None = None
+    ) -> RefreshResult:
         refresh_id = refresh.create_refresh_id()
         queued = refresh.queue(refresh_id)
-        background_tasks.add_task(refresh.run, refresh_id)
+        background_tasks.add_task(refresh.run, refresh_id, pack_id)
         return queued
 
     @app.get("/api/corpus/refresh/{refresh_id}", response_model=RefreshResult)

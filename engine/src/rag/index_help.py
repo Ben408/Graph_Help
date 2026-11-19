@@ -75,6 +75,44 @@ def build_index(
             allowed_prefix=settings.intacct_help_allowed_prefix,
         )
 
+    # Prefer active pack corpus binding (multi-product) over Intacct locale URL templates.
+    pack_corpus: dict = {}
+    try:
+        from src.knowledge.pack_loader import load_pack
+
+        pack_corpus = load_pack().get("corpus") or {}
+    except Exception:  # noqa: BLE001
+        pack_corpus = {}
+
+    if pack_corpus.get("startUrl") and pack_corpus.get("allowedPrefix"):
+        locale = str(pack_corpus.get("locale") or "en_US")
+        cache_dir = cache_dir_for_locale(settings.help_cache_dir, locale)
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        part = _build_index_single(
+            max_pages=max_pages,
+            delete_stale=delete_stale,
+            from_cache=from_cache,
+            settings=settings,
+            crawler=None,
+            store=store,
+            llm=llm,
+            locale=locale,
+            cache_dir=cache_dir,
+            start_url=str(pack_corpus["startUrl"]),
+            allowed_prefix=str(pack_corpus["allowedPrefix"]),
+        )
+        part.locales = [locale]
+        part.by_locale = {
+            locale: {
+                "pages_crawled": part.pages_crawled,
+                "pages_indexed": part.pages_indexed,
+                "chunks_indexed": part.chunks_indexed,
+                "crawl_errors": part.crawl_errors,
+                "complete": int(part.complete),
+            }
+        }
+        return part
+
     selected = locales or parse_locales(settings.help_locales)
     combined = IndexSummary(locales=list(selected))
     for locale in selected:

@@ -15,6 +15,7 @@ export const corpus: CorpusBinding = {
   allowedPrefix: "https://www.intacct.com/ia/docs/en_US/help_action/",
   helpSearchUrl: HELP_SEARCH_URL,
   locale: "en_US",
+  pathMarker: "/help_action/",
   citationAllowlist: [
     "https://www.intacct.com/ia/docs/",
     "http://www.intacct.com/ia/docs/",

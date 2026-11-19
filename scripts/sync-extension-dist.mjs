@@ -79,9 +79,10 @@ function writeLocalManifest(meta) {
   const manifest = readJson(path.join(srcDir, "manifest.json"));
   manifest.version = meta.version;
   manifest.description =
-    "Context-aware Smart Help panel beside Intacct. Copilot stays; this replaces Help on this page. Field ? help stays native.";
+    "Context-aware Smart Help beside Sage Intacct or Sage Planning. Copilot stays; field ? help stays native.";
   manifest.host_permissions = [
     "https://*.intacct.com/*",
+    "https://*.intacct-planning.com/*",
     "http://127.0.0.1:3002/*",
     "http://localhost:3002/*",
   ];
@@ -94,9 +95,10 @@ function writeDistManifest(meta) {
     ...local,
     version: meta.version,
     description:
-      "Context-aware Smart Help beside Intacct (hosted UI). Copilot stays untouched. Field ? help stays native.",
+      "Context-aware Smart Help beside Sage Intacct or Sage Planning (hosted UI).",
     host_permissions: [
       "https://*.intacct.com/*",
+      "https://*.intacct-planning.com/*",
       "https://v0-concept-graph-demo.vercel.app/*",
       "https://*.vercel.app/*",
     ],
@@ -108,9 +110,9 @@ function updateReadme(meta) {
   const readmePath = path.join(distDir, "readme.txt");
   if (!fs.existsSync(readmePath)) return;
   let text = fs.readFileSync(readmePath, "utf8");
-  const header = `Smart Help for Sage Intacct — distribution build ${meta.distribution} (v${meta.version})`;
+  const header = `Smart Help for Sage — distribution build ${meta.distribution} (v${meta.version})`;
   text = text.replace(
-    /^Smart Help for Sage Intacct — distribution build.*$/m,
+    /^Smart Help for Sage(?: Intacct)? — distribution build.*$/m,
     header
   );
   if (!/^Distribution:\s*\d+/m.test(text)) {

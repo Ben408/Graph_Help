@@ -45,16 +45,25 @@ class CorpusRefreshService:
         self._write_result(result)
         return result
 
-    def run(self, refresh_id: str) -> RefreshResult:
+    def run(self, refresh_id: str, pack_id: str | None = None) -> RefreshResult:
         with self._lock:
-            return self._run_locked(refresh_id)
+            return self._run_locked(refresh_id, pack_id=pack_id)
 
     def get_result(self, refresh_id: str) -> RefreshResult | None:
         record = self.run_store.read(refresh_id)
         result = record.get("result")
         return RefreshResult.model_validate(result) if result else None
 
-    def _run_locked(self, refresh_id: str) -> RefreshResult:
+    def _run_locked(
+        self, refresh_id: str, *, pack_id: str | None = None
+    ) -> RefreshResult:
+        from src.knowledge.pack_context import active_pack
+        from src.knowledge.pack_paths import (
+            ensure_pack_dirs,
+            normalize_pack_id,
+            runtime_paths_for_pack,
+        )
+
         try:
             self.gate.acquire("refresh")
         except BusyError as error:
@@ -67,9 +76,49 @@ class CorpusRefreshService:
             self._write_result(result)
             return result
 
+        pid = normalize_pack_id(pack_id)
+        paths = runtime_paths_for_pack(self.settings, pid)
+        ensure_pack_dirs(paths)
+
+        # Point settings at this pack's corpus dirs for the duration of the refresh.
+        prev = (
+            self.settings.pack_path,
+            self.settings.help_cache_dir,
+            self.settings.help_assets_dir,
+            self.settings.okf_dir,
+            self.settings.vector_store_dir,
+            self.settings.intacct_help_start_url,
+            self.settings.intacct_help_allowed_prefix,
+            self.settings.help_locales,
+        )
+        self.settings.pack_path = paths.pack_json
+        self.settings.help_cache_dir = paths.help_cache_dir
+        self.settings.help_assets_dir = paths.help_assets_dir
+        self.settings.okf_dir = paths.okf_dir
+        self.settings.vector_store_dir = paths.vector_store_dir
+        self.settings.apply_pack_corpus()
+
         self._write_result(RefreshResult(refresh_id=refresh_id, status="processing"))
-        log_event("refresh_started", run_id=refresh_id)
-        details: dict[str, object] = {}
+        log_event("refresh_started", run_id=refresh_id, pack_id=pid)
+        details: dict[str, object] = {"pack_id": pid}
+        try:
+            with active_pack(pid):
+                return self._run_stages(refresh_id, details)
+        finally:
+            (
+                self.settings.pack_path,
+                self.settings.help_cache_dir,
+                self.settings.help_assets_dir,
+                self.settings.okf_dir,
+                self.settings.vector_store_dir,
+                self.settings.intacct_help_start_url,
+                self.settings.intacct_help_allowed_prefix,
+                self.settings.help_locales,
+            ) = prev
+
+    def _run_stages(
+        self, refresh_id: str, details: dict[str, object]
+    ) -> RefreshResult:
         try:
             with stage(refresh_id, "crawl_index", self.tracker):
                 index_summary = build_index(

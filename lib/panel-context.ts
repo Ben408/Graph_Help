@@ -1,9 +1,17 @@
 /**
- * Screen → pack concept map for the in-Intacct panel.
- * Demo spine is hand-tuned; moduleMap covers coarse module bias.
+ * Screen → pack concept map for in-product Smart Help panels.
+ * Intacct: Frameset/ifmod + DEMO_SPINE. Planning: SPA paths + PLANNING_DEMO_SPINE.
  */
 
-import { getHelpLinkData } from "@/packs/sage-intacct/help-links";
+import { getHelpLinkData as getIntacctHelp } from "@/packs/sage-intacct/help-links";
+import { getHelpLinkData as getPlanningHelp } from "@/packs/sage-planning/help-links";
+import {
+  detectPackIdFromUrl,
+  isPackId,
+  resolvePackId,
+  type PackId,
+} from "@/lib/knowledge/product-detect";
+import { getPackById } from "@/lib/knowledge/pack-registry";
 import {
   DEMO_SPINE,
   MODULE_SKILL_PATHS,
@@ -11,6 +19,7 @@ import {
   buildModuleGuideSteps,
   type PanelScreenSpine,
 } from "@/lib/panel-spines";
+import { PLANNING_DEMO_SPINE } from "@/lib/panel-spines-planning";
 
 export type PanelMode = "help" | "guide" | "context";
 export type { PanelScreenSpine };
@@ -18,6 +27,8 @@ export { DEMO_SPINE };
 
 export type ResolvedPanelContext = {
   mode: PanelMode;
+  packId: PackId;
+  packName: string;
   title: string;
   screen: string;
   module: string;
@@ -29,9 +40,7 @@ export type ResolvedPanelContext = {
   highlightLabels: string[];
   guideSteps: { title: string; detail: string; highlight?: string }[];
   spineId: string | null;
-  /** true when demo spine matched */
   mapped: boolean;
-  /** module-level concepts only (no spine) */
   moduleOnly: boolean;
 };
 
@@ -46,7 +55,7 @@ const MODULE_BY_IFMOD: Record<string, string> = {
   reportcenter: "Reporting",
 };
 
-/** Coarse module → concept ids (mirrors pack.json moduleMap). */
+/** Coarse module → concept ids (Intacct). */
 export const MODULE_CONCEPTS: Record<string, string[]> = {
   General_Ledger: [
     "general-ledger",
@@ -69,6 +78,11 @@ export const MODULE_CONCEPTS: Record<string, string[]> = {
   Company: ["dimensions"],
   Reporting: ["financial-reporting", "dashboards", "reporting-periods"],
   Consolidation: ["consolidation", "multi-entity", "multi-currency"],
+  Home: ["sage-planning", "navigate-planning"],
+  Plans: ["plans-and-versions", "forecasts", "scenarios"],
+  Accounts: ["plan-accounts", "formulas-and-data"],
+  Workforce: ["workforce-planning"],
+  Settings: ["planning-settings"],
 };
 
 export function moduleFromIfmod(ifmod: string | null | undefined): string {
@@ -76,30 +90,49 @@ export function moduleFromIfmod(ifmod: string | null | undefined): string {
   return MODULE_BY_IFMOD[ifmod.toLowerCase()] || "";
 }
 
+function spinesForPack(packId: PackId): PanelScreenSpine[] {
+  return packId === "sage-planning" ? PLANNING_DEMO_SPINE : DEMO_SPINE;
+}
+
+function helpForConcept(packId: PackId, conceptId: string): string {
+  if (packId === "sage-planning") {
+    return getPlanningHelp(conceptId)?.helpUrl || "";
+  }
+  return getIntacctHelp(conceptId)?.helpUrl || "";
+}
+
 export function matchSpine(
   title: string,
-  screen: string
+  screen: string,
+  packId: PackId = "sage-intacct",
+  pagePath?: string
 ): PanelScreenSpine | null {
-  const blob = `${title} ${screen}`.trim();
+  const blob = `${title} ${screen} ${pagePath || ""}`.trim();
   if (!blob) return null;
-  for (const spine of DEMO_SPINE) {
+  for (const spine of spinesForPack(packId)) {
     if (spine.match.test(blob)) return spine;
   }
   return null;
 }
 
-/** True when the URL points at Sage Help docs (not an Intacct app screen). */
+/** True when the URL points at product Help docs (not an app screen). */
 export function isSageHelpUrl(url: string | null | undefined): boolean {
   if (!url) return false;
   try {
     const u = new URL(url);
-    return (
-      /intacct\.com$/i.test(u.hostname) &&
+    const host = u.hostname.toLowerCase();
+    if (host.includes("help.intacct-planning.com")) return true;
+    if (
+      host.endsWith("intacct.com") &&
+      !host.includes("intacct-planning") &&
       (/\/ia\/docs\//i.test(u.pathname) ||
         /help_action/i.test(u.pathname + u.href))
-    );
+    ) {
+      return true;
+    }
+    return false;
   } catch {
-    return /\/ia\/docs\/|help_action/i.test(url);
+    return /help\.intacct-planning\.com|\/ia\/docs\/|help_action/i.test(url);
   }
 }
 
@@ -116,16 +149,33 @@ export function resolvePanelContext(
   const screen = get("screen") || title;
   const moduleParam = get("module");
   const ifmod = get("ifmod");
+  const pageUrl = get("page_url") || get("pageUrl") || "";
+  const packParam = get("pack");
   let helpUrl = get("help_url") || get("helpUrl");
-  // App iframe URLs were previously passed as help_url — drop those.
   if (!isSageHelpUrl(helpUrl)) helpUrl = "";
   const q = get("q");
   const conceptParam = get("concept");
   const pathParam = get("path");
   const focus = get("focus");
 
+  const packId = resolvePackId({
+    packId: isPackId(packParam) ? packParam : null,
+    pageUrl: pageUrl || null,
+    helpUrl: helpUrl || null,
+  });
+  // Prefer explicit page host over stale pack= when both disagree.
+  const fromPage = detectPackIdFromUrl(pageUrl);
+  const resolvedPack: PackId = fromPage || packId;
+  const pack = getPackById(resolvedPack);
+
   const module = moduleParam || moduleFromIfmod(ifmod);
-  const spine = matchSpine(title, screen);
+  let pagePath = "";
+  try {
+    if (pageUrl) pagePath = new URL(pageUrl).pathname;
+  } catch {
+    pagePath = pageUrl;
+  }
+  const spine = matchSpine(title, screen, resolvedPack, pagePath);
 
   let conceptIds: string[] = [];
   let skillPathId: string | null = pathParam || null;
@@ -134,6 +184,7 @@ export function resolvePanelContext(
   let guideSteps: ResolvedPanelContext["guideSteps"] = [];
   let mapped = false;
   let moduleOnly = false;
+  const productName = pack.name;
 
   if (spine) {
     mapped = true;
@@ -143,30 +194,24 @@ export function resolvePanelContext(
     highlightLabels = spine.highlightLabels || [];
     guideSteps = spine.guideSteps || [];
     if (spine.helpUrl) helpUrl = spine.helpUrl;
-    if (spine.module && !moduleParam) {
-      // keep resolved module from ifmod when present; spine.module is fallback
-    }
   } else if (module && MODULE_CONCEPTS[module]) {
     moduleOnly = true;
     conceptIds = [...MODULE_CONCEPTS[module]];
     skillPathId = skillPathId || MODULE_SKILL_PATHS[module] || null;
     suggestedQuery =
       suggestedQuery ||
-      `How do I use ${screen || module.replace(/_/g, " ")} in Sage Intacct?`;
+      `How do I use ${screen || module.replace(/_/g, " ")} in ${productName}?`;
     guideSteps = buildModuleGuideSteps(module, screen || title);
     if (!helpUrl && conceptIds[0]) {
-      helpUrl = getHelpLinkData(conceptIds[0])?.helpUrl || "";
+      helpUrl = helpForConcept(resolvedPack, conceptIds[0]);
     }
   } else {
     suggestedQuery =
       suggestedQuery ||
       (screen || title
-        ? `How do I use ${screen || title} in Sage Intacct?`
-        : "How do I get help on this Intacct screen?");
+        ? `How do I use ${screen || title} in ${productName}?`
+        : `How do I get help on this ${productName} screen?`);
     guideSteps = buildGenericGuideSteps(screen, title);
-    if (!helpUrl && conceptIds[0]) {
-      helpUrl = getHelpLinkData(conceptIds[0])?.helpUrl || "";
-    }
   }
 
   if (conceptParam) {
@@ -180,13 +225,10 @@ export function resolvePanelContext(
     conceptIds = [focus, ...conceptIds];
   }
 
-  // Prefer Help URL from primary concept when spine/module did not supply one.
   if (!helpUrl && conceptIds[0]) {
-    helpUrl = getHelpLinkData(conceptIds[0])?.helpUrl || "";
+    helpUrl = helpForConcept(resolvedPack, conceptIds[0]);
   }
 
-  // Default to Guide for in-Intacct panel opens. Explicit mode wins;
-  // a seeded q alone does not steal the tab away from Guide.
   let mode: PanelMode = "guide";
   if (modeRaw === "guide" || modeRaw === "context" || modeRaw === "help") {
     mode = modeRaw;
@@ -194,6 +236,8 @@ export function resolvePanelContext(
 
   return {
     mode,
+    packId: resolvedPack,
+    packName: productName,
     title,
     screen,
     module: module || spine?.module || "",

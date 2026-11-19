@@ -42,6 +42,19 @@ function hydrateConcept(concept: Concept): Concept {
   };
 }
 
+export const FOUNDATION_IDS = [
+  "general-ledger",
+  "accounts-payable",
+  "accounts-receivable",
+  "cash-management",
+  "financial-reporting",
+  "dimensions",
+  "multi-entity",
+  "purchasing",
+  "contracts",
+  "sage-copilot",
+] as const;
+
 export const sageIntacctPack: ContentPack = {
   id: "sage-intacct",
   name: "Sage Intacct",
@@ -53,6 +66,7 @@ export const sageIntacctPack: ContentPack = {
   concepts: authoredConcepts.map(hydrateConcept),
   skillPaths,
   moduleMap,
+  foundationIds: FOUNDATION_IDS,
 };
 
 export { CATEGORIES, CATEGORY_COLORS, RELATIONSHIP_LABELS };

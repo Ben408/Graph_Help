@@ -18,13 +18,22 @@ def slugify(value: str, *, max_length: int = 80) -> str:
     return (text or "untitled")[:max_length]
 
 
+_PATH_MARKERS = ("/help_action/", "/core/Topics/", "/core/")
+
+
+def _split_on_marker(path: str) -> tuple[str | None, str]:
+    for marker in _PATH_MARKERS:
+        if marker in path:
+            return marker, path.split(marker, 1)[1]
+    return None, path
+
+
 def topic_relpath_from_url(page_url: str) -> str:
     """Map a Help page URL to topics/<module>/.../<stem>.md under the bundle."""
     path = urlparse(page_url).path
-    marker = "/help_action/"
-    if marker not in path:
+    marker, relative = _split_on_marker(path)
+    if marker is None:
         return f"topics/{slugify(path)}.md"
-    relative = path.split(marker, 1)[1]
     relative = relative.removesuffix(".htm").removesuffix(".html")
     parts = [slugify(part, max_length=60) for part in relative.split("/") if part]
     if not parts:
@@ -34,10 +43,9 @@ def topic_relpath_from_url(page_url: str) -> str:
 
 def module_from_page_url(page_url: str) -> str:
     path = urlparse(page_url).path
-    marker = "/help_action/"
-    if marker not in path:
+    marker, rest = _split_on_marker(path)
+    if marker is None:
         return "unknown"
-    rest = path.split(marker, 1)[1]
     first = rest.split("/", 1)[0]
     return first or "unknown"
 

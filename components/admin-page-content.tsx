@@ -316,7 +316,8 @@ export function AdminPageContent() {
     setBusy(true);
     setRefreshStatus("Starting Help re-ingest…");
     try {
-      const queued = await startRefresh();
+      const { getActivePackId } = await import("@/lib/knowledge");
+      const queued = await startRefresh(getActivePackId());
       for (let i = 0; i < 600; i++) {
         const current = await getRefresh(queued.refresh_id);
         setRefreshStatus(current.message || current.status);

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Smart Help for Sage Intacct",
-  "version": "0.3.7",
-  "description": "Context-aware Smart Help panel beside Intacct. Copilot stays; this replaces Help on this page. Field ? help stays native.",
+  "name": "Smart Help for Sage",
+  "version": "0.3.8",
+  "description": "Context-aware Smart Help beside Sage Intacct or Sage Planning. Copilot stays; field ? help stays native.",
   "permissions": [
     "storage",
     "sidePanel",
@@ -12,6 +12,7 @@
   ],
   "host_permissions": [
     "https://*.intacct.com/*",
+    "https://*.intacct-planning.com/*",
     "http://127.0.0.1:3002/*",
     "http://localhost:3002/*"
   ],
@@ -31,7 +32,8 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*.intacct.com/*"
+        "https://*.intacct.com/*",
+        "https://*.intacct-planning.com/*"
       ],
       "js": [
         "content.js"

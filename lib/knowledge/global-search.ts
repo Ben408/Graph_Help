@@ -1,9 +1,12 @@
 import { highlights, type ReleaseHighlight } from "@/data/release-notes";
-import { buildSageSearchUrl } from "@/packs/sage-intacct/help-links";
 import { getActivePack } from "./active-pack";
 import { classifyIntent } from "./intent";
 import { significantTokens } from "./search";
 import type { Concept, SkillPath } from "./types";
+
+function packSearchUrl(packHelpSearchUrl: string, query: string): string {
+  return `${packHelpSearchUrl}${encodeURIComponent(query)}`;
+}
 
 export type TaskHit = {
   conceptId: string;
@@ -70,7 +73,10 @@ export function globalSearch(query: string): GlobalSearchResult {
     concepts: (routed?.conceptHits ?? []).slice(0, 9).map((h) => h.concept),
     paths: routed?.skillPathHits ?? [],
     docsQuery: q,
-    docsUrl: q.length >= 2 ? buildSageSearchUrl(q) : pack.corpus.helpSearchUrl,
+    docsUrl:
+      q.length >= 2
+        ? packSearchUrl(pack.corpus.helpSearchUrl, q)
+        : pack.corpus.helpSearchUrl,
     updates: searchUpdates(q),
   };
 }

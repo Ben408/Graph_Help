@@ -156,11 +156,12 @@ def is_noise_url(url: str, alt_text: str = "") -> bool:
 
 
 def module_from_url(page_url: str) -> str:
-    parts = urlparse(page_url).path.split("/")
-    if "help_action" in parts:
-        index = parts.index("help_action")
-        if index + 1 < len(parts):
-            return parts[index + 1]
+    parts = [p for p in urlparse(page_url).path.split("/") if p]
+    for marker in ("help_action", "Topics"):
+        if marker in parts:
+            index = parts.index(marker)
+            if index + 1 < len(parts):
+                return parts[index + 1]
     return "unknown"
 
 

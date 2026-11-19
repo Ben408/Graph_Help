@@ -2,18 +2,18 @@ from __future__ import annotations
 
 import json
 from functools import lru_cache
-from pathlib import Path
 from typing import Any
 
-from config.settings import get_settings
+from src.knowledge.pack_context import get_current_pack_id
+from src.knowledge.pack_paths import normalize_pack_id, pack_json_path
 
 
 @lru_cache
-def load_pack() -> dict[str, Any]:
-    path = get_settings().pack_path
+def _load_pack_file(pack_id: str) -> dict[str, Any]:
+    path = pack_json_path(pack_id)
     if not path.is_file():
         return {
-            "id": "unknown",
+            "id": pack_id,
             "vocabulary": [],
             "moduleMap": [],
             "skillPaths": [],
@@ -22,8 +22,13 @@ def load_pack() -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def vocabulary_lines() -> str:
-    nouns = load_pack().get("vocabulary") or []
+def load_pack(pack_id: str | None = None) -> dict[str, Any]:
+    pid = normalize_pack_id(pack_id or get_current_pack_id())
+    return _load_pack_file(pid)
+
+
+def vocabulary_lines(pack_id: str | None = None) -> str:
+    nouns = load_pack(pack_id).get("vocabulary") or []
     lines: list[str] = []
     for noun in nouns:
         aliases = ", ".join(noun.get("aliases") or [])
@@ -34,5 +39,13 @@ def vocabulary_lines() -> str:
     return "\n".join(lines)
 
 
-def concept_ids() -> set[str]:
-    return {str(n.get("id")) for n in load_pack().get("vocabulary") or [] if n.get("id")}
+def concept_ids(pack_id: str | None = None) -> set[str]:
+    return {
+        str(n.get("id"))
+        for n in load_pack(pack_id).get("vocabulary") or []
+        if n.get("id")
+    }
+
+
+def clear_pack_cache() -> None:
+    _load_pack_file.cache_clear()

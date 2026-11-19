@@ -16,8 +16,15 @@ from src.knowledge.pack_loader import load_pack
 from src.llm.client import LLMResponseError, OllamaClient
 from src.rag.okf.store import OkfStore
 
-PACK_DIR = Path(__file__).resolve().parents[2].parent / "packs" / "sage-intacct"
-GENERATED_PATH = PACK_DIR / "concepts.generated.json"
+def _generated_path() -> Path:
+    from src.knowledge.pack_paths import pack_json_path
+
+    return pack_json_path(None).parent / "concepts.generated.json"
+
+
+GENERATED_PATH = (
+    Path(__file__).resolve().parents[2].parent / "packs" / "sage-intacct" / "concepts.generated.json"
+)
 
 _STEP_RE = re.compile(r"^(?:[-*]|\d+[.)]|go to\b|select\b)", re.IGNORECASE)
 
@@ -183,7 +190,7 @@ def rebuild_concept_pages(
 ) -> RebuildSummary:
     settings = settings or get_settings()
     store = store or OkfStore(settings.okf_dir)
-    output_path = output_path or GENERATED_PATH
+    output_path = output_path or _generated_path()
     pack = load_pack()
     nouns = [n for n in (pack.get("vocabulary") or []) if n.get("id")]
     if concept_ids:

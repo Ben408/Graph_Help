@@ -1,6 +1,7 @@
 import type { Concept, ContentPack, RelationshipType } from "./types";
 import { getRelatedDetailed } from "./relations";
 
+/** @deprecated Prefer getActivePack().foundationIds — Intacct default only. */
 export const FOUNDATION_IDS = [
   "general-ledger",
   "accounts-payable",
@@ -13,6 +14,13 @@ export const FOUNDATION_IDS = [
   "contracts",
   "sage-copilot",
 ] as const;
+
+export function foundationIdsForPack(pack: ContentPack): readonly string[] {
+  if (pack.foundationIds && pack.foundationIds.length > 0) {
+    return pack.foundationIds;
+  }
+  return FOUNDATION_IDS;
+}
 
 export function conceptDegree(pack: ContentPack, conceptId: string): number {
   return getRelatedDetailed(pack, conceptId).length;
