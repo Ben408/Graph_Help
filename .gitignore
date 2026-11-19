@@ -21,3 +21,7 @@ engine/**/__pycache__/
 
 .tools/
 
+
+# Extension zip artifacts
+extension-dist/*.zip
+
