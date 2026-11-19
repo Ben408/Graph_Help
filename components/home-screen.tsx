@@ -20,6 +20,7 @@ export function HomeScreen() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const packParam = searchParams.get("pack");
+  setSessionPackId(packParam);
   useEffect(() => {
     setSessionPackId(packParam);
   }, [packParam]);
@@ -109,9 +110,14 @@ export function HomeScreen() {
           </div>
           <div className="h-[200px] pointer-events-none">
             <KnowledgeGraph
+              packId={pack.id}
               visibleIds={[...foundation]}
               dimUnrelated={false}
-              onNodeClick={(id) => router.push(`/graph?focus=${id}`)}
+              onNodeClick={(id) =>
+                router.push(
+                  `/graph?focus=${id}${packParam ? `&pack=${encodeURIComponent(packParam)}` : ""}`
+                )
+              }
             />
           </div>
         </button>

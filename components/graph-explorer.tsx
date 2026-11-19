@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -12,26 +12,21 @@ import {
   RotateCcw,
   X,
 } from "lucide-react";
-import {
-  concepts,
-  getConceptById,
-  CATEGORIES,
-  CATEGORY_COLORS,
-  RELATIONSHIP_LABELS,
-  type RelationshipType,
-} from "@/data/concepts";
+import type { RelationshipType } from "@/lib/knowledge/types";
 import { KnowledgeGraph } from "@/components/knowledge-graph";
 import { ConceptPeekDialog } from "@/components/concept-peek-dialog";
 import { ConceptSearch } from "@/components/concept-search";
 import { SiteHeader } from "@/components/site-header";
 import {
-  FOUNDATION_IDS,
-  GRAPH_LENSES,
-  getPack,
+  foundationIdsForPack,
+  getActivePack,
+  getConceptById,
   getSkillPathById,
   neighborSet,
   relatedDetailed,
   sentenceFor,
+  setSessionPackId,
+  type ContentPack,
 } from "@/lib/knowledge";
 
 const REL_TYPES: RelationshipType[] = [
@@ -42,23 +37,72 @@ const REL_TYPES: RelationshipType[] = [
   "EXTENDS",
 ];
 
-const PROMPTS = [
+type ExplorePrompt = {
+  label: string;
+  hops: 1 | 2;
+  focus?: string;
+  path?: string;
+  seeds?: string[];
+};
+
+const INTACCT_PROMPTS: ExplorePrompt[] = [
   {
     label: "What should I understand before learning consolidation?",
     focus: "consolidation",
-    hops: 2 as const,
+    hops: 2,
   },
   {
     label: "Show everything involved in period close",
     path: "period-close",
-    hops: 1 as const,
+    hops: 1,
   },
   {
     label: "How are AP Automation and Vendor Payments related?",
     seeds: ["ap-automation", "vendor-payments"],
-    hops: 1 as const,
+    hops: 1,
   },
 ];
+
+function promptsForPack(pack: ContentPack): ExplorePrompt[] {
+  if (pack.id === "sage-planning") {
+    return [
+      {
+        label: "What should I understand before workforce planning?",
+        focus: "workforce-planning",
+        hops: 1,
+      },
+      {
+        label: "Show everything involved in creating a forecast",
+        path: "create-forecast",
+        hops: 1,
+      },
+      {
+        label: "How are plans, versions, and sharing related?",
+        seeds: ["plans-and-versions", "manage-and-share"],
+        hops: 1,
+      },
+    ];
+  }
+  return INTACCT_PROMPTS;
+}
+
+function lensesForPack(pack: ContentPack) {
+  return [
+    {
+      id: "all",
+      label: "All roles",
+      kind: "role" as const,
+      conceptIds: [] as string[],
+    },
+    ...pack.skillPaths.map((path) => ({
+      id: path.id,
+      label: path.title,
+      kind: "goal" as const,
+      pathId: path.id,
+      conceptIds: path.steps.map((step) => step.conceptId),
+    })),
+  ];
+}
 
 function FilterGroup({
   label,
@@ -96,9 +140,30 @@ function FilterGroup({
 
 function GraphExplorerInner() {
   const params = useSearchParams();
+  const packParam = params.get("pack");
+  // Set before children render so KnowledgeGraph/search use the URL pack.
+  setSessionPackId(packParam);
+  useEffect(() => {
+    setSessionPackId(packParam);
+  }, [packParam]);
+  const pack = getActivePack(packParam);
+  const categories = pack.categories;
+  const categoryColors = pack.categoryColors;
+  const relationshipLabels = pack.relationshipLabels;
+  const concepts = pack.concepts;
+  const prompts = useMemo(() => promptsForPack(pack), [pack]);
+  const lenses = useMemo(() => lensesForPack(pack), [pack]);
+  const foundationIds = foundationIdsForPack(pack);
+  const knownIds = useMemo(
+    () => new Set(concepts.map((concept) => concept.id)),
+    [concepts]
+  );
+
   const initialFocus = params.get("focus");
   const initialPathId = params.get("path");
-  const initialPath = initialPathId ? getSkillPathById(initialPathId) : null;
+  const initialPath = initialPathId
+    ? pack.skillPaths.find((path) => path.id === initialPathId)
+    : null;
   const initialPathIds = initialPath?.steps.map((s) => s.conceptId) ?? [];
   const [selectedId, setSelectedId] = useState<string | null>(
     initialFocus || initialPathIds[0] || null
@@ -122,23 +187,45 @@ function GraphExplorerInner() {
   const [fitToken, setFitToken] = useState(0);
   const [peekId, setPeekId] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(true);
-  const [lensId, setLensId] = useState<(typeof GRAPH_LENSES)[number]["id"]>("all");
-  const pack = getPack();
+  const [lensId, setLensId] = useState<string>("all");
 
-  const selected = selectedId ? getConceptById(selectedId) : null;
+  const selected = selectedId
+    ? concepts.find((concept) => concept.id === selectedId) ??
+      getConceptById(selectedId)
+    : null;
 
   const visibleIds = useMemo(() => {
-    const seeds = new Set<string>(FOUNDATION_IDS);
-    for (const id of expanded) seeds.add(id);
-    if (selectedId) {
-      for (const id of neighborSet(pack, [selectedId], hops)) seeds.add(id);
+    const seeds = new Set<string>(
+      foundationIds.filter((id) => knownIds.has(id))
+    );
+    for (const id of expanded) {
+      if (knownIds.has(id)) seeds.add(id);
     }
-    const lens = GRAPH_LENSES.find((item) => item.id === lensId);
+    if (selectedId && knownIds.has(selectedId)) {
+      for (const id of neighborSet(pack, [selectedId], hops)) {
+        if (knownIds.has(id)) seeds.add(id);
+      }
+    }
+    const lens = lenses.find((item) => item.id === lensId);
     if (lens && lens.id !== "all" && lens.conceptIds.length > 0) {
-      return [...seeds].filter((id) => (lens.conceptIds as readonly string[]).includes(id) || expanded.has(id) || id === selectedId);
+      return [...seeds].filter(
+        (id) =>
+          lens.conceptIds.includes(id) ||
+          expanded.has(id) ||
+          id === selectedId
+      );
     }
     return [...seeds];
-  }, [expanded, selectedId, hops, pack, lensId]);
+  }, [
+    expanded,
+    selectedId,
+    hops,
+    pack,
+    lensId,
+    lenses,
+    foundationIds,
+    knownIds,
+  ]);
 
   const related = selectedId ? relatedDetailed(selectedId) : [];
 
@@ -168,18 +255,20 @@ function GraphExplorerInner() {
     setFitToken((n) => n + 1);
   }
 
-  function applyPrompt(prompt: (typeof PROMPTS)[number]) {
-    if ("path" in prompt && prompt.path) {
-      const path = getSkillPathById(prompt.path);
+  function applyPrompt(prompt: ExplorePrompt) {
+    if (prompt.path) {
+      const path =
+        pack.skillPaths.find((item) => item.id === prompt.path) ||
+        getSkillPathById(prompt.path);
       const ids = path?.steps.map((s) => s.conceptId) ?? [];
       setExpanded(new Set(ids));
       setSelectedId(ids[0] ?? null);
       setHops(prompt.hops);
-    } else if ("seeds" in prompt && prompt.seeds) {
+    } else if (prompt.seeds) {
       setExpanded(new Set(prompt.seeds));
       setSelectedId(prompt.seeds[0] ?? null);
       setHops(prompt.hops);
-    } else if ("focus" in prompt && prompt.focus) {
+    } else if (prompt.focus) {
       setSelectedId(prompt.focus);
       setExpanded(new Set([prompt.focus]));
       setHops(prompt.hops);
@@ -214,7 +303,7 @@ function GraphExplorerInner() {
             <p className="px-2.5 text-[11px] font-medium text-muted-foreground">
               Explore these topics
             </p>
-            {PROMPTS.map((prompt) => (
+            {prompts.map((prompt) => (
               <button
                 key={prompt.label}
                 type="button"
@@ -242,12 +331,12 @@ function GraphExplorerInner() {
                   summary={
                     filterCategories.size > 0
                       ? `${filterCategories.size} selected`
-                      : `All ${CATEGORIES.length}`
+                      : `All ${categories.length}`
                   }
                   open={openGroups.has("category")}
                   onToggle={() => toggleGroup("category")}
                 >
-                  {CATEGORIES.map((cat) => {
+                  {categories.map((cat) => {
                     const on = filterCategories.has(cat);
                     return (
                       <button
@@ -267,7 +356,7 @@ function GraphExplorerInner() {
                       >
                         <span
                           className="h-2 w-2 rounded-full"
-                          style={{ backgroundColor: CATEGORY_COLORS[cat] }}
+                          style={{ backgroundColor: categoryColors[cat] }}
                         />
                         <span className="truncate">{cat}</span>
                       </button>
@@ -277,12 +366,12 @@ function GraphExplorerInner() {
                 <FilterGroup
                   label="Role or goal"
                   summary={
-                    GRAPH_LENSES.find((lens) => lens.id === lensId)?.label ?? "All"
+                    lenses.find((lens) => lens.id === lensId)?.label ?? "All"
                   }
                   open={openGroups.has("lens")}
                   onToggle={() => toggleGroup("lens")}
                 >
-                  {GRAPH_LENSES.map((lens) => {
+                  {lenses.map((lens) => {
                     const on = lensId === lens.id;
                     return (
                       <button
@@ -330,7 +419,7 @@ function GraphExplorerInner() {
                           on ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary"
                         }`}
                       >
-                        {RELATIONSHIP_LABELS[type]}
+                        {relationshipLabels[type]}
                       </button>
                     );
                   })}
@@ -357,7 +446,7 @@ function GraphExplorerInner() {
                 >
                   <span
                     className="h-2 w-2 rounded-full shrink-0"
-                    style={{ backgroundColor: CATEGORY_COLORS[concept.category] }}
+                    style={{ backgroundColor: categoryColors[concept.category] }}
                   />
                   <span className="truncate">{concept.title}</span>
                 </button>
@@ -371,6 +460,7 @@ function GraphExplorerInner() {
             details panel outside the viewport. */}
         <main className="flex-1 min-w-0 relative" id="main">
           <KnowledgeGraph
+            packId={pack.id}
             currentConceptId={selectedId ?? undefined}
             visibleIds={visibleIds}
             hops={hops}

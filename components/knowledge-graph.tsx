@@ -1,11 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  CATEGORY_COLORS,
-  RELATIONSHIP_LABELS,
-  type RelationshipType,
-} from "@/data/concepts";
+import type { RelationshipType } from "@/lib/knowledge/types";
 import { getActivePack } from "@/lib/knowledge";
 import { conceptDegree, conceptsByIds, edgesAmong } from "@/lib/knowledge/graph-view";
 
@@ -30,6 +26,7 @@ interface GraphEdge {
 }
 
 interface KnowledgeGraphProps {
+  packId?: string | null;
   currentConceptId?: string;
   visibleIds?: string[];
   hops?: 1 | 2;
@@ -46,12 +43,16 @@ interface KnowledgeGraphProps {
 
 const CLICK_SLOP_PX = 5;
 
-function getNodeColor(node: GraphNode): string {
+function getNodeColor(
+  node: GraphNode,
+  categoryColors: Record<string, string>
+): string {
   if (node.isCurrent) return "#007E45";
-  return CATEGORY_COLORS[node.category] || "#3b82f6";
+  return categoryColors[node.category] || "#3b82f6";
 }
 
 export function KnowledgeGraph({
+  packId,
   currentConceptId,
   visibleIds,
   hops: _hops = 1,
@@ -84,7 +85,9 @@ export function KnowledgeGraph({
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const stabilizedRef = useRef(false);
   const frameCountRef = useRef(0);
-  const pack = getActivePack();
+  const pack = getActivePack(packId);
+  const categoryColors = pack.categoryColors;
+  const relationshipLabels = pack.relationshipLabels;
 
   useEffect(() => {
     let ids = new Set(
@@ -316,7 +319,7 @@ export function KnowledgeGraph({
           ctx.font = "10px Inter, system-ui, sans-serif";
           ctx.fillStyle = isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.55)";
           ctx.textAlign = "center";
-          ctx.fillText(RELATIONSHIP_LABELS[edge.type], midX, midY - 4);
+          ctx.fillText(relationshipLabels[edge.type], midX, midY - 4);
         }
       }
 
@@ -324,7 +327,7 @@ export function KnowledgeGraph({
         const isHovered =
           hoveredNodeRef.current?.id === node.id ||
           keyboardFocusRef.current === node.id;
-        const color = getNodeColor(node);
+        const color = getNodeColor(node, categoryColors);
         const r = node.radius * (isHovered ? 1.12 : 1);
         ctx.globalAlpha = node.dimmed && !isHovered ? 0.18 : 1;
         ctx.beginPath();
@@ -352,7 +355,7 @@ export function KnowledgeGraph({
 
     animationRef.current = requestAnimationFrame(simulate);
     return () => cancelAnimationFrame(animationRef.current);
-  }, [dimensions]);
+  }, [dimensions, categoryColors, relationshipLabels]);
 
   const keyboardFocusRef = useRef<string | null>(null);
   const [keyboardFocusId, setKeyboardFocusId] = useState<string | null>(null);
