@@ -1,7 +1,7 @@
-Smart Help for Sage — distribution build 9 (v0.3.9)
+Smart Help for Sage — distribution build 10 (v0.3.10)
 ================================================
-Distribution: 9
-Version: 0.3.9
+Distribution: 10
+Version: 0.3.10
 
 This package is meant for people who are NOT on the developer's machine or LAN.
 It loads the hosted Smart Help UI from the public web app. You do not need a

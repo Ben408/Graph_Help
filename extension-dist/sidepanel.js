@@ -198,7 +198,7 @@ window.addEventListener("message", async (event) => {
     return;
   }
 
-  // Wide modal over Intacct — never load Home into the narrow side panel.
+  // Wide modal over the product app — never load Home into the narrow side panel.
   if (
     data.type === "graph-help:expand-home" ||
     data.type === "graph-help:show-home"
@@ -207,6 +207,7 @@ window.addEventListener("message", async (event) => {
       .sendMessage(tabId, {
         type: "graph-help:expand-home",
         path: data.path || "/",
+        pack: data.pack || detectPack({ pageUrl: data.pageUrl, pack: data.pack }),
         title: data.title,
         screen: data.screen,
         module: data.module,

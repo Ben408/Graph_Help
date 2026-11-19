@@ -14,7 +14,7 @@ import {
   type PanelMode,
   type ResolvedPanelContext,
 } from "@/lib/panel-context";
-import { setSessionPackId } from "@/lib/knowledge";
+import { setSessionPackId, withPackQuery } from "@/lib/knowledge";
 
 function useForcedLightTheme() {
   const { setTheme } = useTheme();
@@ -156,12 +156,14 @@ function PanelShellInner() {
 
   const openExpanded = useCallback(
     (path: string) => {
-      // Wide modal over Intacct — not the narrow side panel.
+      // Wide modal over the product app — not the narrow side panel.
+      const packedPath = withPackQuery(path, context.packId);
       try {
         window.parent?.postMessage(
           {
             type: "graph-help:expand-home",
-            path,
+            path: packedPath,
+            pack: context.packId,
             title: context.title,
             screen: context.screen,
             module: context.module,
@@ -172,10 +174,10 @@ function PanelShellInner() {
         /* ignore */
       }
       if (window.parent === window) {
-        window.location.href = path;
+        window.location.href = packedPath;
       }
     },
-    [context.module, context.screen, context.title]
+    [context.module, context.packId, context.screen, context.title]
   );
 
   const openHomeExpanded = useCallback(() => {

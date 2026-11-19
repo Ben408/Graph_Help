@@ -96,23 +96,63 @@
     document.getElementById(EXPAND_ID)?.remove();
   }
 
+  function resolveExpandPack(message) {
+    if (message?.pack === "sage-planning" || message?.pack === "sage-intacct") {
+      return message.pack;
+    }
+    if (isPlanningHost()) return "sage-planning";
+    const path = message?.path || "";
+    if (/[?&]pack=sage-planning\b/i.test(path)) return "sage-planning";
+    if (/[?&]pack=sage-intacct\b/i.test(path)) return "sage-intacct";
+    return "sage-intacct";
+  }
+
+  function ensurePackOnPath(path, pack) {
+    if (!path || path.startsWith("http")) return path;
+    try {
+      const u = new URL(path, "https://smart-help.local");
+      if (!u.searchParams.get("pack")) u.searchParams.set("pack", pack);
+      return `${u.pathname}${u.search}${u.hash}`;
+    } catch {
+      const join = path.includes("?") ? "&" : "?";
+      return `${path}${join}pack=${encodeURIComponent(pack)}`;
+    }
+  }
+
+  function backToProductLabel(pack) {
+    return pack === "sage-planning" ? "Back to Planning" : "Back to Intacct";
+  }
+
+  function ensurePackOnAbsoluteUrl(url, pack) {
+    try {
+      const u = new URL(url);
+      if (!u.searchParams.get("pack")) u.searchParams.set("pack", pack);
+      return u.toString();
+    } catch {
+      return url;
+    }
+  }
+
   async function expandHome(message) {
     ensureStyle();
     collapseExpanded();
     const uiBase = (await getUiBase()).replace(/\/$/, "");
-    const path = message?.path || "/";
-    const url = path.startsWith("http")
+    const pack = resolveExpandPack(message);
+    const path = ensurePackOnPath(message?.path || "/", pack);
+    const rawUrl = path.startsWith("http")
       ? path
       : `${uiBase}${path.startsWith("/") ? path : `/${path}`}`;
+    const url = ensurePackOnAbsoluteUrl(rawUrl, pack);
+    const backLabel = backToProductLabel(pack);
 
     const root = document.createElement("div");
     root.id = EXPAND_ID;
     root.innerHTML = `
-      <div class="gh-dim" title="Return to Intacct"></div>
+      <div class="gh-dim" title="${backLabel}"></div>
       <div class="gh-stage" role="dialog" aria-modal="true" aria-label="Smart Help home">
         <div class="gh-bar">
           <span>Smart Help</span>
-          <button type="button" data-gh-close>Back to Intacct</button>
+          <button type="button" data-gh-close>${backLabel}</button>
         </div>
         <iframe title="Smart Help home" src="${url.replace(/"/g, "&quot;")}"></iframe>
       </div>
