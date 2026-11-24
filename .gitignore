@@ -24,4 +24,5 @@ engine/**/__pycache__/
 
 # Extension zip artifacts
 extension-dist/*.zip
+dist-releases/
 

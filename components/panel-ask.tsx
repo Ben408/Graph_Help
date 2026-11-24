@@ -20,6 +20,12 @@ import {
   type AskSubmitOptions,
   type EngineAskResult,
 } from "@/lib/engine-client";
+import {
+  ASK_BACKEND_EVENT,
+  getStoredAskBackend,
+  setStoredAskBackend,
+  type AskBackend,
+} from "@/lib/ask-backend";
 import { getConceptById, getSkillPathById } from "@/lib/knowledge";
 import { CATEGORY_COLORS } from "@/data/concepts";
 import type { ResolvedPanelContext } from "@/lib/panel-context";
@@ -50,7 +56,21 @@ export function PanelAsk({
   const [engineOk, setEngineOk] = useState<boolean | null>(null);
   const [engineWarning, setEngineWarning] = useState("");
   const [result, setResult] = useState<EngineAskResult | null>(null);
+  const [backend, setBackend] = useState<AskBackend>("ask");
   const autoRan = useRef(false);
+
+  useEffect(() => {
+    setBackend(getStoredAskBackend());
+    const onChange = () => setBackend(getStoredAskBackend());
+    window.addEventListener(ASK_BACKEND_EVENT, onChange);
+    return () => window.removeEventListener(ASK_BACKEND_EVENT, onChange);
+  }, []);
+
+  function switchBackend(next: AskBackend) {
+    setBackend(next);
+    setStoredAskBackend(next);
+    setResult(null);
+  }
 
   // Preserve last Ask results across tab switches. Only reset on Intacct screen change,
   // or when the parent pushes a new seed (e.g. "Ask about this").
@@ -118,6 +138,7 @@ export function PanelAsk({
       concept_ids: context.conceptIds.length ? context.conceptIds : undefined,
       skill_path_id: context.skillPathId || undefined,
       mode: "ask",
+      backend,
       pack_id: context.packId,
       page_url:
         typeof window !== "undefined"
@@ -169,28 +190,60 @@ export function PanelAsk({
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      <div>
-        <h1 className="text-sm font-semibold text-slate-900">Ask Smart Help</h1>
-        <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="text-sm font-semibold text-slate-900">Ask Smart Help</h1>
+          <div
+            role="group"
+            aria-label="Answer backend"
+            className="inline-flex rounded-full border border-slate-200 bg-slate-100 p-0.5 text-[11px]"
+          >
+            <button
+              type="button"
+              onClick={() => switchBackend("ask")}
+              className={`rounded-full px-2.5 py-0.5 font-medium transition-colors ${
+                backend === "ask"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Ask
+            </button>
+            <button
+              type="button"
+              onClick={() => switchBackend("copilot")}
+              className={`rounded-full px-2.5 py-0.5 font-medium transition-colors ${
+                backend === "copilot"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Copilot (Hybrid)
+            </button>
+          </div>
+        </div>
+        <p className="text-xs text-slate-600 leading-relaxed">
           {context.mapped
             ? `Context: ${context.screen || context.title}`
-            : "Ask a single question for a cited Sage Help procedure, or switch to Context to explore concepts."}
+            : backend === "copilot"
+              ? "Hybrid mode: Sage Copilot answers inside Smart Help's Concept Graph wrapper."
+              : "Ask a single question for a cited Sage Help procedure, or switch to Context to explore concepts."}
         </p>
       </div>
 
-      {engineOk === false && (
+      {backend === "ask" && engineOk === false && (
         <div className="rounded-2xl border border-amber-500/30 bg-amber-50 p-3.5 text-xs">
           <p className="font-medium text-slate-900 flex items-center gap-1.5">
             <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
             Ask engine offline
           </p>
           <p className="text-slate-600 mt-1">
-            Start the local engine on :8765. You can still browse Context.
+            Start the local engine on :8765, or switch to Copilot (Hybrid).
           </p>
         </div>
       )}
 
-      {engineWarning && (
+      {backend === "ask" && engineWarning && (
         <div className="rounded-2xl border border-amber-500/30 bg-amber-50 p-3.5 text-xs">
           <p className="font-medium text-slate-900 flex items-center gap-1.5">
             <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
@@ -233,7 +286,7 @@ export function PanelAsk({
           )}
           <button
             type="submit"
-            disabled={busy || query.trim().length < 3 || engineOk === false}
+            disabled={busy || query.trim().length < 3 || (backend === "ask" && engineOk === false)}
             className="inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
           >
             {busy ? "Working…" : "Ask"}
@@ -294,12 +347,25 @@ export function PanelAsk({
 
           {result.answer && (
             <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <p className="text-[11px] font-semibold text-primary mb-1.5">
-                Procedure
-              </p>
+              <div className="flex items-center justify-between gap-2 mb-1.5">
+                <p className="text-[11px] font-semibold text-primary">
+                  {result.backend_source?.startsWith("copilot") ? "Copilot Answer" : "Procedure"}
+                </p>
+                {result.backend_source === "copilot-demo-replay" && (
+                  <span className="rounded-full bg-[#E6F4EC] px-2 py-0.5 text-[10px] font-medium text-primary">
+                    Sage Copilot · Hybrid (Demo Replay)
+                  </span>
+                )}
+                {result.backend_source === "copilot-live" && (
+                  <span className="rounded-full bg-[#E6F4EC] px-2 py-0.5 text-[10px] font-medium text-primary">
+                    Sage Copilot · Hybrid (Live)
+                  </span>
+                )}
+              </div>
               <p className="text-sm text-slate-700 mb-3 leading-relaxed">
                 {result.answer.summary}
               </p>
+              {result.answer.steps.length > 0 && (
               <ol className="space-y-3">
                 {result.answer.steps.map((step, i) => {
                   const decision = step.detail && isDecision(step.detail);
@@ -328,12 +394,35 @@ export function PanelAsk({
                   );
                 })}
               </ol>
+              )}
               {result.answer.notes.length > 0 && (
                 <ul className="mt-3 text-xs text-slate-600 list-disc pl-4 space-y-1">
                   {result.answer.notes.map((note) => (
                     <li key={note}>{note}</li>
                   ))}
                 </ul>
+              )}
+              {result.followup_queries && result.followup_queries.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-slate-100">
+                  <p className="text-[11px] font-medium text-slate-500 mb-1.5">
+                    Suggested follow-ups
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {result.followup_queries.map((fq) => (
+                      <button
+                        key={fq}
+                        type="button"
+                        onClick={() => {
+                          setQuery(fq);
+                          void runAsk(fq);
+                        }}
+                        className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-700 hover:border-primary/40 hover:text-primary transition-colors text-left"
+                      >
+                        {fq}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               )}
             </article>
           )}

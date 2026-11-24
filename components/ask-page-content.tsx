@@ -22,6 +22,12 @@ import {
   type EngineAskResult,
 } from "@/lib/engine-client";
 import {
+  ASK_BACKEND_EVENT,
+  getStoredAskBackend,
+  setStoredAskBackend,
+  type AskBackend,
+} from "@/lib/ask-backend";
+import {
   conceptHref,
   getActivePack,
   getConceptById,
@@ -51,9 +57,23 @@ function AskInner() {
   const [engineOk, setEngineOk] = useState<boolean | null>(null);
   const [engineWarning, setEngineWarning] = useState("");
   const [result, setResult] = useState<EngineAskResult | null>(null);
+  const [backend, setBackend] = useState<AskBackend>("ask");
   const intent = query.trim().length >= 2 ? routeQuery(query) : null;
 
   const autoRan = useRef(false);
+
+  useEffect(() => {
+    setBackend(getStoredAskBackend());
+    const onChange = () => setBackend(getStoredAskBackend());
+    window.addEventListener(ASK_BACKEND_EVENT, onChange);
+    return () => window.removeEventListener(ASK_BACKEND_EVENT, onChange);
+  }, []);
+
+  function switchBackend(next: AskBackend) {
+    setBackend(next);
+    setStoredAskBackend(next);
+    setResult(null);
+  }
 
   useEffect(() => {
     engineHealth().then((h) => {
@@ -87,7 +107,7 @@ function AskInner() {
     setResult(null);
     setAnsweredQuery(asked);
     try {
-      const queued = await submitAsk(asked);
+      const queued = await submitAsk(asked, { backend, pack_id: pack.id });
       await pollAsk(queued.ask_id);
     } catch (error) {
       setResult({
@@ -133,25 +153,56 @@ function AskInner() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <div className="mx-auto max-w-3xl px-4 lg:px-6 py-10" id="main">
-        <h1 className="font-serif heading-display text-3xl font-semibold text-foreground mb-2">Ask</h1>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+          <h1 className="font-serif heading-display text-3xl font-semibold text-foreground">Ask</h1>
+          <div
+            role="group"
+            aria-label="Answer backend"
+            className="inline-flex rounded-full border border-border bg-secondary/60 p-1 text-xs"
+          >
+            <button
+              type="button"
+              onClick={() => switchBackend("ask")}
+              className={`rounded-full px-3.5 py-1 font-medium transition-colors ${
+                backend === "ask"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Smart Help Ask
+            </button>
+            <button
+              type="button"
+              onClick={() => switchBackend("copilot")}
+              className={`rounded-full px-3.5 py-1 font-medium transition-colors ${
+                backend === "copilot"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Sage Copilot (Hybrid)
+            </button>
+          </div>
+        </div>
         <p className="text-muted-foreground mb-6">
-          Describe the outcome you need. Ask returns a cited procedure from
-          current Help, or says when Help is not enough.
+          {backend === "copilot"
+            ? "Hybrid mode: Sage Copilot provides the answer while Smart Help keeps the Concept Graph, Related Concepts, and Skill Paths."
+            : "Describe the outcome you need. Ask returns a cited procedure from current Help, or says when Help is not enough."}
         </p>
 
-        {engineOk === false && (
+        {backend === "ask" && engineOk === false && (
           <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm">
             <p className="font-medium text-foreground flex items-center gap-2">
               <AlertTriangle className="h-4 w-4" />
               Ask is temporarily unavailable
             </p>
             <p className="text-muted-foreground mt-2">
-              The Help engine is offline. You can still use Learn and Explore.
+              The Help engine is offline. You can switch to Sage Copilot (Hybrid) above, or use Learn and Explore.
             </p>
           </div>
         )}
 
-        {engineWarning && (
+        {backend === "ask" && engineWarning && (
           <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm">
             <p className="font-medium text-foreground flex items-center gap-2">
               <AlertTriangle className="h-4 w-4" />
@@ -277,13 +328,28 @@ function AskInner() {
             )}
             {result.answer && (
               <article className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-                <p className="text-xs font-semibold text-primary mb-2">Procedure</p>
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                  <p className="text-xs font-semibold text-primary">
+                    {result.backend_source?.startsWith("copilot") ? "Copilot Answer" : "Procedure"}
+                  </p>
+                  {result.backend_source === "copilot-demo-replay" && (
+                    <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                      Sage Copilot · Hybrid (Demo Replay)
+                    </span>
+                  )}
+                  {result.backend_source === "copilot-live" && (
+                    <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                      Sage Copilot · Hybrid (Live)
+                    </span>
+                  )}
+                </div>
                 <h2 className="text-lg font-semibold text-foreground mb-3">
                   {answeredQuery}
                 </h2>
                 <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
                   {result.answer.summary}
                 </p>
+                {result.answer.steps.length > 0 && (
                 <ol className="space-y-4">
                   {result.answer.steps.map((step, i) => {
                     const decision = step.detail && isDecision(step.detail);
@@ -310,6 +376,29 @@ function AskInner() {
                     );
                   })}
                 </ol>
+                )}
+                {result.followup_queries && result.followup_queries.length > 0 && (
+                  <div className="mt-5 pt-4 border-t border-border">
+                    <p className="text-xs font-semibold text-muted-foreground mb-2">
+                      Suggested follow-ups
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {result.followup_queries.map((fq) => (
+                        <button
+                          key={fq}
+                          type="button"
+                          onClick={() => {
+                            setQuery(fq);
+                            void runAsk(fq);
+                          }}
+                          className="rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-xs text-foreground hover:border-primary/40 hover:text-primary transition-colors"
+                        >
+                          {fq}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {result.answer.notes.filter(isDecision).length > 0 && (
                   <div className="mt-5 rounded-xl bg-secondary/60 p-3.5">
                     <p className="text-xs font-semibold text-foreground mb-2">Decision points</p>

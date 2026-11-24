@@ -1,4 +1,5 @@
 import { getEngineBase, getHostedEngineUrl } from "@/lib/runtime-target";
+import { getStoredAskBackend, type AskBackend } from "@/lib/ask-backend";
 
 /** @deprecated Prefer getEngineBase() so local/hosted switch applies. */
 export const ENGINE_BASE =
@@ -6,9 +7,12 @@ export const ENGINE_BASE =
 
 export { getEngineBase, getHostedEngineUrl };
 
+const copilotResultCache = new Map<string, EngineAskResult>();
+
 export type EngineAskResult = {
   ask_id: string;
   status: "queued" | "processing" | "completed" | "refused" | "failed";
+  backend_source?: "ask" | "copilot-live" | "copilot-demo-replay";
   classification?: {
     feature: string;
     intent: string;
@@ -23,6 +27,7 @@ export type EngineAskResult = {
     sources: EngineSource[];
   } | null;
   sources: EngineSource[];
+  followup_queries?: string[];
   coverage_gap?: string | null;
   refusal_reason?: "out_of_scope" | "ambiguous" | "insufficient_evidence" | null;
   error_code?: string | null;
@@ -142,6 +147,7 @@ export type AskSubmitOptions = {
   preferred_source_ids?: string[];
   pack_id?: string;
   page_url?: string;
+  backend?: AskBackend;
 };
 
 function clamp(value: string | undefined, max: number): string | undefined {
@@ -207,6 +213,22 @@ export async function submitAsk(
   const pageUrl = clamp(options.page_url, 2000);
   if (packId) body.pack_id = packId;
   if (pageUrl) body.page_url = pageUrl;
+
+  const backend = options.backend ?? getStoredAskBackend();
+  if (backend === "copilot") {
+    const res = await fetch("/api/copilot/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      throw new Error(`Copilot request failed (${res.status})`);
+    }
+    const payload = (await res.json()) as EngineAskResult;
+    copilotResultCache.set(payload.ask_id, payload);
+    return payload;
+  }
+
   const res = await fetch(`${getEngineBase()}/api/ask`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -260,6 +282,8 @@ export async function resolveContext(params: {
 }
 
 export async function getAsk(askId: string): Promise<EngineAskResult> {
+  const cached = copilotResultCache.get(askId);
+  if (cached) return cached;
   const res = await fetch(`${getEngineBase()}/api/ask/${askId}`);
   if (!res.ok) throw new Error(`Ask lookup failed (${res.status})`);
   return res.json();
