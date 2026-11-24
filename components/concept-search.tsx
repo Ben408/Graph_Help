@@ -155,7 +155,7 @@ export function ConceptSearch({
           onFocus={() => query.length >= 2 && setIsOpen(true)}
           placeholder={placeholder}
           autoFocus={autoFocus}
-          className={`w-full rounded-lg border border-border bg-card text-foreground ${sizeClasses[size]} ${
+          className={`w-full rounded-full border border-border bg-card text-foreground shadow-sm ${sizeClasses[size]} ${
             size === "lg" ? "pl-12" : "pl-10"
           } pr-10 outline-none ring-0 focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-muted-foreground`}
         />
@@ -167,7 +167,7 @@ export function ConceptSearch({
               setIsOpen(false);
               inputRef.current?.focus();
             }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
@@ -175,7 +175,7 @@ export function ConceptSearch({
       </div>
 
       {isOpen && query.length >= 2 && (
-        <div className="absolute z-50 top-full mt-2 w-full rounded-lg border border-border bg-card shadow-xl overflow-hidden">
+        <div className="absolute z-50 top-full mt-2 w-full rounded-2xl border border-border bg-card shadow-xl overflow-hidden">
           {showSkillCue && (
             <p className="px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               Skill paths

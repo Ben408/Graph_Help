@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Smart Help for Sage",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "description": "Context-aware Smart Help beside Sage Intacct or Sage Planning (hosted UI).",
   "permissions": [
     "storage",

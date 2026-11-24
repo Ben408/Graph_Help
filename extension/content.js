@@ -1,19 +1,35 @@
 (function () {
   const HIGHLIGHT_CLASS = "graph-help-field-hl";
+  const STEP_PILL_CLASS = "graph-help-step-pill";
   const STYLE_ID = "graph-help-hl-style";
   const EXPAND_ID = "graph-help-expand-root";
   const DEFAULT_UI_BASE = "http://127.0.0.1:3002";
 
-  function ensureStyle() {
-    if (document.getElementById(STYLE_ID)) return;
-    const style = document.createElement("style");
+  function ensureStyle(targetDoc) {
+    const doc = targetDoc || document;
+    if (!doc || doc.getElementById(STYLE_ID)) return;
+    const style = doc.createElement("style");
     style.id = STYLE_ID;
     style.textContent = `
       .${HIGHLIGHT_CLASS} {
         outline: 2px solid #007E45 !important;
         outline-offset: 2px !important;
-        box-shadow: 0 0 0 4px rgba(0, 126, 69, 0.25) !important;
-        border-radius: 2px;
+        box-shadow: 0 0 0 4px rgba(0, 126, 69, 0.22) !important;
+        border-radius: 6px;
+      }
+      .${STEP_PILL_CLASS} {
+        display: inline-flex !important;
+        align-items: center !important;
+        margin-left: 6px !important;
+        padding: 2px 8px !important;
+        border-radius: 9999px !important;
+        background: #E6F4EC !important;
+        color: #007E45 !important;
+        font: 600 11px/1.2 system-ui, -apple-system, sans-serif !important;
+        letter-spacing: 0.01em !important;
+        vertical-align: middle !important;
+        white-space: nowrap !important;
+        pointer-events: none !important;
       }
       #${EXPAND_ID} {
         position: fixed;
@@ -74,7 +90,7 @@
         background: #fff;
       }
     `;
-    document.documentElement.appendChild(style);
+    doc.documentElement.appendChild(style);
   }
 
   function getUiBase() {
@@ -165,20 +181,27 @@
   }
 
   function clearHighlights(root) {
+    if (!root) return;
     root.querySelectorAll("." + HIGHLIGHT_CLASS).forEach((el) => {
       el.classList.remove(HIGHLIGHT_CLASS);
     });
+    root.querySelectorAll("." + STEP_PILL_CLASS).forEach((el) => {
+      el.remove();
+    });
   }
 
-  function highlightLabelsInDoc(doc, labels) {
-    if (!doc || !labels?.length) return;
-    ensureStyle();
+  function highlightLabelsInDoc(doc, labels, stepLabel) {
+    if (!doc) return;
     clearHighlights(doc);
+    if (!labels?.length) return;
+    ensureStyle(doc);
     const wanted = labels.map((l) => l.toLowerCase().trim()).filter(Boolean);
     const candidates = doc.querySelectorAll(
-      "label, .field-label, th, .caption, .ia-label, td, span, div"
+      "label, .field-label, th, .caption, .ia-label, td, span, div, button, a"
     );
+    let pillAttached = false;
     for (const el of candidates) {
+      if (el.classList.contains(STEP_PILL_CLASS)) continue;
       const text = (el.textContent || "").replace(/\s+/g, " ").trim();
       if (!text || text.length > 80) continue;
       const lower = text.toLowerCase().replace(/\*$/, "").trim();
@@ -188,20 +211,28 @@
           el.control ||
           el.parentElement?.querySelector("input, select, textarea, .select2");
         if (control) control.classList.add(HIGHLIGHT_CLASS);
+        if (stepLabel && !pillAttached) {
+          const pill = doc.createElement("span");
+          pill.className = STEP_PILL_CLASS;
+          pill.textContent = stepLabel;
+          pill.setAttribute("aria-hidden", "true");
+          el.insertAdjacentElement("afterend", pill);
+          pillAttached = true;
+        }
       }
     }
   }
 
-  function highlightInMain(labels) {
+  function highlightInMain(labels, stepLabel) {
     const main = document.getElementById("iamain");
     try {
       if (main?.contentDocument) {
-        highlightLabelsInDoc(main.contentDocument, labels);
+        highlightLabelsInDoc(main.contentDocument, labels, stepLabel);
       }
     } catch {
       /* cross-origin */
     }
-    highlightLabelsInDoc(document, labels);
+    highlightLabelsInDoc(document, labels, stepLabel);
   }
 
   function readMainDoc() {
@@ -422,7 +453,10 @@
     const data = event.data;
     if (!data || !data.type) return;
     if (data.type === "graph-help:highlight") {
-      highlightInMain(Array.isArray(data.labels) ? data.labels : []);
+      highlightInMain(
+        Array.isArray(data.labels) ? data.labels : [],
+        typeof data.stepLabel === "string" ? data.stepLabel : ""
+      );
     }
     if (data.type === "graph-help:expand-home") {
       void expandHome(data);
@@ -478,7 +512,7 @@
 
   chrome.runtime.onMessage.addListener((message) => {
     if (message?.type === "graph-help:highlight") {
-      highlightInMain(message.labels || []);
+      highlightInMain(message.labels || [], message.stepLabel || "");
     }
     if (message?.type === "graph-help:request-context") {
       pushContextIfChanged(true);

@@ -26,7 +26,7 @@ export function ConceptCard({
 
   if (variant === "compact") {
     const className =
-      "group flex items-center gap-3 rounded-lg border border-border bg-card p-3 hover:border-primary/30 hover:bg-secondary/50 transition-all w-full text-left";
+      "group flex items-center gap-3 rounded-xl border border-border bg-card p-3 hover:border-primary/40 hover:bg-secondary/60 transition-all w-full text-left";
     const body = (
       <>
         <span
@@ -54,7 +54,7 @@ export function ConceptCard({
   }
 
   const defaultClassName =
-    "group relative flex flex-col rounded-xl border border-border bg-card p-5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all text-left w-full";
+    "group relative flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm hover:border-primary/40 hover:shadow-md transition-all text-left w-full";
   const defaultBody = (
     <>
       <div className="flex items-center gap-2.5 mb-3">

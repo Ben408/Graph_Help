@@ -4,11 +4,14 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
+  BookOpen,
+  GraduationCap,
   ListChecks,
   Route,
   AlertTriangle,
   ExternalLink,
   HelpCircle,
+  Send,
 } from "lucide-react";
 import { AskFeedback } from "@/components/ask-feedback";
 import { SiteHeader } from "@/components/site-header";
@@ -162,25 +165,44 @@ function AskInner() {
         )}
 
         <form
-          className="flex gap-2 mb-4"
+          className="rounded-2xl border border-border bg-card p-3.5 shadow-sm mb-5 flex flex-col gap-3"
           onSubmit={(e) => {
             e.preventDefault();
             if (query.trim().length >= 3) void runAsk(query.trim());
           }}
         >
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="How do I close my books for the month?"
-            className="flex-1 h-11 rounded-lg border border-border bg-card px-4 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          />
-          <button
-            type="submit"
-            disabled={busy || query.trim().length < 3}
-            className="h-11 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            {busy ? "Working…" : "Ask"}
-          </button>
+          <div className="flex gap-2">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="How do I close my books for the month?"
+              className="flex-1 h-11 rounded-full border border-border bg-secondary/40 px-4 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+            {result && (
+              <button
+                type="button"
+                onClick={() => {
+                  setResult(null);
+                  setQuery("");
+                }}
+                className="h-11 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-secondary transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                Clear
+              </button>
+            )}
+            <button
+              type="submit"
+              disabled={busy || query.trim().length < 3}
+              className="h-11 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {busy ? "Working…" : "Ask"}
+              {!busy && <Send className="h-3.5 w-3.5" />}
+            </button>
+          </div>
+          <p className="text-[11px] text-muted-foreground px-1">
+            Single-question Help lookup. Check AI content for inaccuracies —
+            answers are grounded in Sage Help and are not professional advice.
+          </p>
         </form>
 
         {intent && intent.intent !== "goal" && query.length >= 2 && (
@@ -214,13 +236,13 @@ function AskInner() {
                   <div className="flex flex-wrap gap-2">
                     <Link
                       href="/paths"
-                      className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                      className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       Learn a Skill Path
                     </Link>
                     <Link
                       href={`/search?q=${encodeURIComponent(answeredQuery || query)}`}
-                      className="rounded-lg border border-border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-ring"
+                      className="rounded-full border border-foreground/80 bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-secondary transition-colors focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       Search related material
                     </Link>
@@ -228,7 +250,7 @@ function AskInner() {
                 ) : (
                   <Link
                     href="/search"
-                    className="rounded-lg border border-border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-ring inline-flex"
+                    className="rounded-full border border-foreground/80 bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-secondary transition-colors focus-visible:ring-2 focus-visible:ring-ring inline-flex"
                   >
                     Browse Find instead
                   </Link>
@@ -254,8 +276,8 @@ function AskInner() {
               </div>
             )}
             {result.answer && (
-              <article className="rounded-xl border border-border bg-card p-5">
-                <p className="text-xs font-medium text-primary mb-2">Procedure</p>
+              <article className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                <p className="text-xs font-semibold text-primary mb-2">Procedure</p>
                 <h2 className="text-lg font-semibold text-foreground mb-3">
                   {answeredQuery}
                 </h2>
@@ -276,7 +298,7 @@ function AskInner() {
                             <p
                               className={`text-sm mt-1 leading-relaxed ${
                                 decision
-                                  ? "text-foreground border-l-2 border-primary/40 pl-3"
+                                  ? "text-foreground rounded-lg bg-secondary/60 border-l-2 border-primary px-3 py-1.5"
                                   : "text-muted-foreground"
                               }`}
                             >
@@ -289,8 +311,8 @@ function AskInner() {
                   })}
                 </ol>
                 {result.answer.notes.filter(isDecision).length > 0 && (
-                  <div className="mt-5 rounded-lg bg-secondary/60 p-3">
-                    <p className="text-xs font-medium text-foreground mb-2">Decision points</p>
+                  <div className="mt-5 rounded-xl bg-secondary/60 p-3.5">
+                    <p className="text-xs font-semibold text-foreground mb-2">Decision points</p>
                     <ul className="space-y-1.5 text-sm text-muted-foreground">
                       {result.answer.notes.filter(isDecision).map((note) => (
                         <li key={note}>{note}</li>
@@ -311,26 +333,27 @@ function AskInner() {
             )}
 
             {uniqueSources.length > 0 && (
-              <div>
-                <h2 className="text-sm font-semibold text-foreground mb-2">
+              <div className="rounded-2xl border border-border bg-secondary/40 p-5">
+                <h2 className="text-sm font-semibold text-foreground mb-3">
                   {result.status === "completed"
                     ? "Cited Help"
                     : "Possibly related Help"}
                 </h2>
-                <ul className="space-y-2">
+                <ul className="space-y-2.5">
                   {uniqueSources.map((source) => (
                     <li key={source.source_id}>
                       <a
                         href={source.source_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-sm text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring rounded"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring rounded"
                       >
-                        {source.title}
+                        <span>Read Help: {source.title}</span>
                         {source.heading_path ? (
-                          <span className="text-muted-foreground">· {source.heading_path}</span>
+                          <span className="text-muted-foreground font-normal">· {source.heading_path}</span>
                         ) : null}
-                        <ExternalLink className="h-3 w-3" />
+                        <BookOpen className="h-3.5 w-3.5 shrink-0" />
+                        <ExternalLink className="h-3 w-3 shrink-0 opacity-75" />
                       </a>
                     </li>
                   ))}
@@ -365,15 +388,18 @@ function AskInner() {
             )}
 
             {result.status === "completed" && suggestedPaths[0] ? (
-              <div className="rounded-xl border border-primary/30 bg-primary/5 p-5">
-                <p className="text-xs font-medium text-primary mb-1">Next: Learn</p>
+              <div className="rounded-2xl border border-primary/25 bg-primary/5 p-5">
+                <p className="text-xs font-semibold text-primary mb-1 inline-flex items-center gap-1.5">
+                  <GraduationCap className="h-3.5 w-3.5" />
+                  Next: Learn
+                </p>
                 <p className="text-sm font-semibold text-foreground">{suggestedPaths[0].title}</p>
                 <p className="text-sm text-muted-foreground mt-1">{suggestedPaths[0].goal}</p>
                 <Link
                   href={skillPathHref(suggestedPaths[0].id, pack.id)}
-                  className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-primary focus-visible:ring-2 focus-visible:ring-ring rounded"
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-foreground/80 bg-card px-4 py-1.5 text-xs font-semibold text-foreground hover:bg-secondary transition-colors focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <Route className="h-3.5 w-3.5" />
+                  <Route className="h-3.5 w-3.5 text-primary" />
                   Continue this Skill Path
                 </Link>
               </div>

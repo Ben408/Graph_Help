@@ -103,10 +103,11 @@ export function ConceptPageContent({
               href={helpUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-xs font-medium text-primary bg-primary/10 rounded-lg px-3 py-2"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/15 transition-colors rounded-full px-3.5 py-2"
             >
+              <BookOpen className="h-3.5 w-3.5" />
               Source documentation
-              <ExternalLink className="h-3 w-3" />
+              <ExternalLink className="h-3 w-3 opacity-75" />
             </a>
           )}
         </div>

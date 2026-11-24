@@ -219,15 +219,24 @@ function PanelShellInner() {
 
   return (
     <div
-      className="h-screen flex flex-col bg-background text-foreground"
+      className="h-screen flex flex-col bg-white text-slate-900"
       data-smart-help-panel
     >
-      <header className="shrink-0 border-b border-border px-3 pt-2 pb-0">
-        <div className="flex items-center justify-between gap-2 mb-1.5">
-          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
-            Smart Help
-          </p>
-          <div className="flex items-center gap-2">
+      <header className="shrink-0 border-b border-slate-200 bg-white px-4 pt-3 pb-0">
+        <div className="flex items-center justify-between gap-2 mb-2.5">
+          <div className="flex items-center gap-2 min-w-0">
+            <img
+              src="/brand/Sage_Logo.svg"
+              alt="Sage"
+              className="h-[18px] w-auto shrink-0"
+              width={46}
+              height={18}
+            />
+            <span className="text-sm font-semibold text-slate-900 truncate">
+              Smart Help
+            </span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
             <PanelReportBugButton
               context={{
                 module: context.module,
@@ -240,7 +249,7 @@ function PanelShellInner() {
             <button
               type="button"
               onClick={openHomeExpanded}
-              className="inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline"
+              className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700 hover:border-primary/40 hover:text-primary transition-colors"
               title="Open Smart Help home as a wide overlay"
             >
               <Home className="h-3 w-3" />
@@ -254,10 +263,10 @@ function PanelShellInner() {
               key={tab.id}
               type="button"
               onClick={() => setMode(tab.id)}
-              className={`px-3 py-2 text-sm font-medium rounded-t-md border-b-2 -mb-px ${
+              className={`px-3 py-2 text-sm font-medium rounded-t-md border-b-2 -mb-px transition-colors ${
                 mode === tab.id
                   ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
+                  : "border-transparent text-slate-500 hover:text-slate-900"
               }`}
             >
               {tab.label}
@@ -265,7 +274,7 @@ function PanelShellInner() {
           ))}
         </nav>
       </header>
-      <main className="flex-1 min-h-0 overflow-y-auto">
+      <main className="flex-1 min-h-0 overflow-y-auto bg-white">
         {/* Keep tabs mounted so Ask results (and Guide step) survive tab switches. */}
         <div className={mode === "help" ? "h-full" : "hidden"}>
           <PanelAsk

@@ -193,6 +193,7 @@ window.addEventListener("message", async (event) => {
       .sendMessage(tabId, {
         type: "graph-help:highlight",
         labels: data.labels || [],
+        stepLabel: data.stepLabel || "",
       })
       .catch(() => {});
     return;

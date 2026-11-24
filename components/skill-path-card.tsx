@@ -16,10 +16,10 @@ export function SkillPathCard({ path }: { path: SkillPath }) {
   return (
     <Link
       href={skillPathHref(path.id, pack.id)}
-      className="group flex flex-col rounded-xl border border-border bg-card p-5 hover:border-primary/30 hover:shadow-md transition-all"
+      className="group flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm hover:border-primary/40 hover:shadow-md transition-all"
     >
       <div className="flex items-start gap-3 mb-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Route className="h-4 w-4" />
         </div>
         <div className="min-w-0">

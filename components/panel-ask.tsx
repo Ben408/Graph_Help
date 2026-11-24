@@ -4,10 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
   ArrowRight,
+  BookOpen,
   ExternalLink,
+  GraduationCap,
   HelpCircle,
   ListChecks,
   Route,
+  Send,
 } from "lucide-react";
 import { AskFeedback } from "@/components/ask-feedback";
 import {
@@ -165,40 +168,40 @@ export function PanelAsk({
   })();
 
   return (
-    <div className="flex flex-col gap-4 p-3">
+    <div className="flex flex-col gap-4 p-4">
       <div>
-        <h1 className="text-base font-semibold text-foreground">Ask</h1>
-        <p className="text-xs text-muted-foreground mt-1">
+        <h1 className="text-sm font-semibold text-slate-900">Ask Smart Help</h1>
+        <p className="text-xs text-slate-600 mt-1 leading-relaxed">
           {context.mapped
             ? `Context: ${context.screen || context.title}`
-            : "What do you want to do? Ask for a cited Help procedure, or open Context to explore concepts."}
+            : "Ask a single question for a cited Sage Help procedure, or switch to Context to explore concepts."}
         </p>
       </div>
 
       {engineOk === false && (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
-          <p className="font-medium flex items-center gap-1.5">
-            <AlertTriangle className="h-3.5 w-3.5" />
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-50 p-3.5 text-xs">
+          <p className="font-medium text-slate-900 flex items-center gap-1.5">
+            <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
             Ask engine offline
           </p>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-slate-600 mt-1">
             Start the local engine on :8765. You can still browse Context.
           </p>
         </div>
       )}
 
       {engineWarning && (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
-          <p className="font-medium flex items-center gap-1.5">
-            <AlertTriangle className="h-3.5 w-3.5" />
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-50 p-3.5 text-xs">
+          <p className="font-medium text-slate-900 flex items-center gap-1.5">
+            <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
             Engine not ready
           </p>
-          <p className="text-muted-foreground mt-1">{engineWarning}</p>
+          <p className="text-slate-600 mt-1">{engineWarning}</p>
         </div>
       )}
 
       <form
-        className="flex flex-col gap-2"
+        className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm flex flex-col gap-2.5"
         onSubmit={(e) => {
           e.preventDefault();
           if (query.trim().length >= 3) void runAsk(query.trim());
@@ -209,20 +212,43 @@ export function PanelAsk({
           onChange={(e) => setQuery(e.target.value)}
           rows={3}
           placeholder="How do I close my books for the month?"
-          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring resize-y min-h-[72px]"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus-visible:ring-2 focus-visible:ring-ring resize-y min-h-[72px]"
         />
-        <button
-          type="submit"
-          disabled={busy || query.trim().length < 3 || engineOk === false}
-          className="h-9 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground disabled:opacity-50"
-        >
-          {busy ? "Working…" : "Ask"}
-        </button>
+        <div className="flex items-center justify-between gap-2">
+          {result ? (
+            <button
+              type="button"
+              onClick={() => {
+                setResult(null);
+                setQuery("");
+              }}
+              className="rounded-full border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-700 hover:border-slate-400 hover:text-slate-900 transition-colors"
+            >
+              Clear
+            </button>
+          ) : (
+            <span className="text-[11px] text-slate-500">
+              Single-question Help lookup
+            </span>
+          )}
+          <button
+            type="submit"
+            disabled={busy || query.trim().length < 3 || engineOk === false}
+            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
+          >
+            {busy ? "Working…" : "Ask"}
+            {!busy && <Send className="h-3 w-3" />}
+          </button>
+        </div>
+        <p className="text-[10px] text-slate-500 leading-snug">
+          Check AI content for inaccuracies. Answers are grounded in Sage Help
+          and are not professional advice.
+        </p>
       </form>
 
       {!result && !busy && (
-        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-          <ListChecks className="h-3.5 w-3.5" />
+        <p className="text-xs text-slate-500 flex items-center gap-1.5 px-1">
+          <ListChecks className="h-3.5 w-3.5 text-primary" />
           Example: how do I reverse a journal entry
         </p>
       )}
@@ -230,23 +256,23 @@ export function PanelAsk({
       {result && (
         <div className="space-y-4">
           {result.status === "refused" && (
-            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
-              <p className="text-sm font-medium inline-flex items-center gap-1.5">
-                <HelpCircle className="h-3.5 w-3.5" />
+            <div className="rounded-2xl border border-amber-500/30 bg-amber-50 p-4">
+              <p className="text-sm font-semibold text-slate-900 inline-flex items-center gap-1.5">
+                <HelpCircle className="h-4 w-4 text-amber-600" />
                 {refusalReason === "out_of_scope"
                   ? "Outside Sage Intacct Help"
                   : refusalReason === "ambiguous"
                     ? "Need a clearer product goal"
                     : "Help does not cover this well enough"}
               </p>
-              <p className="text-xs text-muted-foreground mt-2">
+              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
                 {result.coverage_gap ||
                   "Try rephrasing with the module, object, and action."}
               </p>
               <button
                 type="button"
                 onClick={() => onOpenContext?.()}
-                className="mt-2 text-xs font-medium text-primary"
+                className="mt-3 inline-flex items-center rounded-full border border-slate-900 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-900 hover:bg-slate-50 transition-colors"
               >
                 Explore concepts
               </button>
@@ -254,12 +280,12 @@ export function PanelAsk({
           )}
 
           {result.status === "failed" && (
-            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
-              <p className="font-medium inline-flex items-center gap-1.5">
-                <AlertTriangle className="h-3.5 w-3.5" />
+            <div className="rounded-2xl border border-amber-500/30 bg-amber-50 p-4 text-xs">
+              <p className="font-semibold text-slate-900 inline-flex items-center gap-1.5">
+                <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
                 Ask engine problem
               </p>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-slate-600 mt-1">
                 {result.error_code}
                 {result.error_detail ? `: ${result.error_detail}` : ""}
               </p>
@@ -267,29 +293,31 @@ export function PanelAsk({
           )}
 
           {result.answer && (
-            <article className="rounded-lg border border-border bg-card p-3">
-              <p className="text-[10px] font-medium text-primary mb-1">
+            <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <p className="text-[11px] font-semibold text-primary mb-1.5">
                 Procedure
               </p>
-              <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+              <p className="text-sm text-slate-700 mb-3 leading-relaxed">
                 {result.answer.summary}
               </p>
               <ol className="space-y-3">
                 {result.answer.steps.map((step, i) => {
                   const decision = step.detail && isDecision(step.detail);
                   return (
-                    <li key={i} className="flex gap-2">
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary">
+                    <li key={i} className="flex gap-2.5">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#E6F4EC] text-[10px] font-semibold text-primary mt-0.5">
                         {i + 1}
                       </span>
                       <div>
-                        <p className="text-sm font-medium">{step.instruction}</p>
+                        <p className="text-sm font-medium text-slate-900">
+                          {step.instruction}
+                        </p>
                         {step.detail && (
                           <p
                             className={`text-xs mt-1 leading-relaxed ${
                               decision
-                                ? "text-foreground border-l-2 border-primary/40 pl-2"
-                                : "text-muted-foreground"
+                                ? "text-slate-800 rounded-lg bg-slate-50 border-l-2 border-primary px-2.5 py-1.5"
+                                : "text-slate-600"
                             }`}
                           >
                             {decision ? `Decision: ${step.detail}` : step.detail}
@@ -301,7 +329,7 @@ export function PanelAsk({
                 })}
               </ol>
               {result.answer.notes.length > 0 && (
-                <ul className="mt-3 text-xs text-muted-foreground list-disc pl-4 space-y-1">
+                <ul className="mt-3 text-xs text-slate-600 list-disc pl-4 space-y-1">
                   {result.answer.notes.map((note) => (
                     <li key={note}>{note}</li>
                   ))}
@@ -311,23 +339,24 @@ export function PanelAsk({
           )}
 
           {uniqueSources.length > 0 && (
-            <div>
-              <h2 className="text-xs font-semibold mb-1.5">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5">
+              <h2 className="text-xs font-semibold text-slate-900 mb-2">
                 {result.status === "completed"
                   ? "Cited Help"
                   : "Possibly related Help"}
               </h2>
-              <ul className="space-y-1.5">
+              <ul className="space-y-2">
                 {uniqueSources.slice(0, 5).map((source) => (
                   <li key={source.source_id}>
                     <a
                       href={source.source_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
                     >
-                      {source.title}
-                      <ExternalLink className="h-3 w-3" />
+                      <span>Read Help: {source.title}</span>
+                      <BookOpen className="h-3.5 w-3.5 shrink-0" />
+                      <ExternalLink className="h-3 w-3 shrink-0 opacity-75" />
                     </a>
                   </li>
                 ))}
@@ -338,7 +367,9 @@ export function PanelAsk({
           {result.status === "completed" &&
             (result.touched_concept_ids?.length ?? 0) > 0 && (
               <div>
-                <h2 className="text-xs font-semibold mb-1.5">Related concepts</h2>
+                <h2 className="text-xs font-semibold text-slate-900 mb-2">
+                  Related concepts
+                </h2>
                 <div className="flex flex-wrap gap-1.5">
                   {result.touched_concept_ids!.map((id) => {
                     const concept = getConceptById(id);
@@ -348,7 +379,7 @@ export function PanelAsk({
                         key={id}
                         type="button"
                         onClick={() => onOpenContext?.(id)}
-                        className="inline-flex items-center gap-1 text-[11px] rounded-full bg-secondary px-2 py-1"
+                        className="inline-flex items-center gap-1.5 text-[11px] rounded-full border border-slate-200 bg-white px-2.5 py-1 text-slate-700 hover:border-primary/40 hover:text-primary transition-colors"
                       >
                         <span
                           className="h-1.5 w-1.5 rounded-full"
@@ -365,33 +396,44 @@ export function PanelAsk({
             )}
 
           {result.status === "completed" && suggestedPaths[0] && (
-            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
-              <p className="text-[10px] font-medium text-primary">Next: Learn</p>
-              <p className="text-sm font-semibold">{suggestedPaths[0]!.title}</p>
+            <div className="rounded-2xl border border-primary/25 bg-[#E6F4EC]/50 p-4">
+              <p className="text-[11px] font-semibold text-primary inline-flex items-center gap-1">
+                <Route className="h-3.5 w-3.5" />
+                Next: Learn
+              </p>
+              <p className="text-sm font-semibold text-slate-900 mt-0.5">
+                {suggestedPaths[0]!.title}
+              </p>
               <button
                 type="button"
                 onClick={() => onOpenGuide?.()}
-                className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary"
+                className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-slate-900 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-900 hover:bg-slate-50 transition-colors"
               >
-                <Route className="h-3 w-3" />
+                <Route className="h-3 w-3 text-primary" />
                 Open Guide
               </button>
             </div>
           )}
 
           {result.status === "completed" && relatedSkillPath && (
-            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
-              <p className="text-[10px] font-medium text-primary">Skill Path</p>
-              <p className="text-sm font-semibold">{relatedSkillPath.title}</p>
-              <p className="text-xs text-muted-foreground mt-1">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+              <p className="text-[11px] font-semibold text-primary inline-flex items-center gap-1">
+                <GraduationCap className="h-3.5 w-3.5" />
+                Skill Path
+              </p>
+              <p className="text-sm font-semibold text-slate-900 mt-0.5">
+                {relatedSkillPath.title}
+              </p>
+              <p className="text-xs text-slate-600 mt-1">
                 {relatedSkillPath.goal}
               </p>
               <button
                 type="button"
                 onClick={() => onOpenSkillPath?.(relatedSkillPath.id)}
-                className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
               >
                 Open full path
+                <GraduationCap className="h-3.5 w-3.5" />
                 <ArrowRight className="h-3 w-3" />
               </button>
             </div>

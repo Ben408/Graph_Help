@@ -54,20 +54,20 @@ function SearchPageInner() {
         </p>
 
         <div className="relative mb-8">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Close AP, dimensions, period close, 2026 R3…"
-            className="w-full h-11 rounded-lg border border-border bg-card pl-10 pr-10 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="w-full h-11 rounded-full border border-border bg-card shadow-sm pl-11 pr-10 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Search answers, tasks, concepts, paths, and updates"
           />
           {query ? (
             <button
               type="button"
               onClick={() => setQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring rounded"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring rounded-full"
               aria-label="Clear search"
             >
               <X className="h-4 w-4" />
@@ -83,13 +83,13 @@ function SearchPageInner() {
           <Section title="Answers">
             <Link
               href={`/ask?q=${encodeURIComponent(query)}`}
-              className="flex items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4 hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex items-center justify-between gap-3 rounded-2xl border border-primary/25 bg-primary/5 p-5 hover:bg-primary/10 transition-colors focus-visible:ring-2 focus-visible:ring-ring"
             >
               <div>
-                <p className="text-sm font-medium text-foreground">Get a cited how-to from Help</p>
+                <p className="text-sm font-semibold text-foreground">Get a cited how-to from Help</p>
                 <p className="text-sm text-muted-foreground mt-1">Ask will retrieve a procedure or say when coverage is thin.</p>
               </div>
-              <span className="inline-flex items-center gap-1 text-sm font-medium text-primary shrink-0">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground shrink-0">
                 Ask <ArrowRight className="h-3.5 w-3.5" />
               </span>
             </Link>

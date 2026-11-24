@@ -22,10 +22,10 @@ export function SiteHeader() {
   const pack = getActivePack();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-xl">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:z-[60] focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:text-primary-foreground"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:z-[60] focus:rounded-full focus:bg-primary focus:px-3.5 py-2 focus:text-sm focus:text-primary-foreground"
       >
         Skip to content
       </a>
@@ -56,10 +56,10 @@ export function SiteHeader() {
               <Link
                 key={item.href}
                 href={withPackQuery(item.href, pack.id)}
-                className={`px-3 py-1.5 rounded-md text-sm transition-colors inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-ring ${
+                className={`px-3.5 py-1.5 rounded-full text-sm transition-colors inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-ring ${
                   active
-                    ? "text-foreground font-medium bg-secondary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                    ? "text-primary font-semibold bg-primary/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/70"
                 }`}
               >
                 <Icon className="h-3.5 w-3.5 hidden sm:block" />
@@ -80,7 +80,7 @@ export function SiteHeader() {
         <button
           type="button"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
           aria-label="Toggle theme"
         >
           <Sun className="h-4 w-4 hidden dark:block" />
