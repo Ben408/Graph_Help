@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type ClipboardEvent } from "react";
-import { Bug, Loader2 } from "lucide-react";
+import { useRef, useState, type ClipboardEvent, type PointerEvent } from "react";
+import { Bug, GripHorizontal, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -24,13 +24,50 @@ export function PanelReportBugButton({
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [filedKey, setFiledKey] = useState<string | null>(null);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const dragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+  } | null>(null);
 
   function openReporter() {
     setSubmitError(null);
     setFiledKey(null);
     setDescription("");
     setScreenshot(null);
+    setOffset({ x: 0, y: 0 });
     setOpen(true);
+  }
+
+  function onDragStart(event: PointerEvent<HTMLDivElement>) {
+    if (event.button !== 0) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: offset.x,
+      originY: offset.y,
+    };
+  }
+
+  function onDragMove(event: PointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const maxX = Math.max(120, Math.floor(window.innerWidth * 0.45));
+    const maxY = Math.max(120, Math.floor(window.innerHeight * 0.45));
+    const nextX = Math.max(-maxX, Math.min(maxX, drag.originX + (event.clientX - drag.startX)));
+    const nextY = Math.max(-maxY, Math.min(maxY, drag.originY + (event.clientY - drag.startY)));
+    setOffset({ x: nextX, y: nextY });
+  }
+
+  function onDragEnd(event: PointerEvent<HTMLDivElement>) {
+    if (dragRef.current?.pointerId === event.pointerId) {
+      dragRef.current = null;
+    }
   }
 
   async function applyImageFile(file: File | null) {
@@ -104,13 +141,27 @@ export function PanelReportBugButton({
         <DialogContent
           data-report-bug-ui
           className="max-w-md max-h-[90vh] overflow-y-auto"
+          style={{
+            transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px))`,
+          }}
           onPaste={onPaste}
         >
-          <DialogHeader>
-            <DialogTitle>Report a bug</DialogTitle>
+          <DialogHeader
+            onPointerDown={onDragStart}
+            onPointerMove={onDragMove}
+            onPointerUp={onDragEnd}
+            onPointerCancel={onDragEnd}
+            className="cursor-grab active:cursor-grabbing select-none pr-6"
+            title="Drag to move out of the way"
+          >
+            <DialogTitle className="flex items-center gap-1.5">
+              <GripHorizontal className="h-4 w-4 text-muted-foreground shrink-0" />
+              Report a bug
+            </DialogTitle>
             <DialogDescription>
-              Files to the pilot Jira backlog. Screenshots may include company
-              data visible on screen.
+              Drag this header to move the dialog out of the way. Files to the
+              pilot Jira backlog — screenshots may include company data visible
+              on screen.
             </DialogDescription>
           </DialogHeader>
 
